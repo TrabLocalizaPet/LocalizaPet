@@ -73,3 +73,29 @@ export function IconePata(props: Props) {
     </svg>
   );
 }
+
+/**
+ * `arrow-left` — no 1:826, o botao de voltar das telas de Login.
+ *
+ * Desenhado com as proporcoes do quadro de 24x24 do desenho. E o unico icone
+ * aqui que nao veio do export: o no e uma instancia de componente e a
+ * exportacao exigiria uma chamada a mais ao Figma, que esta no limite. Se
+ * divergir, substituir pelo asset.
+ */
+export function SetaVoltar(props: Props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M19 12H5" />
+      <path d="m12 19-7-7 7-7" />
+    </svg>
+  );
+}

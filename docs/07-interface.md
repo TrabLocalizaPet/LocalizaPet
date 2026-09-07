@@ -151,6 +151,12 @@ Registradas para não parecerem esquecimento:
 | Espécie **Ave** | fora, por decisão do grupo |
 | Cadastro em vários passos | hoje formulário único |
 | Mapa do Google no detalhe | Leaflet + OSM, por DT-04 |
+| Formas laranja de fundo nas telas de Login | falta exportar do Figma |
+
+**Alvo de toque.** Botão e entrada têm **40 px** no desenho, abaixo dos 44 px
+que os guias de acessibilidade recomendam para alvo de toque. O desenho
+manda, e a diferença fica registrada: se o grupo quiser priorizar o toque, é
+uma decisão a tomar no Figma primeiro, não no código.
 
 ---
 

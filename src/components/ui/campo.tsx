@@ -10,8 +10,8 @@ import { classes } from "./classes";
  */
 
 const ENTRADA =
-  "w-full min-h-11 rounded-[--radius-padrao] border border-borda bg-cartao " +
-  "px-3.5 py-3 text-base text-texto " +
+  "w-full min-h-10 rounded-[--radius-padrao] border border-borda bg-cartao " +
+  "px-3.5 py-2 text-base text-texto " +
   "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primaria " +
   "focus-visible:border-primaria";
 

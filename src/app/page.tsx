@@ -63,14 +63,13 @@ export default async function BoasVindas() {
 
         {/* 326 de 390 = 84%; os botoes ficam colados no rodape do desenho. */}
         <div className="mt-auto grid w-full gap-3.5 pb-6">
-          <BotaoLink href="/entrar" largo className="min-h-10 py-2">
+          <BotaoLink href="/entrar" largo>
             Login
           </BotaoLink>
           <BotaoLink
             href="/cadastro"
             aparencia="secundaria"
             largo
-            className="min-h-10 py-2"
           >
             Cadastro
           </BotaoLink>

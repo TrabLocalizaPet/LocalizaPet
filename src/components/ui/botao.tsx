@@ -10,8 +10,9 @@ import { classes } from "./classes";
  * secundaria de contorno, e a circular grande que aparece sobreposta a foto
  * na tela de detalhe.
  *
- * `min-h-11` em toda variante: 44 px e o alvo de toque minimo confortavel, e
- * o produto e usado no celular, na rua.
+ * Altura de **40 px**, que e a do `Button` no Figma (326x40). Fica abaixo dos
+ * 44 px que os guias de acessibilidade recomendam como alvo de toque; o
+ * desenho manda aqui, e a diferenca esta anotada no docs/07-interface.md.
  */
 
 type Aparencia = "primaria" | "secundaria" | "fantasma";
@@ -24,7 +25,7 @@ const APARENCIA: Record<Aparencia, string> = {
 };
 
 const TAMANHO: Record<Tamanho, string> = {
-  normal: "min-h-11 rounded-[--radius-padrao] px-4 py-3 text-base font-semibold",
+  normal: "min-h-10 rounded-[--radius-padrao] px-4 py-2 text-base font-semibold",
   circular: "size-14 rounded-full text-2xl",
 };
 
