@@ -8,6 +8,22 @@
 
 export type Papel = "usuario" | "admin";
 
+/**
+ * Resposta de "O que te trouxe aqui?", perguntada uma vez no fim do cadastro.
+ *
+ * E **preferencia**, nao papel: a mesma pessoa que chegou dizendo
+ * "quero adotar" publica um perdido no mes seguinte. Os papeis de anuncio
+ * continuam situacionais (RN-01), e isto nao os limita.
+ *
+ * `quero_adotar` nao tem par em `animais.tipo_anuncio` de proposito — adotar
+ * e navegar, nao publicar.
+ */
+export type Intencao =
+  | "perdi_pet"
+  | "achei_pet"
+  | "quero_adotar"
+  | "quero_doar";
+
 /** O perfil inteiro. So o proprio dono ve isto. */
 export type Perfil = {
   id: string;
@@ -16,6 +32,8 @@ export type Perfil = {
   telefone: string | null;
   telefone_publico: boolean;
   papel: Papel;
+  data_nascimento: string | null;
+  intencao: Intencao | null;
   criado_em: Date;
 };
 
@@ -37,4 +55,12 @@ export type EdicaoDePerfil = {
   nome: string;
   telefone: string | null;
   telefone_publico: boolean;
+};
+
+/** O que o cadastro passo a passo coleta antes de criar o perfil. */
+export type CadastroDePerfil = {
+  nome: string;
+  telefone: string | null;
+  /** ISO `AAAA-MM-DD`. `null` quando a pessoa pula a pergunta. */
+  data_nascimento: string | null;
 };

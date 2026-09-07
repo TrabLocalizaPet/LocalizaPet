@@ -125,7 +125,7 @@ repetição observada nas telas.
 
 | Tela | Estado |
 |---|---|
-| Splash | não implementada |
+| Splash | `/` enquanto decide o destino |
 | **Boas-vindas** (Login/Cadastro/Entrar sem cadastro) | **`/`** |
 | Login | `/entrar` |
 | Cadastro de usuário, passo a passo | `/cadastro`, hoje em formulário único |
@@ -147,9 +147,9 @@ Registradas para não parecerem esquecimento:
 | Rastro de avistamentos | F-13, incremento 3 |
 | Barra de mensagens na navegação | fora do escopo (DT-05) |
 | Campo de **raça** | sem coluna no schema; decisão do grupo |
-| **Data de nascimento** no cadastro | sem coluna no schema; decisão do grupo |
+| **Data de nascimento** no cadastro | ✅ coluna criada na `002_` |
 | Espécie **Ave** | fora, por decisão do grupo |
-| Cadastro em vários passos | hoje formulário único |
+| Cadastro em vários passos | ✅ passo a passo, como no desenho |
 | Mapa do Google no detalhe | Leaflet + OSM, por DT-04 |
 | Formas laranja de fundo nas telas de Login | falta exportar do Figma |
 

@@ -28,6 +28,8 @@ erDiagram
         text telefone
         boolean telefone_publico
         text papel "usuario|admin"
+        date data_nascimento "nulo permitido"
+        text intencao "perdi_pet|achei_pet|quero_adotar|quero_doar"
         timestamptz criado_em
     }
 
@@ -186,6 +188,22 @@ Uma tabela `papeis` com N-N seria estrutura para um problema que não temos.
 
 `DEFAULT 'usuario'` mantém o cadastro comum como caminho natural: ninguém
 vira administrador por omissão.
+
+### `perfis.data_nascimento` e `perfis.intencao` (002_)
+
+Duas colunas que o fluxo de cadastro do Figma pede e o `001` não tinha.
+Ambas nascem `NULL`: os perfis criados antes da migration não as têm, e
+exigir valor quebraria quem já entrou.
+
+`data_nascimento` é `DATE`, não `TIMESTAMPTZ` — data de nascimento não tem
+hora nem fuso, e guardar com fuso faria a data mudar conforme onde a pessoa
+abre o aplicativo.
+
+`intencao` é **preferência de quem se cadastrou**, não papel e não tipo de
+anúncio. A mesma pessoa que chegou dizendo "quero adotar" publica um perdido
+no mês seguinte: os papéis de anúncio continuam situacionais (RN-01), e esta
+coluna não os limita. `quero_adotar` não tem par em `animais.tipo_anuncio` de
+propósito — adotar é navegar, não publicar.
 
 ### `perfis.id` sem chave estrangeira para `auth.users`
 

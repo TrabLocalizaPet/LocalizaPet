@@ -1,5 +1,10 @@
 import { consultar } from "@/lib/db";
-import type { EdicaoDePerfil, Perfil, PerfilPublico } from "@/types/perfil";
+import type {
+  EdicaoDePerfil,
+  Intencao,
+  Perfil,
+  PerfilPublico,
+} from "@/types/perfil";
 
 /**
  * Consultas de perfil (RF-19, RF-20, RF-21).
@@ -12,7 +17,8 @@ import type { EdicaoDePerfil, Perfil, PerfilPublico } from "@/types/perfil";
  */
 
 const COLUNAS = `
-  id, nome, email, telefone, telefone_publico, papel, criado_em
+  id, nome, email, telefone, telefone_publico, papel,
+  data_nascimento, intencao, criado_em
 `;
 
 /**
@@ -31,13 +37,14 @@ export async function garantir_perfil(dados: {
   nome: string;
   email: string;
   telefone: string | null;
+  data_nascimento?: string | null;
 }): Promise<Perfil> {
   const criados = await consultar<Perfil>(
-    `INSERT INTO perfis (id, nome, email, telefone)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO perfis (id, nome, email, telefone, data_nascimento)
+     VALUES ($1, $2, $3, $4, $5)
      ON CONFLICT (id) DO NOTHING
      RETURNING ${COLUNAS}`,
-    [dados.id, dados.nome, dados.email, dados.telefone],
+    [dados.id, dados.nome, dados.email, dados.telefone, dados.data_nascimento ?? null],
   );
 
   if (criados.length > 0) return criados[0];
@@ -76,6 +83,24 @@ export async function buscar_perfil_publico(
        FROM perfis
       WHERE id = $1`,
     [id],
+  );
+  return linhas[0] ?? null;
+}
+
+/**
+ * Grava a resposta de "O que te trouxe aqui?".
+ *
+ * Separada de `atualizar_perfil` porque e outro momento: aquela e a edicao da
+ * conta, esta e o ultimo passo do cadastro. Juntar as duas obrigaria a tela
+ * de onboarding a reenviar nome e telefone so para nao apaga-los.
+ */
+export async function registrar_intencao(
+  id: string,
+  intencao: Intencao,
+): Promise<Perfil | null> {
+  const linhas = await consultar<Perfil>(
+    `UPDATE perfis SET intencao = $2 WHERE id = $1 RETURNING ${COLUNAS}`,
+    [id, intencao],
   );
   return linhas[0] ?? null;
 }
