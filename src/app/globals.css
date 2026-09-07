@@ -8,6 +8,12 @@
   --ok: #2e7d32;
   --erro: #c62828;
   --cartao: #ffffff;
+
+  /* Marca, do arquivo do Figma. */
+  --marca: #f68b1e;
+  --marca-texto: #ffffff;
+  --marca-escura: #332430;
+  --raio: 8px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,7 +37,7 @@ body {
   padding: 0;
   background: var(--fundo);
   color: var(--texto);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--fonte-corpo), system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height: 1.5;
 }
 
@@ -107,4 +113,132 @@ body {
   margin-top: 2rem;
   color: var(--suave);
   font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   Formularios de conta (F-03)
+   -------------------------------------------------------------------------- */
+
+.conta {
+  max-width: 24rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem;
+}
+
+.conta h1 {
+  font-family: var(--fonte-titulo), system-ui, sans-serif;
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem;
+}
+
+.conta .apoio {
+  color: var(--suave);
+  margin: 0 0 1.75rem;
+  font-size: 0.95rem;
+}
+
+.campo {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.campo > span {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.campo input[type="text"],
+.campo input[type="email"],
+.campo input[type="tel"],
+.campo input[type="password"] {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  font: inherit;
+  color: var(--texto);
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+.campo input:focus-visible {
+  outline: 2px solid var(--marca);
+  outline-offset: 1px;
+  border-color: var(--marca);
+}
+
+/* Interruptor do telefone_publico (RF-20). Caixa de marcar comum: o rotulo
+   ao lado explica a consequencia, que e o que a pessoa precisa entender. */
+.interruptor {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin: 1.25rem 0;
+}
+
+.interruptor input {
+  margin-top: 0.2rem;
+  accent-color: var(--marca);
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.interruptor .explica {
+  display: block;
+  color: var(--suave);
+  font-size: 0.85rem;
+}
+
+.botao {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--marca-texto);
+  background: var(--marca);
+  border: 1px solid transparent;
+  border-radius: var(--raio);
+  cursor: pointer;
+}
+
+.botao:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+
+.botao:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.botao.secundario {
+  color: var(--texto);
+  background: transparent;
+  border-color: var(--borda);
+}
+
+.alternativa {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--suave);
+}
+
+.alternativa a {
+  color: var(--marca);
+  font-weight: 600;
+}
+
+.aviso {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--erro);
+  border-radius: var(--raio);
+  background: var(--cartao);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.aviso.bom {
+  border-left-color: var(--ok);
 }
