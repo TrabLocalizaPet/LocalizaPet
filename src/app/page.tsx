@@ -9,55 +9,74 @@ import { usuario_atual } from "@/lib/auth";
 /**
  * Boas-vindas — a tela "Login" do Figma (no 1:600).
  *
- * E a porta do produto, e existe para **dar a escolha antes de exigir
- * qualquer coisa**: entrar, criar conta, ou seguir sem cadastro.
+ * As medidas sao as do desenho, sobre o quadro de 390x844, convertidas para
+ * porcentagem da altura para acompanharem telas de outro tamanho:
  *
- * O "Entrar sem cadastro" nao e cortesia: e a porta visivel do RF-22, que e
- * obrigatorio. Antes desta tela o requisito estava cumprido na API e
- * invisivel na interface — ninguem descobria que dava para navegar sem
- * conta.
+ *   foto      586x752 a partir de (-196, -235) — sangra em cima e nos lados
+ *   degrade   390x172 em y=346
+ *   marca     186x88  em y=452
+ *   titulo    320x56  em y=556
+ *   Login     326x40  em y=644
+ *   Cadastro  326x40  em y=700
+ *   link      137x32  em y=756
  *
- * Quem ja tem sessao nao precisa escolher nada, e vai direto para a
- * listagem.
+ * Os botoes tem **40 px de altura no desenho**, e nao os 44 do resto do
+ * aplicativo. Seguimos o desenho aqui; a diferenca esta anotada no
+ * docs/07-interface.md.
+ *
+ * A tela existe para **dar a escolha antes de exigir qualquer coisa**:
+ * entrar, criar conta, ou seguir sem cadastro. O "Entrar sem cadastro" e a
+ * porta visivel do RF-22, que e obrigatorio — sem ela, ninguem descobre que
+ * da para navegar sem conta.
  */
 export default async function BoasVindas() {
   if (await usuario_atual()) redirect("/animais");
 
   return (
-    <main className="flex min-h-dvh flex-col">
-      {/* Foto sangrada com o degrade para o branco, como no desenho. */}
-      <div className="relative flex-1">
+    <main className="relative mx-auto flex h-dvh max-w-md flex-col overflow-hidden">
+      {/* A foto vai de y=0 a y=517 dos 844 do desenho — 61% da altura. O
+          `object-top` reproduz o enquadramento: no Figma ela comeca acima do
+          quadro, entao o que se ve e o topo. */}
+      <div className="relative h-[61%] shrink-0">
         <Image
           src="/marca/boas-vindas.jpg"
           alt=""
           fill
           priority
+          sizes="28rem"
           className="object-cover object-top"
         />
-        <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/20 to-white" />
+        {/* O `Rectangle 208` do desenho: o degrade que funde a foto no branco,
+            de y=346 a y=518. */}
+        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-linear-to-b from-transparent to-white" />
       </div>
 
-      <div className="-mt-16 flex flex-col items-center gap-5 px-6 pb-10">
-        <MarcaComNome largura={168} />
+      <div className="flex flex-1 flex-col items-center px-8">
+        {/* 186 de 390 = 48% da largura, em y=452 (logo abaixo da foto). */}
+        <MarcaComNome largura={186} className="-mt-8 w-[48%]" />
 
-        {/* O rosa e o `theme/secondary` do Figma, usado aqui e no botao de
-            curtir — os dois momentos afetivos do produto. */}
-        <h1 className="text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
+        <h1 className="mt-3 text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
           Conecte coracoes.
           <br />
           Reencontre historias.
         </h1>
 
-        <div className="grid w-full max-w-sm gap-3">
-          <BotaoLink href="/entrar" largo>
+        {/* 326 de 390 = 84%; os botoes ficam colados no rodape do desenho. */}
+        <div className="mt-auto grid w-full gap-3.5 pb-6">
+          <BotaoLink href="/entrar" largo className="min-h-10 py-2">
             Login
           </BotaoLink>
-          <BotaoLink href="/cadastro" aparencia="secundaria" largo>
+          <BotaoLink
+            href="/cadastro"
+            aparencia="secundaria"
+            largo
+            className="min-h-10 py-2"
+          >
             Cadastro
           </BotaoLink>
           <Link
             href="/animais"
-            className="py-2 text-center text-sm font-semibold text-primaria"
+            className="py-1 text-center text-sm font-semibold text-primaria"
           >
             Entrar sem cadastro
           </Link>
