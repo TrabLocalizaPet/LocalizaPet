@@ -296,16 +296,23 @@ export default function Cadastro() {
     <Casca>
       <Topo aoVoltar={voltar} />
 
-      <div className="flex flex-1 flex-col px-8">
-        <h1 className="text-center font-titulo text-xl leading-snug font-semibold">
+      {/* Posicoes do desenho, em proporcao da altura da tela: titulo em
+          y=92 de 844, campo em y=260, botao em y=477. Somando a seta (56) com
+          4dvh, 16.5dvh e 16.5dvh, os tres caem em 90, 258 e 476 numa tela de
+          844 — dentro de 2 px do desenho, e proporcional em telas de outra
+          altura.
+
+          Em `dvh` e nao em `%` porque margem em porcentagem no CSS se mede
+          pela **largura** do bloco, nao pela altura: com `%` tudo ficaria
+          amontoado no topo. */}
+      <div className="flex flex-col px-8">
+        <h1 className="mt-[4dvh] text-center font-titulo text-xl leading-snug font-semibold">
           {PERGUNTAS.titulo}
         </h1>
 
         {erro && <Aviso>{erro}</Aviso>}
 
-        {/* y=260 num quadro de 844: o campo fica no primeiro terco, acima de
-            onde o teclado sobe no celular. */}
-        <div className="mt-24 flex justify-center">
+        <div className="mt-[16.5dvh] flex justify-center">
           {passo === "nome" && (
             <CampoDeLinha
               apoio={PERGUNTAS.apoio}
@@ -392,7 +399,9 @@ export default function Cadastro() {
         </div>
       </div>
 
-      <Rodape>
+      {/* Botao em y=477 de 844 — 57% da altura, nao colado no rodape. No
+          celular e onde ele fica logo acima do teclado. */}
+      <div className="mt-[16.5dvh] px-8">
         <Botao
           largo
           disabled={!PERGUNTAS.pronto || enviando}
@@ -409,7 +418,7 @@ export default function Cadastro() {
             </Link>
           </p>
         )}
-      </Rodape>
+      </div>
     </Casca>
   );
 }
@@ -440,9 +449,15 @@ function Topo({ aoVoltar, rotulo = "Voltar" }: { aoVoltar: () => void; rotulo?: 
   );
 }
 
-/** Botao colado no rodape, como nas telas do desenho. */
+/**
+ * Rodape das telas de abertura e sucesso.
+ *
+ * O botao delas fica em y=625 de 844 no desenho, o que deixa 21% de tela
+ * abaixo — nao esta colado no rodape. Daí o `pb-[21dvh]` em vez de um
+ * espacamento fixo.
+ */
 function Rodape({ children }: { children: React.ReactNode }) {
-  return <div className="mt-auto px-8 pt-6 pb-10">{children}</div>;
+  return <div className="mt-auto px-8 pt-6 pb-[21dvh]">{children}</div>;
 }
 
 /**
