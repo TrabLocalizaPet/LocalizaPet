@@ -242,3 +242,95 @@ body {
 .aviso.bom {
   border-left-color: var(--ok);
 }
+
+/* --------------------------------------------------------------------------
+   Mapa (F-05)
+   -------------------------------------------------------------------------- */
+
+.tela-do-mapa {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.cabecalho-do-mapa h1 {
+  font-family: var(--fonte-titulo), system-ui, sans-serif;
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem;
+}
+
+.mapa {
+  height: 65vh;
+  min-height: 20rem;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  /* O Leaflet desenha os tiles fora do fluxo; sem isto eles vazam do canto
+     arredondado. */
+  overflow: hidden;
+}
+
+.mapa.carregando {
+  display: grid;
+  place-items: center;
+  color: var(--suave);
+  background: var(--cartao);
+}
+
+.controles-do-mapa {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.controles-do-mapa .botao {
+  width: auto;
+  justify-self: start;
+}
+
+/* Pino do mapa. Cor por tipo de anuncio, com a inicial junto — cor sozinha
+   nao distingue "perdido" de "adocao" para quem nao ve vermelho e verde. */
+.pino {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+}
+
+.pino.alvo {
+  background: var(--marca-escura);
+}
+
+.legenda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--suave);
+}
+
+.legenda li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.coordenada {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.coordenada code {
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+}
