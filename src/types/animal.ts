@@ -28,6 +28,8 @@ export type AnimalNoMapa = {
   lat: number;
   lng: number;
   visto_em: Date;
+  /** Foto de capa (RNF-05). `null` enquanto o anuncio nao tiver nenhuma. */
+  foto_url: string | null;
 };
 
 /**
@@ -50,6 +52,8 @@ export type AnimalNaLista = {
   lat: number | null;
   lng: number | null;
   endereco_texto: string | null;
+  /** Foto de capa: a de menor `ordem` (RNF-05). */
+  foto_url: string | null;
 };
 
 /**
@@ -68,6 +72,8 @@ export type AnimalEmDetalhe = AnimalNaLista & {
   autor_nome: string;
   autor_telefone: string | null;
   visto_em: Date | null;
+  /** Todas as fotos, em ordem. A tela de detalhe mostra a galeria. */
+  fotos: string[];
 };
 
 /**
@@ -89,4 +95,6 @@ export type NovoAnuncio = {
   idade_meses: number | null;
   descricao: string | null;
   local: { lat: number; lng: number } | null;
+  /** Chaves ja enviadas ao R2 pelo navegador. No maximo 6 (RN-06). */
+  fotos: string[];
 };

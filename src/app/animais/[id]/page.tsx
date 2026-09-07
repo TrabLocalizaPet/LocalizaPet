@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -77,15 +78,46 @@ export default function Detalhe() {
         &larr; Todos os anuncios
       </Link>
 
-      {/* Espaco da foto (F-09), na proporcao do Figma. */}
+      {/* Foto de capa, na proporcao do Figma. */}
       <div className="relative mt-3 flex aspect-[326/230] items-center justify-center overflow-hidden rounded-[--radius-padrao] bg-primaria/15">
-        <span aria-hidden="true" className="font-titulo text-7xl text-primaria/70">
-          {(animal.nome ?? "?").charAt(0).toUpperCase()}
-        </span>
+        {animal.foto_url ? (
+          <Image
+            src={animal.foto_url}
+            alt={animal.nome ?? "Animal sem nome"}
+            fill
+            sizes="(min-width: 768px) 42rem, 100vw"
+            priority
+            className="object-cover"
+          />
+        ) : (
+          <span aria-hidden="true" className="font-titulo text-7xl text-primaria/70">
+            {(animal.nome ?? "?").charAt(0).toUpperCase()}
+          </span>
+        )}
         <span className="absolute top-3 left-3">
           <EtiquetaDeTipo tipo={animal.tipo_anuncio} />
         </span>
       </div>
+
+      {/* As demais fotos. A capa ja apareceu acima. */}
+      {animal.fotos.length > 1 && (
+        <ul className="mt-2 grid grid-cols-4 gap-2">
+          {animal.fotos.slice(1).map((url, indice) => (
+            <li
+              key={url}
+              className="relative aspect-square overflow-hidden rounded-[--radius-padrao] border border-borda"
+            >
+              <Image
+                src={url}
+                alt={`Foto ${indice + 2} de ${animal.nome ?? "animal sem nome"}`}
+                fill
+                sizes="8rem"
+                className="object-cover"
+              />
+            </li>
+          ))}
+        </ul>
+      )}
 
       <div className="mt-4">
         <Titulo>
@@ -153,6 +185,7 @@ export default function Detalhe() {
                   lat: animal.lat!,
                   lng: animal.lng!,
                   visto_em: animal.visto_em ?? animal.criado_em,
+                  foto_url: animal.foto_url,
                 },
               ]}
               centro={[animal.lat!, animal.lng!]}

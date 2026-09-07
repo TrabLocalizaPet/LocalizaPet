@@ -142,7 +142,7 @@ Registradas para não parecerem esquecimento:
 
 | O Figma pede | Situação |
 |---|---|
-| Fotos dos animais | F-09, incremento 2 |
+| Fotos dos animais | ✅ F-09, promovida ao MVP |
 | Etiquetas de características | F-10, incremento 2 |
 | Rastro de avistamentos | F-13, incremento 3 |
 | Barra de mensagens na navegação | fora do escopo (DT-05) |

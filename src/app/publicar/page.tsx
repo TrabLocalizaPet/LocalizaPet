@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { SeletorDeFotos } from "@/components/seletor-de-fotos";
 import { Botao } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
@@ -63,6 +64,7 @@ export default function Publicar() {
   const [meses, definir_meses] = useState("");
   const [descricao, definir_descricao] = useState("");
   const [local, definir_local] = useState<[number, number] | null>(null);
+  const [fotos, definir_fotos] = useState<{ chave: string; previa: string }[]>([]);
   const [erro, definir_erro] = useState<string | null>(null);
   const [enviando, definir_enviando] = useState(false);
 
@@ -108,6 +110,9 @@ export default function Publicar() {
         idade_meses: idade_em_meses(),
         descricao: descricao || null,
         local: local ? { lat: local[0], lng: local[1] } : null,
+        // So as chaves: os arquivos ja estao no R2, enviados direto pelo
+        // navegador. A ordem define a capa.
+        fotos: fotos.map((f) => f.chave),
       }),
     });
 
@@ -240,6 +245,8 @@ export default function Publicar() {
             onChange={(e) => definir_meses(e.target.value)}
           />
         </div>
+
+        <SeletorDeFotos fotos={fotos} ao_mudar={definir_fotos} />
 
         <CampoLongo
           rotulo="Descricao"

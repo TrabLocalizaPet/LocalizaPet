@@ -49,6 +49,13 @@ const NovoAnuncio = z
       .transform((v) => v ?? null),
     descricao: texto_opcional(2000),
     local: Coordenada.nullish().transform((v) => v ?? null),
+    // RN-06. A regra e de formulario, nao de schema: contar linhas no banco
+    // exigiria trigger. As chaves ja foram enviadas ao R2 pelo navegador
+    // (RNF-10); aqui so viram linhas em `fotos`.
+    fotos: z
+      .array(z.string().min(1).max(200))
+      .max(6, "no maximo 6 fotos")
+      .default([]),
   })
   // RN-03: perdido e encontrado exigem local. Sem coordenada o anuncio nao
   // aparece em nenhuma busca por regiao, que e a funcao central do produto.
