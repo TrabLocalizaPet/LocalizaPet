@@ -26,6 +26,10 @@ import type { Intencao } from "@/types/perfil";
  *
  * A intencao ("O que te trouxe aqui?") vem depois do sucesso, e e gravada
  * pelo PUT — e o ultimo passo, nao parte do cadastro em si.
+ *
+ * **O grafismo do fundo aparece so na abertura e na tela de sucesso.** As
+ * telas de pergunta e a de intencao sao brancas: elas tem uma pergunta so no
+ * meio do vazio, e a mancha competiria com ela.
  */
 
 type Passo =
@@ -206,8 +210,7 @@ export default function Cadastro() {
   if (passo === "intencao") {
     return (
       <Casca>
-          <FormasDeFundo />
-        <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
+          <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
         <div className="flex flex-1 flex-col px-8">
           <h1 className="text-center font-titulo text-xl font-semibold">
             O que te trouxe aqui?
@@ -291,7 +294,6 @@ export default function Cadastro() {
 
   return (
     <Casca>
-      <FormasDeFundo />
       <Topo aoVoltar={voltar} />
 
       <div className="flex flex-1 flex-col px-8">
