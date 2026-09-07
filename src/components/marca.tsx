@@ -28,14 +28,26 @@ export function Marca({
   );
 }
 
-/** Marca com o nome ao lado, para o cabecalho do desktop. */
-export function MarcaComNome({ className }: { className?: string }) {
+/**
+ * Marca com o nome, tambem exportada do Figma — e um desenho unico, com o
+ * cachorro, o coracao e a tipografia proprios. Escrever "LocalizaPet" em
+ * texto ao lado do simbolo seria recriar a marca a mao.
+ */
+export function MarcaComNome({
+  largura = 132,
+  className,
+}: {
+  largura?: number;
+  className?: string;
+}) {
   return (
-    <span className={classes("flex items-center gap-2", className)}>
-      <Marca tamanho={32} />
-      <span className="font-titulo text-base text-escura">
-        Localiza<span className="text-primaria">Pet</span>
-      </span>
-    </span>
+    <Image
+      src="/marca/logo-com-nome.png"
+      alt="LocalizaPet"
+      width={largura}
+      height={Math.round((largura * 666) / 1407)}
+      className={classes("shrink-0", className)}
+      priority
+    />
   );
 }

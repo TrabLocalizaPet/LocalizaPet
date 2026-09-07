@@ -61,7 +61,7 @@ export default function Detalhe() {
       <Tela largura="estreita">
         <Titulo>Anuncio nao encontrado</Titulo>
         <Apoio>
-          <Link href="/" className="font-semibold text-primaria">
+          <Link href="/animais" className="font-semibold text-primaria">
             Voltar para a listagem
           </Link>
         </Apoio>
@@ -73,7 +73,7 @@ export default function Detalhe() {
 
   return (
     <Tela className="max-w-2xl">
-      <Link href="/" className="text-sm font-semibold text-primaria">
+      <Link href="/animais" className="text-sm font-semibold text-primaria">
         &larr; Todos os anuncios
       </Link>
 

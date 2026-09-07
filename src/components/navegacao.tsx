@@ -36,7 +36,7 @@ type Destino = {
 };
 
 const ANTES: Destino[] = [
-  { href: "/", rotulo: "Inicio", Icone: IconeInicio },
+  { href: "/animais", rotulo: "Inicio", Icone: IconeInicio },
   { href: "/mapa", rotulo: "Buscar", Icone: IconeBuscar },
 ];
 
@@ -45,7 +45,7 @@ const DEPOIS: Destino[] = [
 ];
 
 function estaAtivo(caminho: string, href: string) {
-  return href === "/" ? caminho === "/" : caminho.startsWith(href);
+  return caminho.startsWith(href);
 }
 
 function Aba({ destino, ativo }: { destino: Destino; ativo: boolean }) {
@@ -71,9 +71,13 @@ function Aba({ destino, ativo }: { destino: Destino; ativo: boolean }) {
 export default function Navegacao() {
   const caminho = usePathname();
 
-  // O painel de diagnostico e ferramenta de quem desenvolve, nao tela de
-  // produto. A barra ali confundiria quem usa o app.
-  if (caminho.startsWith("/diagnostico")) return null;
+  // Telas sem barra: a de boas-vindas e as de conta, porque no Figma elas
+  // vem antes de haver aonde navegar, e o painel de diagnostico, que e
+  // ferramenta de quem desenvolve e nao tela de produto.
+  const SEM_BARRA = ["/", "/entrar", "/cadastro", "/diagnostico"];
+  if (SEM_BARRA.some((r) => (r === "/" ? caminho === "/" : caminho.startsWith(r)))) {
+    return null;
+  }
 
   const publicando = caminho.startsWith("/publicar");
 
@@ -86,7 +90,7 @@ export default function Navegacao() {
         "md:sticky md:top-0 md:bottom-auto md:items-center md:gap-6 md:border-t-0 md:border-b md:px-6 md:py-2",
       )}
     >
-      <Link href="/" className="hidden md:block">
+      <Link href="/animais" className="hidden md:block">
         <MarcaComNome />
       </Link>
 

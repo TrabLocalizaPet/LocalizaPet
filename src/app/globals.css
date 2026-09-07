@@ -56,6 +56,19 @@ body {
   font-family: var(--font-corpo);
 }
 
+/* Respiro para a barra fixa do celular — aplicado so quando a barra existe.
+   As telas de boas-vindas, login, cadastro e diagnostico nao a tem, e sem o
+   `:has` elas ganhariam um vao morto no rodape. */
+body:has(nav[aria-label="Navegacao principal"]) {
+  padding-bottom: 6rem;
+}
+
+@media (min-width: 48rem) {
+  body:has(nav[aria-label="Navegacao principal"]) {
+    padding-bottom: 0;
+  }
+}
+
 /* O Leaflet traz o proprio CSS e desenha fora do fluxo. Estes dois ajustes
    sao dele, nao da nossa interface. */
 .leaflet-container {

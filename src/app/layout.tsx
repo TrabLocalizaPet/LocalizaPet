@@ -37,9 +37,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${mitr.variable}`}>
-      {/* O espaco no rodape e da barra fixa do celular; no desktop ela vira
-          cabecalho e o espaco deixa de ser preciso. */}
-      <body className="pb-24 md:pb-0">
+      <body>
         <Navegacao />
         {children}
       </body>

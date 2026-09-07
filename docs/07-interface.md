@@ -29,6 +29,7 @@ Até agora:
 
 | Elemento | Mobile (do Figma) | Desktop (decidido aqui) |
 |---|---|---|
+| Boas-vindas | foto sangrada, ocupa a tela | mesma tela, conteúdo centralizado |
 | Navegação | barra de abas inferior | cabeçalho fixo no topo |
 | Listagem | uma coluna | grade a partir de `48rem` |
 | Largura do conteúdo | 100% | limitada, centralizada |
@@ -87,6 +88,8 @@ Exportados do Figma para `public/`, não recriados à mão.
 |---|---|
 | `public/marca/logo.svg` | logotipo da Splash Screen |
 | `public/marca/logo.png` | mesma marca, para onde SVG não serve |
+| `public/marca/logo-com-nome.png` | marca com a tipografia própria, da tela de boas-vindas |
+| `public/marca/boas-vindas.jpg` | foto de fundo da tela de boas-vindas |
 
 As ilustrações do desenho (`cat-and-dog/rafiki`, `dog-high-five/amico`) são
 da biblioteca **Storyset**, que exige atribuição. Entram quando as telas que
@@ -123,12 +126,13 @@ repetição observada nas telas.
 | Tela | Estado |
 |---|---|
 | Splash | não implementada |
+| **Boas-vindas** (Login/Cadastro/Entrar sem cadastro) | **`/`** |
 | Login | `/entrar` |
 | Cadastro de usuário, passo a passo | `/cadastro`, hoje em formulário único |
 | "O que te trouxe aqui?" | dentro de `/publicar` |
 | Cadastro do pet, passo a passo | `/publicar`, hoje em formulário único |
 | Permissão de localização | não implementada |
-| Home com abas e busca | `/` |
+| Home com abas e busca | `/animais` |
 | Detalhe do pet | `/animais/[id]` |
 | Perfil | `/perfil` |
 

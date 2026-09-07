@@ -1,93 +1,68 @@
-"use client";
-
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 
-import { CartaoDeAnuncio } from "@/components/cartao-de-anuncio";
-import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
-import { classes } from "@/components/ui/classes";
-import type { AnimalNaLista, TipoDeAnuncio } from "@/types/animal";
+import { MarcaComNome } from "@/components/marca";
+import { BotaoLink } from "@/components/ui/botao";
+import { usuario_atual } from "@/lib/auth";
 
 /**
- * Home: listagem de anuncios (RF-09, RF-10).
+ * Boas-vindas — a tela "Login" do Figma (no 1:600).
  *
- * Aberta — RF-22 garante que visitante navegue sem sessao.
+ * E a porta do produto, e existe para **dar a escolha antes de exigir
+ * qualquer coisa**: entrar, criar conta, ou seguir sem cadastro.
  *
- * O Figma tem aqui uma barra de busca e quatro atalhos redondos por tipo. A
- * busca e a F-07; as abas abaixo fazem o papel dos atalhos por enquanto.
+ * O "Entrar sem cadastro" nao e cortesia: e a porta visivel do RF-22, que e
+ * obrigatorio. Antes desta tela o requisito estava cumprido na API e
+ * invisivel na interface — ninguem descobria que dava para navegar sem
+ * conta.
+ *
+ * Quem ja tem sessao nao precisa escolher nada, e vai direto para a
+ * listagem.
  */
-
-const ABAS: { valor: TipoDeAnuncio | null; rotulo: string }[] = [
-  { valor: null, rotulo: "Todos" },
-  { valor: "perdido", rotulo: "Perdidos" },
-  { valor: "encontrado", rotulo: "Encontrados" },
-  { valor: "adocao", rotulo: "Adocao" },
-];
-
-export default function Home() {
-  const [tipo, definir_tipo] = useState<TipoDeAnuncio | null>(null);
-  const [animais, definir_animais] = useState<AnimalNaLista[]>([]);
-  const [carregando, definir_carregando] = useState(true);
-
-  useEffect(() => {
-    definir_carregando(true);
-
-    fetch(`/api/animais${tipo ? `?tipo=${tipo}` : ""}`)
-      .then((r) => r.json())
-      .then(definir_animais)
-      .catch(() => definir_animais([]))
-      .finally(() => definir_carregando(false));
-  }, [tipo]);
+export default async function BoasVindas() {
+  if (await usuario_atual()) redirect("/animais");
 
   return (
-    <Tela>
-      <Titulo>Pets proximos de voce</Titulo>
-      <Apoio>
-        Anuncios ativos, mais recentes primeiro.{" "}
-        <Link href="/mapa" className="text-primaria font-semibold">
-          Ver no mapa
-        </Link>
-      </Apoio>
-
-      {/* Rolagem horizontal no celular: quatro abas nao cabem em 390 px sem
-          apertar o alvo de toque. */}
-      <div className="-mx-5 mt-4 mb-4 flex gap-2 overflow-x-auto px-5 pb-1">
-        {ABAS.map((aba) => (
-          <button
-            key={aba.rotulo}
-            type="button"
-            onClick={() => definir_tipo(aba.valor)}
-            className={classes(
-              "min-h-9 shrink-0 rounded-full border px-4 text-sm transition",
-              aba.valor === tipo
-                ? "border-primaria bg-primaria text-white font-semibold"
-                : "border-borda bg-cartao text-texto hover:border-primaria",
-            )}
-          >
-            {aba.rotulo}
-          </button>
-        ))}
+    <main className="flex min-h-dvh flex-col">
+      {/* Foto sangrada com o degrade para o branco, como no desenho. */}
+      <div className="relative flex-1">
+        <Image
+          src="/marca/boas-vindas.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover object-top"
+        />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/20 to-white" />
       </div>
 
-      {carregando && <Apoio>Carregando...</Apoio>}
+      <div className="-mt-16 flex flex-col items-center gap-5 px-6 pb-10">
+        <MarcaComNome largura={168} />
 
-      {!carregando && animais.length === 0 && (
-        <Aviso>
-          Nenhum anuncio deste tipo por enquanto.{" "}
-          <Link href="/publicar" className="text-primaria font-semibold">
-            Publicar o primeiro
+        {/* O rosa e o `theme/secondary` do Figma, usado aqui e no botao de
+            curtir — os dois momentos afetivos do produto. */}
+        <h1 className="text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
+          Conecte coracoes.
+          <br />
+          Reencontre historias.
+        </h1>
+
+        <div className="grid w-full max-w-sm gap-3">
+          <BotaoLink href="/entrar" largo>
+            Login
+          </BotaoLink>
+          <BotaoLink href="/cadastro" aparencia="secundaria" largo>
+            Cadastro
+          </BotaoLink>
+          <Link
+            href="/animais"
+            className="py-2 text-center text-sm font-semibold text-primaria"
+          >
+            Entrar sem cadastro
           </Link>
-        </Aviso>
-      )}
-
-      {/* Uma coluna no celular, como no Figma; o desktop aproveita a largura. */}
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {animais.map((animal) => (
-          <li key={animal.id}>
-            <CartaoDeAnuncio animal={animal} />
-          </li>
-        ))}
-      </ul>
-    </Tela>
+        </div>
+      </div>
+    </main>
   );
 }
