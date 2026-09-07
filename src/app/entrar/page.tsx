@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { FormasDeFundo } from "@/components/formas-de-fundo";
 import { Botao } from "@/components/ui/botao";
 import { Campo } from "@/components/ui/campo";
 import { CampoDeSenha } from "@/components/ui/campo-de-senha";
@@ -63,7 +64,9 @@ export default function Entrar() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col">
+    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col">
+      <FormasDeFundo conjunto="login" />
+
       <div className="px-7 pt-3">
         <Link
           href="/"

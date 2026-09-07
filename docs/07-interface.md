@@ -90,10 +90,20 @@ Exportados do Figma para `public/`, não recriados à mão.
 | `public/marca/logo.png` | mesma marca, para onde SVG não serve |
 | `public/marca/logo-com-nome.png` | marca com a tipografia própria, da tela de boas-vindas |
 | `public/marca/boas-vindas.jpg` | foto de fundo da tela de boas-vindas |
+| `public/ilustracoes/ilustracao-login.png` | `cat-and-dog/rafiki`, telas de Login |
+| `public/ilustracoes/inicio-cadastro.png` | `dog-paw/amico`, abertura do cadastro |
+| `public/ilustracoes/ilustracao-cadastro-final.png` | `dog-high-five/amico`, cadastro concluído |
+| `public/ilustracoes/grafismo-cima-esquerda.svg` | mancha do topo, telas de Login |
+| `public/ilustracoes/grafismo-baixo-direita.svg` | mancha do rodapé, telas de Login |
+| `public/ilustracoes/grafismo-esquerda-cima-2.svg` | `Vector 5`, telas de Cadastro |
+| `public/ilustracoes/grafismo-esquerda-baixo-2.svg` | `Ellipse 1`, telas de Cadastro |
 
-As ilustrações do desenho (`cat-and-dog/rafiki`, `dog-high-five/amico`) são
-da biblioteca **Storyset**, que exige atribuição. Entram quando as telas que
-as usam forem construídas.
+São **dois conjuntos distintos** de grafismos: o do Login fica no topo e no
+rodapé em cantos opostos; o do Cadastro fica todo à esquerda. Reaproveitar
+um no lugar do outro seria errar o desenho.
+
+As ilustrações são da biblioteca **Storyset**, que exige atribuição —
+pendência a resolver antes da publicação.
 
 > **Ao implementar.** Ícone, ilustração e logotipo saem do Figma pela
 > exportação. Substituir por emoji ou por um SVG desenhado na mão descarta o
@@ -151,7 +161,7 @@ Registradas para não parecerem esquecimento:
 | Espécie **Ave** | fora, por decisão do grupo |
 | Cadastro em vários passos | ✅ passo a passo, como no desenho |
 | Mapa do Google no detalhe | Leaflet + OSM, por DT-04 |
-| Formas laranja de fundo nas telas de Login | falta exportar do Figma |
+| Atribuição da Storyset nas ilustrações | pendente |
 
 **Alvo de toque.** Botão e entrada têm **40 px** no desenho, abaixo dos 44 px
 que os guias de acessibilidade recomendam para alvo de toque. O desenho

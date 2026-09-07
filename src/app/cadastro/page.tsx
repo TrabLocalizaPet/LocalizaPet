@@ -154,8 +154,8 @@ export default function Cadastro() {
         <FormasDeFundo />
         <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
           <Ilustracao
-            arquivo="/ilustracoes/cadastro-intro.png"
-            descricao="Tres cachorros brincando"
+            arquivo="/ilustracoes/inicio-cadastro.png"
+            descricao="Dois cachorros sentados lado a lado"
           />
           <h1 className="mt-8 font-titulo text-2xl leading-tight font-semibold text-escura">
             E hora do cadastro!
@@ -181,7 +181,7 @@ export default function Cadastro() {
         <FormasDeFundo />
         <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
           <Ilustracao
-            arquivo="/ilustracoes/cadastro-sucesso.png"
+            arquivo="/ilustracoes/ilustracao-cadastro-final.png"
             descricao="Pessoa cumprimentando um cachorro"
           />
           <h1 className="mt-8 font-titulo text-2xl leading-tight font-semibold text-escura">
@@ -206,6 +206,7 @@ export default function Cadastro() {
   if (passo === "intencao") {
     return (
       <Casca>
+          <FormasDeFundo />
         <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
         <div className="flex flex-1 flex-col px-8">
           <h1 className="text-center font-titulo text-xl font-semibold">
@@ -290,6 +291,7 @@ export default function Cadastro() {
 
   return (
     <Casca>
+      <FormasDeFundo />
       <Topo aoVoltar={voltar} />
 
       <div className="flex flex-1 flex-col px-8">
@@ -444,10 +446,12 @@ function Rodape({ children }: { children: React.ReactNode }) {
 /**
  * Ilustracao das telas de abertura e sucesso.
  *
- * `dog-paw/amico` e `dog-high-five/amico` no Figma — ambas da biblioteca
- * Storyset. Enquanto o arquivo nao estiver em `public/ilustracoes/`, o
- * espaco fica reservado com a proporcao do desenho (270x268), para o layout
- * nao mudar quando ela chegar.
+ * `dog-paw/amico` e `dog-high-five/amico` no Figma, ambas da biblioteca
+ * Storyset, exportadas para `public/ilustracoes/`. A proporcao 270x268 e a
+ * do desenho, e a largura de 69% vem de 270 sobre os 390 do quadro.
+ *
+ * O `onError` esconde o quadro se o arquivo sumir, em vez de deixar o icone
+ * de imagem quebrada no meio da tela.
  */
 function Ilustracao({ arquivo, descricao }: { arquivo: string; descricao: string }) {
   const [falhou, definir_falhou] = useState(false);
