@@ -97,7 +97,7 @@ de execução fica nas issues do GitHub, não aqui.
 | **RNF-08** | Toda entrada de API validada antes de chegar ao banco | Schemas `zod` nas Route Handlers |
 | **RNF-09** | Schema reproduzível do zero | Migrations versionadas; alteração pelo painel do Supabase é proibida |
 | **RNF-10** | Upload não passa pelo servidor | URL assinada; navegador envia direto ao R2 |
-| **RNF-11** | Interface em português, responsiva | CSS puro, sem biblioteca de UI |
+| **RNF-11** | Interface em português, responsiva, **desenhada primeiro para o celular** | Tailwind com as fichas técnicas do Figma; componentes próprios, sem biblioteca de UI (DT-08) |
 | **RNF-12** | Mapa sem exigir cartão de crédito | Leaflet + OpenStreetMap; Google Maps descartado |
 
 ---

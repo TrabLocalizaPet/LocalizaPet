@@ -1,114 +1,93 @@
-import { estado_do_schema, versao_do_banco, TABELAS_ESPERADAS } from "@/queries/diagnostico";
-import { testar_bucket, nome_do_bucket } from "@/lib/r2";
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import { CartaoDeAnuncio } from "@/components/cartao-de-anuncio";
+import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
+import { classes } from "@/components/ui/classes";
+import type { AnimalNaLista, TipoDeAnuncio } from "@/types/animal";
 
 /**
- * Painel de diagnostico (RF-31).
+ * Home: listagem de anuncios (RF-09, RF-10).
  *
- * Testa Postgres, schema e R2 **em separado**, cada um no seu try/catch: se
- * uma peca cai, as outras continuam sendo reportadas. E a primeira tela a
- * abrir quando algo nao funciona — ela diz qual peca esta fora.
+ * Aberta — RF-22 garante que visitante navegue sem sessao.
+ *
+ * O Figma tem aqui uma barra de busca e quatro atalhos redondos por tipo. A
+ * busca e a F-07; as abas abaixo fazem o papel dos atalhos por enquanto.
  */
 
-export const dynamic = "force-dynamic";
+const ABAS: { valor: TipoDeAnuncio | null; rotulo: string }[] = [
+  { valor: null, rotulo: "Todos" },
+  { valor: "perdido", rotulo: "Perdidos" },
+  { valor: "encontrado", rotulo: "Encontrados" },
+  { valor: "adocao", rotulo: "Adocao" },
+];
 
-type Resultado = {
-  titulo: string;
-  ok: boolean;
-  detalhe: string;
-};
+export default function Home() {
+  const [tipo, definir_tipo] = useState<TipoDeAnuncio | null>(null);
+  const [animais, definir_animais] = useState<AnimalNaLista[]>([]);
+  const [carregando, definir_carregando] = useState(true);
 
-function mensagem_de_erro(erro: unknown): string {
-  return erro instanceof Error ? erro.message : String(erro);
-}
+  useEffect(() => {
+    definir_carregando(true);
 
-async function testar_postgres(): Promise<Resultado> {
-  try {
-    const { versao, agora } = await versao_do_banco();
-    return {
-      titulo: "Postgres",
-      ok: true,
-      detalhe: `${versao.split(",")[0]} — hora do banco ${agora.toISOString()}`,
-    };
-  } catch (erro) {
-    return { titulo: "Postgres", ok: false, detalhe: mensagem_de_erro(erro) };
-  }
-}
-
-async function testar_schema(): Promise<Resultado> {
-  try {
-    const estado = await estado_do_schema();
-
-    if (!estado.postgis) {
-      return {
-        titulo: "Schema",
-        ok: false,
-        detalhe: "PostGIS nao esta habilitado — a busca por raio depende dele",
-      };
-    }
-
-    if (estado.tabelas_faltando.length > 0) {
-      return {
-        titulo: "Schema",
-        ok: false,
-        detalhe: `faltam ${estado.tabelas_faltando.length} de ${TABELAS_ESPERADAS.length} tabelas: ${estado.tabelas_faltando.join(", ")} — rode npm run migrate`,
-      };
-    }
-
-    return {
-      titulo: "Schema",
-      ok: true,
-      detalhe: `PostGIS ${estado.postgis} — ${estado.tabelas_presentes.length} tabelas no lugar`,
-    };
-  } catch (erro) {
-    return { titulo: "Schema", ok: false, detalhe: mensagem_de_erro(erro) };
-  }
-}
-
-async function testar_r2(): Promise<Resultado> {
-  try {
-    const bucket = nome_do_bucket();
-    await testar_bucket();
-    return { titulo: "Cloudflare R2", ok: true, detalhe: `bucket ${bucket} acessivel` };
-  } catch (erro) {
-    return { titulo: "Cloudflare R2", ok: false, detalhe: mensagem_de_erro(erro) };
-  }
-}
-
-export default async function Painel() {
-  const resultados = await Promise.all([
-    testar_postgres(),
-    testar_schema(),
-    testar_r2(),
-  ]);
-
-  const tudo_ok = resultados.every((resultado) => resultado.ok);
+    fetch(`/api/animais${tipo ? `?tipo=${tipo}` : ""}`)
+      .then((r) => r.json())
+      .then(definir_animais)
+      .catch(() => definir_animais([]))
+      .finally(() => definir_carregando(false));
+  }, [tipo]);
 
   return (
-    <main className="painel">
-      <h1>LocalizaPet</h1>
-      <p className="resumo">
-        Painel de diagnostico. {tudo_ok
-          ? "As tres pecas responderam."
-          : "Alguma peca esta fora — o detalhe esta abaixo."}
-      </p>
+    <Tela>
+      <Titulo>Pets proximos de voce</Titulo>
+      <Apoio>
+        Anuncios ativos, mais recentes primeiro.{" "}
+        <Link href="/mapa" className="text-primaria font-semibold">
+          Ver no mapa
+        </Link>
+      </Apoio>
 
-      <ul className="testes">
-        {resultados.map((resultado) => (
-          <li key={resultado.titulo} className={resultado.ok ? "teste ok" : "teste erro"}>
-            <span className="marca" aria-hidden="true">
-              {resultado.ok ? "✓" : "✗"}
-            </span>
-            <div>
-              <h2>{resultado.titulo}</h2>
-              <p>{resultado.detalhe}</p>
-            </div>
+      {/* Rolagem horizontal no celular: quatro abas nao cabem em 390 px sem
+          apertar o alvo de toque. */}
+      <div className="-mx-5 mt-4 mb-4 flex gap-2 overflow-x-auto px-5 pb-1">
+        {ABAS.map((aba) => (
+          <button
+            key={aba.rotulo}
+            type="button"
+            onClick={() => definir_tipo(aba.valor)}
+            className={classes(
+              "min-h-9 shrink-0 rounded-full border px-4 text-sm transition",
+              aba.valor === tipo
+                ? "border-primaria bg-primaria text-white font-semibold"
+                : "border-borda bg-cartao text-texto hover:border-primaria",
+            )}
+          >
+            {aba.rotulo}
+          </button>
+        ))}
+      </div>
+
+      {carregando && <Apoio>Carregando...</Apoio>}
+
+      {!carregando && animais.length === 0 && (
+        <Aviso>
+          Nenhum anuncio deste tipo por enquanto.{" "}
+          <Link href="/publicar" className="text-primaria font-semibold">
+            Publicar o primeiro
+          </Link>
+        </Aviso>
+      )}
+
+      {/* Uma coluna no celular, como no Figma; o desktop aproveita a largura. */}
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {animais.map((animal) => (
+          <li key={animal.id}>
+            <CartaoDeAnuncio animal={animal} />
           </li>
         ))}
       </ul>
-
-      <p className="rodape">
-        Cada teste roda isolado: a falha de um nao esconde o resultado dos outros.
-      </p>
-    </main>
+    </Tela>
   );
 }

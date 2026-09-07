@@ -4,20 +4,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { Marca } from "@/components/marca";
+import { Botao } from "@/components/ui/botao";
+import { Campo } from "@/components/ui/campo";
+import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
 
 /**
- * Criar conta (RF-19).
+ * Criar conta (RF-19). Tela "E hora do cadastro!" do Figma.
  *
  * O cadastro sao dois passos em servicos diferentes: o Supabase Auth cria a
  * identidade, e o POST /api/perfil cria o perfil no nosso Postgres. A rota e
- * idempotente, entao um segundo passo que falhe pode ser refeito sem
- * esbarrar em chave duplicada.
+ * idempotente, entao um segundo passo que falhe pode ser refeito.
  *
- * O Figma desenha este cadastro em varios passos, uma pergunta por tela. Aqui
- * ele e um formulario unico — a divisao em passos e apresentacao, e entra
- * quando as telas do app forem montadas. O que a F-03 precisa provar e que a
- * conta e o perfil nascem juntos.
+ * **Divergencia conhecida do Figma:** la o cadastro tem uma pergunta por
+ * tela. Aqui e um formulario unico. Esta registrado em
+ * `docs/07-interface.md` e nao e esquecimento.
  */
 export default function Cadastro() {
   const router = useRouter();
@@ -34,8 +36,7 @@ export default function Cadastro() {
     definir_erro(null);
     definir_enviando(true);
 
-    const supabase = cliente_navegador();
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await cliente_navegador().auth.signUp({
       email,
       password: senha,
     });
@@ -46,10 +47,9 @@ export default function Cadastro() {
       return;
     }
 
-    // Com "Confirm email" ligado no painel do Supabase, o cadastro nao devolve
-    // sessao — a conta so vale depois do clique no e-mail. Sem sessao nao da
-    // para criar o perfil, entao ele fica para o primeiro acesso, que a
-    // pagina /perfil resolve.
+    // Com "Confirm email" ligado no painel do Supabase, o cadastro nao
+    // devolve sessao. Sem sessao nao da para criar o perfil, entao ele fica
+    // para o primeiro acesso, que a pagina /perfil resolve.
     if (!data.session) {
       definir_confirmar_email(true);
       definir_enviando(false);
@@ -76,83 +76,77 @@ export default function Cadastro() {
 
   if (confirmar_email) {
     return (
-      <main className="conta">
-        <h1>Confirme seu e-mail</h1>
-        <p className="aviso bom">
+      <Tela largura="estreita">
+        <Titulo>Confirme seu e-mail</Titulo>
+        <Aviso tom="bom">
           Enviamos um link para <strong>{email}</strong>. Abra o link e depois
           entre para terminar o cadastro.
+        </Aviso>
+        <p className="mt-4 text-center text-sm">
+          <Link href="/entrar" className="font-semibold text-primaria">
+            Ir para o login
+          </Link>
         </p>
-        <p className="alternativa">
-          <Link href="/entrar">Ir para o login</Link>
-        </p>
-      </main>
+      </Tela>
     );
   }
 
   return (
-    <main className="conta">
-      <h1>E hora do cadastro!</h1>
-      <p className="apoio">
-        Sao poucos campos, e o telefone so aparece se voce quiser.
-      </p>
+    <Tela largura="estreita">
+      <div className="mb-6 flex flex-col items-center text-center">
+        <Marca tamanho={64} />
+        <Titulo className="mt-3">E hora do cadastro!</Titulo>
+        <Apoio>Sao poucos campos, e o telefone so aparece se voce quiser.</Apoio>
+      </div>
 
-      {erro && <p className="aviso">{erro}</p>}
+      {erro && <Aviso>{erro}</Aviso>}
 
-      <form onSubmit={enviar}>
-        <label className="campo">
-          <span>Qual o seu nome?</span>
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => definir_nome(e.target.value)}
-            autoComplete="name"
-            minLength={2}
-            required
-          />
-        </label>
-
-        <label className="campo">
-          <span>Telefone (opcional)</span>
-          <input
-            type="tel"
-            value={telefone}
-            onChange={(e) => definir_telefone(e.target.value)}
-            autoComplete="tel"
-            placeholder="(21) 99999-9999"
-          />
-        </label>
-
-        <label className="campo">
-          <span>E-mail</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => definir_email(e.target.value)}
-            autoComplete="email"
-            required
-          />
-        </label>
-
-        <label className="campo">
-          <span>Senha</span>
-          <input
-            type="password"
-            value={senha}
-            onChange={(e) => definir_senha(e.target.value)}
-            autoComplete="new-password"
-            minLength={6}
-            required
-          />
-        </label>
-
-        <button className="botao" type="submit" disabled={enviando}>
+      <form onSubmit={enviar} className="grid gap-3">
+        <Campo
+          rotulo="Qual o seu nome?"
+          type="text"
+          value={nome}
+          onChange={(e) => definir_nome(e.target.value)}
+          autoComplete="name"
+          minLength={2}
+          required
+        />
+        <Campo
+          rotulo="Telefone (opcional)"
+          type="tel"
+          value={telefone}
+          onChange={(e) => definir_telefone(e.target.value)}
+          autoComplete="tel"
+          placeholder="(21) 99999-9999"
+        />
+        <Campo
+          rotulo="E-mail"
+          type="email"
+          value={email}
+          onChange={(e) => definir_email(e.target.value)}
+          autoComplete="email"
+          required
+        />
+        <Campo
+          rotulo="Senha"
+          type="password"
+          value={senha}
+          onChange={(e) => definir_senha(e.target.value)}
+          autoComplete="new-password"
+          minLength={6}
+          required
+        />
+        <Botao type="submit" largo disabled={enviando} className="mt-2">
           {enviando ? "Criando..." : "Criar conta"}
-        </button>
+        </Botao>
       </form>
 
-      <p className="alternativa">
-        Ja tem conta? <Link href="/entrar">Entrar</Link>
+      <p className="mt-5 text-center text-sm text-suave">
+        Ja tem conta?{" "}
+        <Link href="/entrar" className="font-semibold text-primaria">
+          Entrar
+        </Link>
       </p>
-    </main>
+    </Tela>
   );
 }

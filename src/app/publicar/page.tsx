@@ -1,31 +1,38 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { Botao } from "@/components/ui/botao";
+import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
+import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { CENTRO_PADRAO } from "@/lib/geo";
 import type { Especie, Porte, Sexo, TipoDeAnuncio } from "@/types/animal";
 
 const Mapa = dynamic(() => import("@/components/mapa"), {
   ssr: false,
-  loading: () => <div className="mapa carregando">Carregando o mapa...</div>,
+  loading: () => (
+    <div className="grid h-full place-items-center text-sm text-suave">
+      Carregando o mapa...
+    </div>
+  ),
 });
 
 /**
  * Publicar anuncio (RF-01, RF-02, RF-03).
  *
- * O tipo e escolhido no comeco, como no Figma ("O que te trouxe aqui?"), e
- * depois vem um formulario unico. Nao sao tres formularios: os tres fluxos
+ * O tipo e escolhido no comeco, como na tela "O que te trouxe aqui?" do
+ * Figma, e depois vem o formulario. Nao sao tres formularios: os tres fluxos
  * compartilham quase todos os campos, e o que muda entre eles cabe numa
  * pergunta e numa regra (RN-03).
+ *
+ * **Divergencia conhecida do Figma:** la o cadastro do pet tem uma pergunta
+ * por tela. Registrada em `docs/07-interface.md`.
  */
 
-const ESCOLHAS: {
-  tipo: TipoDeAnuncio;
-  titulo: string;
-  apoio: string;
-}[] = [
+const ESCOLHAS: { tipo: TipoDeAnuncio; titulo: string; apoio: string }[] = [
   {
     tipo: "perdido",
     titulo: "Perdi meu pet",
@@ -56,7 +63,6 @@ export default function Publicar() {
   const [meses, definir_meses] = useState("");
   const [descricao, definir_descricao] = useState("");
   const [local, definir_local] = useState<[number, number] | null>(null);
-
   const [erro, definir_erro] = useState<string | null>(null);
   const [enviando, definir_enviando] = useState(false);
 
@@ -71,10 +77,8 @@ export default function Publicar() {
   const exige_local = tipo === "perdido" || tipo === "encontrado";
 
   function idade_em_meses(): number | null {
-    const a = anos === "" ? 0 : Number(anos);
-    const m = meses === "" ? 0 : Number(meses);
     if (anos === "" && meses === "") return null;
-    return a * 12 + m;
+    return (anos === "" ? 0 : Number(anos)) * 12 + (meses === "" ? 0 : Number(meses));
   }
 
   async function enviar(evento: React.FormEvent) {
@@ -107,10 +111,7 @@ export default function Publicar() {
       }),
     });
 
-    if (resposta.status === 401) {
-      router.replace("/entrar");
-      return;
-    }
+    if (resposta.status === 401) return router.replace("/entrar");
 
     if (!resposta.ok) {
       definir_erro("Nao foi possivel publicar. Confira os campos.");
@@ -118,166 +119,152 @@ export default function Publicar() {
       return;
     }
 
-    // A tela de detalhe e a F-06. Por enquanto o anuncio publicado aparece
-    // como pino no mapa.
-    router.push("/mapa");
+    const { id } = await resposta.json();
+    router.push(`/animais/${id}`);
   }
 
   if (!tipo) {
     return (
-      <main className="conta">
-        <h1>O que te trouxe aqui?</h1>
-        <p className="apoio">
-          O tipo define o que o anuncio precisa. Da para mudar voltando.
-        </p>
+      <Tela largura="estreita">
+        <Titulo>O que te trouxe aqui?</Titulo>
+        <Apoio>O tipo define o que o anuncio precisa. Da para mudar depois.</Apoio>
 
-        <ul className="escolhas">
+        <ul className="mt-5 grid gap-3">
           {ESCOLHAS.map((escolha) => (
             <li key={escolha.tipo}>
-              <button type="button" onClick={() => definir_tipo(escolha.tipo)}>
-                <strong>{escolha.titulo}</strong>
-                <span>{escolha.apoio}</span>
+              <button
+                type="button"
+                onClick={() => definir_tipo(escolha.tipo)}
+                className="min-h-11 w-full rounded-[--radius-padrao] border border-borda bg-cartao px-4 py-3 text-left transition hover:border-primaria focus-visible:border-primaria focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria"
+              >
+                <span className="block font-semibold">{escolha.titulo}</span>
+                <span className="block text-sm text-suave">{escolha.apoio}</span>
               </button>
             </li>
           ))}
         </ul>
 
-        <p className="alternativa">
-          Quer adotar? <a href="/mapa">Veja os pets perto de voce</a>
+        <p className="mt-5 text-center text-sm text-suave">
+          Quer adotar?{" "}
+          <Link href="/" className="font-semibold text-primaria">
+            Veja os pets perto de voce
+          </Link>
         </p>
-      </main>
+      </Tela>
     );
   }
 
   return (
-    <main className="tela-do-mapa">
-      <header className="cabecalho-do-mapa">
-        <h1>{ESCOLHAS.find((e) => e.tipo === tipo)!.titulo}</h1>
-        <p className="apoio">
-          <button
-            className="voltar"
-            type="button"
-            onClick={() => definir_tipo(null)}
+    <Tela className="max-w-2xl">
+      <Titulo>{ESCOLHAS.find((e) => e.tipo === tipo)!.titulo}</Titulo>
+      <button
+        type="button"
+        onClick={() => definir_tipo(null)}
+        className="mt-1 text-sm font-semibold text-primaria underline underline-offset-2"
+      >
+        trocar o tipo
+      </button>
+
+      {erro && <Aviso>{erro}</Aviso>}
+
+      <form onSubmit={enviar} className="mt-4 grid gap-3">
+        {/* RN-04: quem encontra um animal na rua normalmente nao sabe o nome,
+            entao o campo nunca e obrigatorio. */}
+        <Campo
+          rotulo={`Nome do pet${tipo === "encontrado" ? " (se souber)" : ""}`}
+          type="text"
+          value={nome}
+          onChange={(e) => definir_nome(e.target.value)}
+          maxLength={80}
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <Selecao
+            rotulo="Especie"
+            value={especie}
+            onChange={(e) => definir_especie(e.target.value as Especie)}
           >
-            trocar o tipo
-          </button>
-        </p>
-      </header>
+            <option value="cachorro">Cachorro</option>
+            <option value="gato">Gato</option>
+            <option value="outro">Outro</option>
+          </Selecao>
 
-      {erro && <p className="aviso">{erro}</p>}
+          <Selecao
+            rotulo="Sexo"
+            value={sexo}
+            onChange={(e) => definir_sexo(e.target.value as Sexo | "")}
+          >
+            <option value="">Nao sei</option>
+            <option value="macho">Macho</option>
+            <option value="femea">Femea</option>
+          </Selecao>
+        </div>
 
-      <form onSubmit={enviar} className="formulario-anuncio">
-        <label className="campo">
-          {/* RN-04: quem encontra um animal na rua normalmente nao sabe o
-              nome, entao o campo nunca e obrigatorio. */}
-          <span>Nome do pet {tipo === "encontrado" && "(se souber)"}</span>
-          <input
+        <div className="grid grid-cols-2 gap-3">
+          <Selecao
+            rotulo="Porte"
+            value={porte}
+            onChange={(e) => definir_porte(e.target.value as Porte | "")}
+          >
+            <option value="">Nao sei</option>
+            <option value="pequeno">Pequeno</option>
+            <option value="medio">Medio</option>
+            <option value="grande">Grande</option>
+          </Selecao>
+
+          <Campo
+            rotulo="Cor"
             type="text"
-            value={nome}
-            onChange={(e) => definir_nome(e.target.value)}
-            maxLength={80}
+            value={cor}
+            onChange={(e) => definir_cor(e.target.value)}
+            maxLength={40}
+            placeholder="caramelo, preto..."
           />
-        </label>
-
-        <div className="dupla">
-          <label className="campo">
-            <span>Especie</span>
-            <select
-              value={especie}
-              onChange={(e) => definir_especie(e.target.value as Especie)}
-            >
-              <option value="cachorro">Cachorro</option>
-              <option value="gato">Gato</option>
-              <option value="outro">Outro</option>
-            </select>
-          </label>
-
-          <label className="campo">
-            <span>Sexo</span>
-            <select
-              value={sexo}
-              onChange={(e) => definir_sexo(e.target.value as Sexo | "")}
-            >
-              <option value="">Nao sei</option>
-              <option value="macho">Macho</option>
-              <option value="femea">Femea</option>
-            </select>
-          </label>
         </div>
 
-        <div className="dupla">
-          <label className="campo">
-            <span>Porte</span>
-            <select
-              value={porte}
-              onChange={(e) => definir_porte(e.target.value as Porte | "")}
-            >
-              <option value="">Nao sei</option>
-              <option value="pequeno">Pequeno</option>
-              <option value="medio">Medio</option>
-              <option value="grande">Grande</option>
-            </select>
-          </label>
-
-          <label className="campo">
-            <span>Cor</span>
-            <input
-              type="text"
-              value={cor}
-              onChange={(e) => definir_cor(e.target.value)}
-              maxLength={40}
-              placeholder="caramelo, preto..."
-            />
-          </label>
-        </div>
-
-        <div className="dupla">
-          <label className="campo">
-            <span>Idade — anos</span>
-            <input
-              type="number"
-              min={0}
-              max={33}
-              value={anos}
-              onChange={(e) => definir_anos(e.target.value)}
-            />
-          </label>
-          <label className="campo">
-            <span>e meses</span>
-            <input
-              type="number"
-              min={0}
-              max={11}
-              value={meses}
-              onChange={(e) => definir_meses(e.target.value)}
-            />
-          </label>
-        </div>
-
-        <label className="campo">
-          <span>Descricao</span>
-          <textarea
-            value={descricao}
-            onChange={(e) => definir_descricao(e.target.value)}
-            rows={4}
-            maxLength={2000}
-            placeholder="Coleira, manchas, comportamento, onde costuma andar..."
+        <div className="grid grid-cols-2 gap-3">
+          <Campo
+            rotulo="Idade — anos"
+            type="number"
+            min={0}
+            max={33}
+            value={anos}
+            onChange={(e) => definir_anos(e.target.value)}
           />
-        </label>
+          <Campo
+            rotulo="e meses"
+            type="number"
+            min={0}
+            max={11}
+            value={meses}
+            onChange={(e) => definir_meses(e.target.value)}
+          />
+        </div>
 
-        <div className="campo">
-          <span>
+        <CampoLongo
+          rotulo="Descricao"
+          value={descricao}
+          onChange={(e) => definir_descricao(e.target.value)}
+          rows={4}
+          maxLength={2000}
+          placeholder="Coleira, manchas, comportamento, onde costuma andar..."
+        />
+
+        <div>
+          <span className="mb-1.5 block text-sm font-semibold">
             {exige_local
               ? "Onde foi visto pela ultima vez? (obrigatorio)"
               : "Onde o pet se encontra? (opcional)"}
           </span>
-          <Mapa
-            animais={[]}
-            centro={CENTRO_PADRAO}
-            local_escolhido={local}
-            ao_escolher_local={(lat, lng) => definir_local([lat, lng])}
-          />
-          <p className="coordenada">
+          <div className="h-64 overflow-hidden rounded-[--radius-padrao] border border-borda md:h-80">
+            <Mapa
+              animais={[]}
+              centro={CENTRO_PADRAO}
+              local_escolhido={local}
+              ao_escolher_local={(lat, lng) => definir_local([lat, lng])}
+            />
+          </div>
+          <p className="mt-1 text-xs text-suave">
             {local ? (
               <>
                 Local marcado:{" "}
@@ -286,15 +273,15 @@ export default function Publicar() {
                 </code>
               </>
             ) : (
-              "Clique no mapa para marcar."
+              "Toque no mapa para marcar."
             )}
           </p>
         </div>
 
-        <button className="botao" type="submit" disabled={enviando}>
+        <Botao type="submit" largo disabled={enviando} className="mt-2">
           {enviando ? "Publicando..." : "Publicar anuncio"}
-        </button>
+        </Botao>
       </form>
-    </main>
+    </Tela>
   );
 }

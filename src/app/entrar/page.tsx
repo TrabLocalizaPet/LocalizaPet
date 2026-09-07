@@ -4,9 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { Marca } from "@/components/marca";
+import { Botao } from "@/components/ui/botao";
+import { Campo } from "@/components/ui/campo";
+import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
 
-/** Entrar na conta (RF-19). */
+/** Entrar na conta (RF-19). Tela "Login" do Figma. */
 export default function Entrar() {
   const router = useRouter();
   const [email, definir_email] = useState("");
@@ -39,43 +43,43 @@ export default function Entrar() {
   }
 
   return (
-    <main className="conta">
-      <h1>Entrar</h1>
-      <p className="apoio">Conecte coracoes. Reencontre historias.</p>
+    <Tela largura="estreita">
+      <div className="mb-6 flex flex-col items-center text-center">
+        <Marca tamanho={72} />
+        <Titulo className="mt-3">Conecte coracoes.</Titulo>
+        <Apoio>Reencontre historias.</Apoio>
+      </div>
 
-      {erro && <p className="aviso">{erro}</p>}
+      {erro && <Aviso>{erro}</Aviso>}
 
-      <form onSubmit={enviar}>
-        <label className="campo">
-          <span>E-mail</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => definir_email(e.target.value)}
-            autoComplete="email"
-            required
-          />
-        </label>
-
-        <label className="campo">
-          <span>Senha</span>
-          <input
-            type="password"
-            value={senha}
-            onChange={(e) => definir_senha(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
-        </label>
-
-        <button className="botao" type="submit" disabled={enviando}>
+      <form onSubmit={enviar} className="grid gap-3">
+        <Campo
+          rotulo="E-mail"
+          type="email"
+          value={email}
+          onChange={(e) => definir_email(e.target.value)}
+          autoComplete="email"
+          required
+        />
+        <Campo
+          rotulo="Senha"
+          type="password"
+          value={senha}
+          onChange={(e) => definir_senha(e.target.value)}
+          autoComplete="current-password"
+          required
+        />
+        <Botao type="submit" largo disabled={enviando} className="mt-2">
           {enviando ? "Entrando..." : "Entrar"}
-        </button>
+        </Botao>
       </form>
 
-      <p className="alternativa">
-        Ainda nao tem conta? <Link href="/cadastro">Cadastre-se</Link>
+      <p className="mt-5 text-center text-sm text-suave">
+        Ainda nao tem conta?{" "}
+        <Link href="/cadastro" className="font-semibold text-primaria">
+          Cadastre-se
+        </Link>
       </p>
-    </main>
+    </Tela>
   );
 }

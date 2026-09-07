@@ -1,12 +1,11 @@
-import type { AnimalNaLista, TipoDeAnuncio } from "@/types/animal";
+import type { AnimalNaLista } from "@/types/animal";
 
-/** Formatacao compartilhada entre a listagem e o detalhe. */
-
-export const ROTULO_DO_TIPO: Record<TipoDeAnuncio, string> = {
-  perdido: "Perdido",
-  encontrado: "Encontrado",
-  adocao: "Adocao",
-};
+/**
+ * Formatacao compartilhada entre a listagem e o detalhe.
+ *
+ * O rotulo do tipo de anuncio nao mora aqui: ele e visual e vive junto do
+ * componente que o desenha, em `src/components/etiqueta.tsx`.
+ */
 
 /**
  * "3 anos", "5 meses", "1 ano e 2 meses".

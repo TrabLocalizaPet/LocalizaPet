@@ -1,552 +1,64 @@
-/* CSS puro, sem Tailwind e sem biblioteca de UI (RNF-11). */
+@import "tailwindcss";
 
-:root {
-  --fundo: #fbfaf8;
-  --texto: #1c1b19;
-  --suave: #6b6862;
-  --borda: #e4e0d8;
-  --ok: #2e7d32;
-  --erro: #c62828;
-  --cartao: #ffffff;
+/* ---------------------------------------------------------------------------
+   Fichas tecnicas, tiradas das variaveis do Figma (DT-08).
+   Ver docs/07-interface.md — este bloco e a copia executavel daquela tabela.
+   Alterar aqui sem alterar o Figma faz o desenho e a tela divergirem.
+   --------------------------------------------------------------------------- */
+@theme {
+  /* Cor */
+  --color-primaria: #f68b1e;
+  --color-primaria-texto: #ffffff;
+  --color-secundaria: #f95c7e;
+  --color-creme: #fff3e0;
+  --color-escura: #332430;
 
-  /* Marca, do arquivo do Figma. */
-  --marca: #f68b1e;
-  --marca-texto: #ffffff;
-  --marca-escura: #332430;
-  --raio: 8px;
+  --color-texto: #020618;
+  --color-suave: #64748b;
+  --color-fundo: #ffffff;
+  --color-cartao: #ffffff;
+  --color-borda: #e2e8f0;
+
+  /* Tipo de anuncio. Sempre acompanhadas de rotulo ou inicial: perdido e
+     adocao sao os dois extremos do produto, e vermelho/verde e a confusao de
+     cor mais comum. */
+  --color-perdido: #e7000b;
+  --color-encontrado: #f68b1e;
+  --color-adocao: #2e7d32;
+
+  /* Tipografia: Inter no corpo, Mitr nos titulos. */
+  --font-corpo: var(--fonte-corpo), system-ui, sans-serif;
+  --font-titulo: var(--fonte-titulo), system-ui, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+
+  /* Forma */
+  --radius-padrao: 8px;
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.05);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fundo: #14130f;
-    --texto: #f2efe9;
-    --suave: #9c978d;
-    --borda: #2c2a25;
-    --ok: #7cc47f;
-    --erro: #ef7a72;
-    --cartao: #1c1b17;
-  }
-}
-
-* {
-  box-sizing: border-box;
-}
+/* ---------------------------------------------------------------------------
+   O pouco que Tailwind nao cobre.
+   --------------------------------------------------------------------------- */
 
 body {
-  margin: 0;
-  padding: 0;
-  background: var(--fundo);
-  color: var(--texto);
-  font-family: var(--fonte-corpo), system-ui, -apple-system, "Segoe UI", sans-serif;
-  line-height: 1.5;
-}
-
-.painel {
-  max-width: 44rem;
-  margin: 0 auto;
-  padding: 3rem 1.25rem;
-}
-
-.painel h1 {
-  margin: 0;
-  font-size: 1.75rem;
-}
-
-.resumo {
-  color: var(--suave);
-  margin: 0.25rem 0 2rem;
-}
-
-.testes {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.teste {
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-  padding: 1rem;
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-left-width: 4px;
-  border-radius: 6px;
-}
-
-.teste.ok {
-  border-left-color: var(--ok);
-}
-
-.teste.erro {
-  border-left-color: var(--erro);
-}
-
-.teste .marca {
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.teste.ok .marca {
-  color: var(--ok);
-}
-
-.teste.erro .marca {
-  color: var(--erro);
-}
-
-.teste h2 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.teste p {
-  margin: 0.25rem 0 0;
-  color: var(--suave);
-  font-size: 0.9rem;
-  word-break: break-word;
-}
-
-.rodape {
-  margin-top: 2rem;
-  color: var(--suave);
-  font-size: 0.85rem;
-}
-
-/* --------------------------------------------------------------------------
-   Formularios de conta (F-03)
-   -------------------------------------------------------------------------- */
-
-.conta {
-  max-width: 24rem;
-  margin: 0 auto;
-  padding: 3rem 1.25rem;
-}
-
-.conta h1 {
-  font-family: var(--fonte-titulo), system-ui, sans-serif;
-  font-size: 1.5rem;
-  margin: 0 0 0.25rem;
-}
-
-.conta .apoio {
-  color: var(--suave);
-  margin: 0 0 1.75rem;
-  font-size: 0.95rem;
-}
-
-.campo {
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.campo > span {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-}
-
-.campo input[type="text"],
-.campo input[type="email"],
-.campo input[type="tel"],
-.campo input[type="password"] {
-  width: 100%;
-  padding: 0.7rem 0.85rem;
-  font: inherit;
-  color: var(--texto);
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-}
-
-.campo input:focus-visible {
-  outline: 2px solid var(--marca);
-  outline-offset: 1px;
-  border-color: var(--marca);
-}
-
-/* Interruptor do telefone_publico (RF-20). Caixa de marcar comum: o rotulo
-   ao lado explica a consequencia, que e o que a pessoa precisa entender. */
-.interruptor {
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-start;
-  margin: 1.25rem 0;
-}
-
-.interruptor input {
-  margin-top: 0.2rem;
-  accent-color: var(--marca);
-  width: 1.05rem;
-  height: 1.05rem;
-}
-
-.interruptor .explica {
-  display: block;
-  color: var(--suave);
-  font-size: 0.85rem;
-}
-
-.botao {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font: inherit;
-  font-weight: 600;
-  color: var(--marca-texto);
-  background: var(--marca);
-  border: 1px solid transparent;
-  border-radius: var(--raio);
-  cursor: pointer;
-}
-
-.botao:hover:not(:disabled) {
-  filter: brightness(0.94);
-}
-
-.botao:disabled {
-  opacity: 0.55;
-  cursor: progress;
-}
-
-.botao.secundario {
-  color: var(--texto);
-  background: transparent;
-  border-color: var(--borda);
-}
-
-.alternativa {
-  margin-top: 1.25rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--suave);
-}
-
-.alternativa a {
-  color: var(--marca);
-  font-weight: 600;
-}
-
-.aviso {
-  padding: 0.75rem 0.9rem;
-  border: 1px solid var(--borda);
-  border-left: 4px solid var(--erro);
-  border-radius: var(--raio);
-  background: var(--cartao);
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
-.aviso.bom {
-  border-left-color: var(--ok);
-}
-
-/* --------------------------------------------------------------------------
-   Mapa (F-05)
-   -------------------------------------------------------------------------- */
-
-.tela-do-mapa {
-  max-width: 60rem;
-  margin: 0 auto;
-  padding: 2rem 1.25rem 3rem;
-}
-
-.cabecalho-do-mapa h1 {
-  font-family: var(--fonte-titulo), system-ui, sans-serif;
-  font-size: 1.5rem;
-  margin: 0 0 0.25rem;
-}
-
-.mapa {
-  height: 65vh;
-  min-height: 20rem;
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-  /* O Leaflet desenha os tiles fora do fluxo; sem isto eles vazam do canto
-     arredondado. */
-  overflow: hidden;
-}
-
-.mapa.carregando {
-  display: grid;
-  place-items: center;
-  color: var(--suave);
-  background: var(--cartao);
-}
-
-.controles-do-mapa {
-  margin-top: 1rem;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.controles-do-mapa .botao {
-  width: auto;
-  justify-self: start;
-}
-
-/* Pino do mapa. Cor por tipo de anuncio, com a inicial junto — cor sozinha
-   nao distingue "perdido" de "adocao" para quem nao ve vermelho e verde. */
-.pino {
-  display: inline-grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
-}
-
-.pino.alvo {
-  background: var(--marca-escura);
-}
-
-.legenda {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  font-size: 0.9rem;
-  color: var(--suave);
-}
-
-.legenda li {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.coordenada {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.coordenada code {
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: 4px;
-  padding: 0.15rem 0.4rem;
-}
-
-/* --------------------------------------------------------------------------
-   Publicar anuncio (F-04)
-   -------------------------------------------------------------------------- */
-
-/* Escolha do tipo, como no Figma: o titulo diz a acao e a linha de baixo diz
-   o que a pessoa ganha com ela. */
-.escolhas {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.escolhas button {
-  width: 100%;
-  text-align: left;
-  padding: 0.9rem 1rem;
-  font: inherit;
-  color: var(--texto);
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-  cursor: pointer;
-}
-
-.escolhas button:hover,
-.escolhas button:focus-visible {
-  border-color: var(--marca);
-  outline: none;
-}
-
-.escolhas strong {
-  display: block;
-}
-
-.escolhas span {
-  color: var(--suave);
-  font-size: 0.9rem;
-}
-
-.formulario-anuncio {
-  display: grid;
-  gap: 0.25rem;
-  margin-top: 1rem;
-}
-
-.formulario-anuncio .botao {
-  width: auto;
-  justify-self: start;
-  margin-top: 0.5rem;
-}
-
-.formulario-anuncio .mapa {
-  height: 22rem;
-}
-
-.dupla {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.campo select,
-.campo textarea {
-  width: 100%;
-  padding: 0.7rem 0.85rem;
-  font: inherit;
-  color: var(--texto);
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-}
-
-.campo input[type="number"] {
-  width: 100%;
-  padding: 0.7rem 0.85rem;
-  font: inherit;
-  color: var(--texto);
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-}
-
-.campo select:focus-visible,
-.campo textarea:focus-visible {
-  outline: 2px solid var(--marca);
-  outline-offset: 1px;
-  border-color: var(--marca);
-}
-
-.voltar {
-  font: inherit;
-  color: var(--marca);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* --------------------------------------------------------------------------
-   Listagem e detalhe (F-06)
-   -------------------------------------------------------------------------- */
-
-.abas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0 0 1.25rem;
-}
-
-.abas button {
-  font: inherit;
-  padding: 0.45rem 0.9rem;
-  color: var(--texto);
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.abas button.ativa {
-  color: var(--marca-texto);
-  background: var(--marca);
-  border-color: var(--marca);
-}
-
-.cartoes {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-}
-
-.cartao {
-  display: grid;
-  gap: 0.2rem;
-  height: 100%;
-  padding: 1rem;
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-  color: inherit;
-  text-decoration: none;
-}
-
-.cartao:hover,
-.cartao:focus-visible {
-  border-color: var(--marca);
-  outline: none;
-}
-
-.resumo-do-cartao,
-.quando {
-  color: var(--suave);
-  font-size: 0.85rem;
-}
-
-/* A etiqueta repete a cor do pino do mapa: o mesmo anuncio tem a mesma cor
-   nos dois lugares, e o texto acompanha porque cor sozinha nao basta. */
-.etiqueta {
-  justify-self: start;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #fff;
-}
-
-.etiqueta.perdido {
-  background: #e7000b;
-}
-
-.etiqueta.encontrado {
-  background: var(--marca);
-}
-
-.etiqueta.adocao {
-  background: #2e7d32;
-}
-
-.descricao {
-  white-space: pre-wrap;
-  max-width: 44rem;
-}
-
-.contato {
-  padding: 1rem;
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-  margin: 1.5rem 0;
-  max-width: 28rem;
-}
-
-.contato h2,
-.tela-do-mapa section h2 {
-  font-size: 1rem;
-  margin: 0 0 0.5rem;
-}
-
-.contato p {
-  margin: 0 0 0.5rem;
-}
-
-.contato .botao {
-  display: inline-block;
-  width: auto;
-  text-decoration: none;
+  background: var(--color-fundo);
+  color: var(--color-texto);
+  font-family: var(--font-corpo);
+}
+
+/* O Leaflet traz o proprio CSS e desenha fora do fluxo. Estes dois ajustes
+   sao dele, nao da nossa interface. */
+.leaflet-container {
+  border-radius: var(--radius-padrao);
+  font-family: var(--font-corpo);
 }

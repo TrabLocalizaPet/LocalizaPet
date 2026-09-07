@@ -34,10 +34,18 @@ const INICIAL: Record<TipoDeAnuncio, string> = {
   adocao: "A",
 };
 
+// O Leaflet injeta esta marcacao fora do React, entao o estilo vai inline em
+// vez de classe do Tailwind: utilitario que so aparece dentro de uma string
+// montada em tempo de execucao nao entra no CSS gerado.
+const PINO =
+  "display:grid;place-items:center;width:26px;height:26px;border-radius:50%;" +
+  "color:#fff;font-size:12px;font-weight:700;border:2px solid #fff;" +
+  "box-shadow:0 1px 3px rgb(0 0 0 / 0.35)";
+
 function pino(tipo: TipoDeAnuncio) {
   return L.divIcon({
     className: "",
-    html: `<span class="pino" style="background:${COR[tipo]}">${INICIAL[tipo]}</span>`,
+    html: `<span style="${PINO};background:${COR[tipo]}">${INICIAL[tipo]}</span>`,
     iconSize: [26, 26],
     iconAnchor: [13, 13],
   });
@@ -46,7 +54,7 @@ function pino(tipo: TipoDeAnuncio) {
 function alvo() {
   return L.divIcon({
     className: "",
-    html: `<span class="pino alvo">+</span>`,
+    html: `<span style="${PINO};background:#332430">+</span>`,
     iconSize: [26, 26],
     iconAnchor: [13, 13],
   });
@@ -140,5 +148,7 @@ export default function Mapa({
     }
   }, [local_escolhido]);
 
-  return <div ref={div} className="mapa" />;
+  // A altura vem de quem usa: no detalhe o mapa e um bloco, na tela do mapa
+  // ele ocupa o que sobra. O componente so preenche o espaco que recebe.
+  return <div ref={div} className="h-full w-full" />;
 }
