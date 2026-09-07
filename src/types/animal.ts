@@ -29,3 +29,24 @@ export type AnimalNoMapa = {
   lng: number;
   visto_em: Date;
 };
+
+/**
+ * O que a criacao de anuncio recebe (RF-01, RF-02, RF-03).
+ *
+ * `autor_id` vem da sessao, nunca do corpo da requisicao.
+ *
+ * `local` e nulo apenas em anuncio de adocao (RN-03): sem coordenada o
+ * anuncio nao aparece em busca por regiao, que e a funcao central do produto.
+ */
+export type NovoAnuncio = {
+  autor_id: string;
+  tipo_anuncio: TipoDeAnuncio;
+  nome: string | null;
+  especie: Especie;
+  sexo: Sexo | null;
+  porte: Porte | null;
+  cor: string | null;
+  idade_meses: number | null;
+  descricao: string | null;
+  local: { lat: number; lng: number } | null;
+};
