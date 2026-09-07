@@ -110,6 +110,48 @@ permissão do navegador. Nenhum dos dois agrega ao que a disciplina avalia.
 **Consequência.** E-mail ou push podem entrar numa iteração futura lendo
 desta mesma tabela, sem mudança de schema.
 
+### DT-06 — Dois ambientes, mesma tecnologia
+
+Desenvolvimento e produção são **instâncias separadas dos mesmos serviços**:
+um segundo projeto Supabase e um segundo bucket R2, nunca uma tecnologia
+diferente dos dois lados.
+
+| Escopo na Vercel | Banco | Bucket |
+|---|---|---|
+| `Production` (`main`) | projeto Supabase de produção | `localizapet` |
+| `Preview` (cada PR) | projeto Supabase de desenvolvimento | `localizapet-dev` |
+| Local (`.env`) | projeto Supabase de desenvolvimento | `localizapet-dev` |
+
+**Por que separar.** As migrations não rodam no deploy (DT-01), são manuais.
+Com um banco só, a primeira migration testada num pull request reescreveria
+o banco no ar — sem aviso, porque nada no fluxo de deploy passa perto disso.
+
+**Por que não trocar a tecnologia no local.** A tentação é o ambiente local
+não falar com o R2 e gravar a foto em disco. Duas razões contra:
+
+- O upload vai direto do navegador para o bucket por URL assinada (RNF-10), e
+  o que falha nesse arranjo é a **política de CORS do bucket** — que não tem
+  como dar errado contra um disco local. É o risco que já está registrado
+  mais abaixo, e ele ficaria invisível até o dia do deploy da F-09
+- Gravar em disco nem funcionaria em produção: função serverless tem sistema
+  de arquivos somente leitura. Seria código a mais exercitando um caminho que
+  a produção nunca usa
+
+O mesmo vale para o banco: Postgres local por Homebrew roda offline, mas a
+versão do PostGIS diverge e a conexão não passa pelo pooler, que é onde estão
+os problemas que só aparecem sob carga (DT-02).
+
+**Custo.** Zero. Bucket no R2 não é cobrado, só o armazenamento, e o plano
+gratuito do Supabase permite mais de um projeto por organização.
+
+**Consequências.**
+- O que difere entre os ambientes é **só o valor da variável** — nunca um `if`
+  no código
+- Mudança de schema é aplicada duas vezes, em momentos diferentes:
+  `npm run migrate` contra o dev antes do pull request, e contra a produção
+  depois do merge. Quem esquece a segunda derruba a `main`
+- O seed só roda contra o banco de desenvolvimento
+
 ### DT-07 — Supabase Auth como provedor de autenticação
 
 Autenticação por e-mail e senha pelo **Supabase Auth**, o serviço que já vem
@@ -165,6 +207,11 @@ Nenhuma credencial no repositório (RNF-02) — o repositório é público. Só 
 
 As mesmas variáveis precisam ser cadastradas no painel da Vercel — o build
 falha sem elas se o pool for criado em escopo de módulo.
+
+Lá elas são cadastradas **duas vezes**, com valores diferentes: no escopo
+`Production` apontando para o projeto e o bucket de produção, e no escopo
+`Preview` apontando para os de desenvolvimento (DT-06). Marcar as duas caixas
+de uma vez é o engano que faz um pull request escrever no banco em produção.
 
 ---
 
