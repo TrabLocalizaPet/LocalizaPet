@@ -1,42 +1,37 @@
+import Image from "next/image";
+
 import { Marca } from "./marca";
 
 /**
  * Splash Screen (no 1:590 do Figma).
  *
- * Fundo laranja com quatro circulos concentricos clareando para o centro, e
- * a marca no meio. As medidas sao as do desenho, convertidas para
- * porcentagem da largura de 390 px: os raios 372, 327, 262 e 183 viram
- * 191%, 168%, 134% e 94%, e a marca de 215 px vira 55%.
+ * O fundo e o arquivo exportado do desenho: quatro aneis concentricos
+ * clareando do laranja ate o branco no centro. Antes eram circulos montados
+ * em CSS por mim, com as cores e as espessuras erradas — o centro do desenho
+ * e branco, e nao creme.
  *
- * Em porcentagem, e nao em pixel fixo, porque o desenho existe so para
- * 390 px: numa tela mais larga os circulos precisam crescer junto, senao
- * viram uma moeda no canto.
- *
- * Os circulos ficam todos no centro do quadro — no Figma eles estao em
- * (192, 419), que e o centro dos 390x844.
+ * `object-cover` porque a imagem tem a mesma proporcao do quadro (780x1688 e
+ * o dobro de 390x844): numa tela mais estreita ou mais larga ela corta pelas
+ * bordas em vez de deformar os aneis, e o miolo branco continua centrado, que
+ * e onde a marca fica.
  */
-
-const CIRCULOS = [
-  { tamanho: "382%", cor: "#f9a94e" },
-  { tamanho: "336%", cor: "#fbc27c" },
-  { tamanho: "269%", cor: "#fddcb4" },
-  { tamanho: "188%", cor: "#fef3e4" },
-];
-
 export function Splash() {
   return (
     <div className="fixed inset-0 grid place-items-center overflow-hidden bg-primaria">
-      {CIRCULOS.map((circulo) => (
-        <div
-          key={circulo.cor}
-          aria-hidden="true"
-          className="col-start-1 row-start-1 aspect-square rounded-full"
-          style={{ width: circulo.tamanho, background: circulo.cor }}
-        />
-      ))}
+      <Image
+        src="/marca/splash-screen-background.png"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="col-start-1 row-start-1 object-cover"
+      />
 
-      {/* 215 de 390 = 55% da largura. */}
-      <Marca tamanho={215} className="col-start-1 row-start-1 w-[55%] max-w-56" />
+      {/* 215 de 390 = 55% da largura, centrada — e o centro do circulo branco. */}
+      <Marca
+        tamanho={215}
+        className="col-start-1 row-start-1 w-[55%] max-w-56"
+      />
     </div>
   );
 }

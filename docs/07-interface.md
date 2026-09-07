@@ -86,8 +86,8 @@ Exportados do Figma para `public/`, não recriados à mão.
 
 | Caminho | Origem no Figma |
 |---|---|
-| `public/marca/logo.svg` | logotipo da Splash Screen |
-| `public/marca/logo.png` | mesma marca, para onde SVG não serve |
+| `public/marca/logo.png` | símbolo da marca |
+| `public/marca/splash-screen-background.png` | fundo da Splash, quatro anéis concêntricos |
 | `public/marca/logo-com-nome.png` | marca com a tipografia própria, da tela de boas-vindas |
 | `public/marca/boas-vindas.jpg` | foto de fundo da tela de boas-vindas |
 | `public/ilustracoes/ilustracao-login.png` | `cat-and-dog/rafiki`, telas de Login |
