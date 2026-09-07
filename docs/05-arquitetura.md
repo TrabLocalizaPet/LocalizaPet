@@ -110,6 +110,41 @@ permissão do navegador. Nenhum dos dois agrega ao que a disciplina avalia.
 **Consequência.** E-mail ou push podem entrar numa iteração futura lendo
 desta mesma tabela, sem mudança de schema.
 
+### DT-07 — Supabase Auth como provedor de autenticação
+
+Autenticação por e-mail e senha pelo **Supabase Auth**, o serviço que já vem
+com o projeto de banco (DT-02). Encerra a decisão pendente que bloqueava a
+F-03 e, por cascata, a F-04 e a F-08.
+
+**Alternativa descartada:** sessão própria, com hash de senha em `perfis` e
+cookie assinado. Era viável e sem dependência nova — o `node:crypto` já traz
+`scrypt`. Foi descartada por esforço: escrever hash, sessão, expiração e
+renovação corretamente custa mais que as 14 h previstas para a F-03, e essas
+horas valem mais nas features que estavam bloqueadas atrás dela.
+
+**Por que não custa nada.** Está incluído no plano gratuito já em uso. Não é
+serviço novo, não é outra conta, não pede cartão (RNF-01).
+
+**Independente do Data API.** O projeto foi criado com o Data API
+desmarcado, e o Supabase Auth não depende dele — responde em `/auth/v1`,
+separado do PostgREST. O acesso a dados continua sendo o driver `pg` pelo
+pooler.
+
+**Consequências.**
+- `perfis.id` recebe o `id` do usuário em `auth.users`. Continua **sem chave
+  estrangeira**, como já estava decidido em
+  [04 — Modelo de dados](04-modelo-dados.md): é o que mantém o schema
+  portável se esta decisão for revista, e o que permite o `seed` rodar sem
+  provedor de autenticação nenhum
+- A F-03 **não precisa de migration**. O perfil é criado pela aplicação logo
+  após o cadastro, com o id devolvido pelo provedor
+- Duas variáveis novas, `NEXT_PUBLIC_SUPABASE_URL` e
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY`. As duas são públicas por natureza — vão
+  para o navegador. **Não confundir com a `service_role`**, que nunca entra
+  no código nem no `.env.example`
+- Cada ambiente usa o Auth do seu próprio projeto (DT-06): usuário criado no
+  `localizapet-dev` não existe em produção
+
 ---
 
 ## Variáveis de ambiente
@@ -120,6 +155,8 @@ Nenhuma credencial no repositório (RNF-02) — o repositório é público. Só 
 | Variável | Origem | Usada em |
 |---|---|---|
 | `DATABASE_URL` | Supabase → pooler, porta 6543 | pool do Postgres, scripts de migration e seed |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project URL | cliente do Supabase Auth (DT-07) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → chave `anon` | cliente do Supabase Auth (DT-07) |
 | `R2_ACCOUNT_ID` | Cloudflare → ID da conta | cliente do R2 |
 | `R2_ACCESS_KEY_ID` | Cloudflare → API token | cliente do R2 |
 | `R2_SECRET_ACCESS_KEY` | Cloudflare → API token | cliente do R2 |
