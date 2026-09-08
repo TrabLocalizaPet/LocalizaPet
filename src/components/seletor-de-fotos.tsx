@@ -17,9 +17,13 @@ import { classes } from "./ui/classes";
  * enviados. A linha em `fotos` so nasce quando o anuncio e criado, na mesma
  * transacao (RN-34) — enviar arquivo nao cria anuncio.
  *
- * Consequencia aceita: abandonar o formulario depois de enviar deixa objetos
- * orfaos no bucket. Limpar isso exigiria uma varredura periodica, que e
- * trabalho para depois do MVP.
+ * Remover uma foto aqui apaga o objeto no R2 tambem: ela ainda nao foi
+ * publicada, e guardar um arquivo que a pessoa pediu para descartar nao faz
+ * sentido.
+ *
+ * Consequencia aceita: **abandonar** o formulario depois de enviar ainda
+ * deixa objetos orfaos — nesse caso nao ha clique nenhum para reagir. Limpar
+ * isso exigiria uma regra de ciclo de vida no bucket, anotada como pendencia.
  */
 
 const MAXIMO = 6; // RN-06
@@ -97,8 +101,19 @@ export function SeletorDeFotos({
     }
   }
 
-  function remover(chave: string) {
+  async function remover(chave: string) {
+    // Tira da tela primeiro: a pessoa pediu para remover, e esperar a rede
+    // para ver o efeito deixaria a interface travada sem motivo.
     ao_mudar(fotos.filter((f) => f.chave !== chave));
+
+    // O arquivo ja esta no bucket, entao remover so do formulario deixaria
+    // lixo la. Se a chamada falhar, sobra um objeto orfao — sem consequencia
+    // para quem usa, e por isso o erro nao volta para a tela.
+    await fetch("/api/uploads", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chave }),
+    }).catch(() => {});
   }
 
   return (

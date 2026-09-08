@@ -175,6 +175,15 @@ upload não passa pelo servidor (RNF-10).
 `chave_r2` é guardado separado da `url` porque a exclusão do objeto no R2
 precisa da chave, e derivá-la da URL seria frágil se o domínio público mudar.
 
+> **Ao excluir.** As chaves precisam ser lidas **antes** do `DELETE`: o
+> `ON DELETE CASCADE` leva as linhas de `fotos` junto, e depois não há como
+> saber quais objetos ficaram órfãos.
+>
+> E a ordem é sempre **banco primeiro, R2 depois**. Na ordem inversa, um erro
+> na transação deixaria um anúncio apontando para foto inexistente — quebrado
+> e visível. Nesta ordem o pior caso é um arquivo esquecido: invisível e
+> barato.
+
 ### `perfis.papel` como coluna com `CHECK`
 
 RN-33 define o administrador como atributo **persistente** do perfil, ao

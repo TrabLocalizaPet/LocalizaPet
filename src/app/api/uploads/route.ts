@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
-import { TIPOS_DE_IMAGEM, url_assinada_para_upload } from "@/lib/r2";
+import {
+  TIPOS_DE_IMAGEM,
+  excluir_objetos,
+  url_assinada_para_upload,
+} from "@/lib/r2";
+import { chave_publicada } from "@/queries/fotos";
 
 /**
  * URL assinada para enviar foto (RF-05, RNF-10).
@@ -46,4 +51,54 @@ export async function POST(requisicao: Request) {
   );
 
   return NextResponse.json({ url, chave });
+}
+
+/**
+ * Apaga uma foto que ainda **nao** foi publicada (RF-05).
+ *
+ * Quem tira uma foto do formulario antes de enviar o anuncio esperaria que
+ * ela sumisse — manter o arquivo no bucket seria guardar algo que a pessoa
+ * pediu para descartar.
+ *
+ * Duas travas, e as duas importam:
+ *
+ * 1. **A chave precisa comecar com `animais/<id da sessao>/`.** E o mesmo
+ *    caminho que `url_assinada_para_upload` gera, e e o que impede alguem de
+ *    pedir a exclusao do arquivo de outra pessoa.
+ * 2. **A chave nao pode estar em `fotos`.** Enquanto o arquivo esta so no
+ *    formulario, apagar e limpeza; depois de publicado, seria destruir a foto
+ *    de um anuncio no ar — e ai a exclusao tem de vir junto com a do anuncio,
+ *    nunca sozinha.
+ */
+const Exclusao = z.object({
+  chave: z.string().min(1).max(200),
+});
+
+export async function DELETE(requisicao: Request) {
+  const usuario = await usuario_atual();
+  if (!usuario) {
+    return NextResponse.json({ erro: "e preciso estar autenticado" }, { status: 401 });
+  }
+
+  const corpo = Exclusao.safeParse(await requisicao.json());
+  if (!corpo.success) {
+    return NextResponse.json({ erro: "chave invalida" }, { status: 422 });
+  }
+
+  const { chave } = corpo.data;
+
+  if (!chave.startsWith(`animais/${usuario.id}/`)) {
+    // 403 e nao 404: a chave existe, so nao e desta pessoa.
+    return NextResponse.json({ erro: "esta foto nao e sua" }, { status: 403 });
+  }
+
+  if (await chave_publicada(chave)) {
+    return NextResponse.json(
+      { erro: "foto ja publicada; exclua o anuncio" },
+      { status: 409 },
+    );
+  }
+
+  await excluir_objetos([chave]);
+  return new NextResponse(null, { status: 204 });
 }

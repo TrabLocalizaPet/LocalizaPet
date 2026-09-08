@@ -1,4 +1,9 @@
-import { S3Client, HeadBucketCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  HeadBucketCommand,
+  PutObjectCommand,
+  DeleteObjectsCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
 
@@ -91,6 +96,35 @@ export async function url_assinada_para_upload(
   );
 
   return { url, chave };
+}
+
+/**
+ * Apaga objetos do bucket.
+ *
+ * **Chamar sempre DEPOIS de apagar as linhas no banco.** Na ordem inversa, um
+ * erro na transacao deixaria um anuncio apontando para foto inexistente —
+ * quebrado e visivel. Nesta ordem, o pior caso e um arquivo esquecido no
+ * bucket: invisivel e barato.
+ *
+ * Por isso tambem nao lanca: falhar aqui nao pode desfazer uma exclusao que
+ * ja aconteceu no banco. O erro e registrado e a vida segue.
+ *
+ * `DeleteObjects` leva ate mil chaves numa requisicao so — apagar um anuncio
+ * com seis fotos custa uma chamada, nao seis.
+ */
+export async function excluir_objetos(chaves: string[]): Promise<void> {
+  if (chaves.length === 0) return;
+
+  try {
+    await obter_cliente_r2().send(
+      new DeleteObjectsCommand({
+        Bucket: nome_do_bucket(),
+        Delete: { Objects: chaves.map((Key) => ({ Key })), Quiet: true },
+      }),
+    );
+  } catch (erro) {
+    console.error("nao foi possivel apagar do R2:", chaves, erro);
+  }
 }
 
 /** Usado pelo painel de diagnostico: confirma credencial e bucket. */

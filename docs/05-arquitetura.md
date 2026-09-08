@@ -257,7 +257,8 @@ Entradas para o registro de riscos, ainda não escrito.
 |---|---|---|
 | Projeto Supabase pausa por inatividade | Aplicação fora do ar na apresentação | Acessar o banco na véspera; incluir no checklist de entrega |
 | Uso da connection string direta em vez do pooler | `too many connections` sob carga, justo na demonstração | Registrado em DT-02; o `.env.example` traz a porta correta no comentário |
-| CORS do bucket não aplicado | Upload falha só em produção | Versionar a política de CORS no repositório; acrescentar a URL de produção ao publicar |
+| CORS do bucket não aplicado **ou incompleto** | Upload falha só no navegador | Testar o *preflight* como o navegador faz, não só se a política existe. Aconteceu em 07/09/2026: a política existia com `GET` apenas, e o upload é `PUT` |
+| Objeto órfão no bucket | Armazenamento cresce sem uso | Remover a foto no formulário apaga o objeto; apagar anúncio apaga as fotos junto. **Falta:** formulário abandonado depois do envio |
 | Cota gratuita estourada | Serviço suspenso | Volume de trabalho acadêmico está muito abaixo das cotas; conferir os limites vigentes antes da entrega |
 | Migration esquecida no deploy | Schema desatualizado em produção | `npm run migrate` é manual e faz parte do procedimento de publicação |
 

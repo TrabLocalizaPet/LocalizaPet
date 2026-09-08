@@ -37,7 +37,7 @@ export default async function BoasVindas() {
       {/* A foto vai de y=0 a y=517 dos 844 do desenho — 61% da altura. O
           `object-top` reproduz o enquadramento: no Figma ela comeca acima do
           quadro, entao o que se ve e o topo. */}
-      <div className="relative h-[61%] shrink-0">
+      <div className="relative h-[56%] shrink-0">
         <Image
           src="/marca/boas-vindas.jpg"
           alt=""
@@ -48,10 +48,10 @@ export default async function BoasVindas() {
         />
         {/* O `Rectangle 208` do desenho: o degrade que funde a foto no branco,
             de y=346 a y=518. */}
-        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-linear-to-b from-transparent to-white" />
+        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-linear-to-b from-transparent to-white h-full" />
       </div>
 
-      <div className="flex flex-1 flex-col items-center px-8">
+      <div className="flex flex-1 flex-col items-center px-8 py-10">
         {/* 186 de 390 = 48% da largura, em y=452 (logo abaixo da foto). */}
         <MarcaComNome largura={186} className="-mt-8 w-[48%]" />
 

@@ -1,4 +1,5 @@
 import { obter_pool } from "../src/lib/db";
+import { excluir_objetos } from "../src/lib/r2";
 
 /**
  * Dados de teste (RF-33).
@@ -182,15 +183,31 @@ const ANIMAIS = [
 async function semear(): Promise<void> {
   const pool = obter_pool();
   const cliente = await pool.connect();
+  let chaves_para_apagar: string[] = [];
 
   try {
     await cliente.query("BEGIN");
 
+    const ids = PERFIS.map((perfil) => perfil.id);
+
+    // As chaves precisam ser lidas ANTES do DELETE: o ON DELETE CASCADE leva
+    // as linhas de `fotos` junto, e depois nao ha como saber quais objetos
+    // ficaram orfaos no bucket.
+    const fotos = await cliente.query<{ chave_r2: string }>(
+      `SELECT f.chave_r2
+         FROM fotos f
+         JOIN animais a ON a.id = f.animal_id
+        WHERE a.autor_id = ANY($1)`,
+      [ids],
+    );
+
     // Limpeza cirurgica: so os perfis de UUID fixo. O ON DELETE CASCADE leva
     // junto os anuncios, avistamentos, areas e notificacoes deles (RN-26).
-    await cliente.query("DELETE FROM perfis WHERE id = ANY($1)", [
-      PERFIS.map((perfil) => perfil.id),
-    ]);
+    await cliente.query("DELETE FROM perfis WHERE id = ANY($1)", [ids]);
+
+    // Guardado para depois do COMMIT: apagar no R2 antes disso arriscaria
+    // remover a foto de um anuncio que a transacao ainda pode desfazer.
+    chaves_para_apagar = fotos.rows.map((linha) => linha.chave_r2);
 
     for (const perfil of PERFIS) {
       await cliente.query(
@@ -293,6 +310,14 @@ async function semear(): Promise<void> {
     }
 
     await cliente.query("COMMIT");
+
+    // Depois do COMMIT, nunca antes: se a transacao tivesse sido desfeita, os
+    // anuncios continuariam existindo e as fotos precisariam continuar la.
+    // Falhar aqui so deixa arquivo esquecido, que e o erro barato.
+    if (chaves_para_apagar.length > 0) {
+      await excluir_objetos(chaves_para_apagar);
+      console.log(`${chaves_para_apagar.length} foto(s) antiga(s) apagada(s) do R2.`);
+    }
 
     console.log(
       `${PERFIS.length} perfis, ${CARACTERISTICAS.length} caracteristicas e ` +
