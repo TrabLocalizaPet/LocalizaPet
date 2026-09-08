@@ -25,7 +25,31 @@ async function listar_arquivos(): Promise<string[]> {
   return arquivos.filter((nome) => nome.endsWith(".sql")).sort();
 }
 
+/**
+ * De qual banco e esta conexao.
+ *
+ * Impresso antes de qualquer coisa porque migration se aplica duas vezes, em
+ * bancos diferentes (DT-06), e nao ha como desfazer a que foi no alvo errado.
+ * Ver o host antes de o comando agir e a unica defesa barata contra isso.
+ *
+ * So o host e o usuario: a senha esta na mesma string e nao pode aparecer no
+ * terminal, que costuma ir parar em print de tela.
+ */
+function alvo(): string {
+  const url = process.env.DATABASE_URL;
+  if (!url) return "(DATABASE_URL nao definida)";
+
+  try {
+    const { hostname, port, username, pathname } = new URL(url);
+    return `${username}@${hostname}:${port}${pathname}`;
+  } catch {
+    return "(DATABASE_URL mal formada)";
+  }
+}
+
 async function migrar(): Promise<void> {
+  console.log(`banco: ${alvo()}\n`);
+
   const pool = obter_pool();
   const cliente = await pool.connect();
 
