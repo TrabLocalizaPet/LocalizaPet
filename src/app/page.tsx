@@ -1,114 +1,86 @@
-import { estado_do_schema, versao_do_banco, TABELAS_ESPERADAS } from "@/queries/diagnostico";
-import { testar_bucket, nome_do_bucket } from "@/lib/r2";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+
+import { MarcaComNome } from "@/components/marca";
+import { BotaoLink } from "@/components/ui/botao";
+import { usuario_atual } from "@/lib/auth";
 
 /**
- * Painel de diagnostico (RF-31).
+ * Boas-vindas — a tela "Login" do Figma (no 1:600).
  *
- * Testa Postgres, schema e R2 **em separado**, cada um no seu try/catch: se
- * uma peca cai, as outras continuam sendo reportadas. E a primeira tela a
- * abrir quando algo nao funciona — ela diz qual peca esta fora.
+ * As medidas sao as do desenho, sobre o quadro de 390x844, convertidas para
+ * porcentagem da altura para acompanharem telas de outro tamanho:
+ *
+ *   foto      586x752 a partir de (-196, -235) — sangra em cima e nos lados
+ *   degrade   390x172 em y=346
+ *   marca     186x88  em y=452
+ *   titulo    320x56  em y=556
+ *   Login     326x40  em y=644
+ *   Cadastro  326x40  em y=700
+ *   link      137x32  em y=756
+ *
+ * Os botoes tem **40 px de altura no desenho**, e nao os 44 do resto do
+ * aplicativo. Seguimos o desenho aqui; a diferenca esta anotada no
+ * docs/07-interface.md.
+ *
+ * A tela existe para **dar a escolha antes de exigir qualquer coisa**:
+ * entrar, criar conta, ou seguir sem cadastro. O "Entrar sem cadastro" e a
+ * porta visivel do RF-22, que e obrigatorio — sem ela, ninguem descobre que
+ * da para navegar sem conta.
  */
-
-export const dynamic = "force-dynamic";
-
-type Resultado = {
-  titulo: string;
-  ok: boolean;
-  detalhe: string;
-};
-
-function mensagem_de_erro(erro: unknown): string {
-  return erro instanceof Error ? erro.message : String(erro);
-}
-
-async function testar_postgres(): Promise<Resultado> {
-  try {
-    const { versao, agora } = await versao_do_banco();
-    return {
-      titulo: "Postgres",
-      ok: true,
-      detalhe: `${versao.split(",")[0]} — hora do banco ${agora.toISOString()}`,
-    };
-  } catch (erro) {
-    return { titulo: "Postgres", ok: false, detalhe: mensagem_de_erro(erro) };
-  }
-}
-
-async function testar_schema(): Promise<Resultado> {
-  try {
-    const estado = await estado_do_schema();
-
-    if (!estado.postgis) {
-      return {
-        titulo: "Schema",
-        ok: false,
-        detalhe: "PostGIS nao esta habilitado — a busca por raio depende dele",
-      };
-    }
-
-    if (estado.tabelas_faltando.length > 0) {
-      return {
-        titulo: "Schema",
-        ok: false,
-        detalhe: `faltam ${estado.tabelas_faltando.length} de ${TABELAS_ESPERADAS.length} tabelas: ${estado.tabelas_faltando.join(", ")} — rode npm run migrate`,
-      };
-    }
-
-    return {
-      titulo: "Schema",
-      ok: true,
-      detalhe: `PostGIS ${estado.postgis} — ${estado.tabelas_presentes.length} tabelas no lugar`,
-    };
-  } catch (erro) {
-    return { titulo: "Schema", ok: false, detalhe: mensagem_de_erro(erro) };
-  }
-}
-
-async function testar_r2(): Promise<Resultado> {
-  try {
-    const bucket = nome_do_bucket();
-    await testar_bucket();
-    return { titulo: "Cloudflare R2", ok: true, detalhe: `bucket ${bucket} acessivel` };
-  } catch (erro) {
-    return { titulo: "Cloudflare R2", ok: false, detalhe: mensagem_de_erro(erro) };
-  }
-}
-
-export default async function Painel() {
-  const resultados = await Promise.all([
-    testar_postgres(),
-    testar_schema(),
-    testar_r2(),
-  ]);
-
-  const tudo_ok = resultados.every((resultado) => resultado.ok);
+export default async function BoasVindas() {
+  if (await usuario_atual()) redirect("/animais");
 
   return (
-    <main className="painel">
-      <h1>LocalizaPet</h1>
-      <p className="resumo">
-        Painel de diagnostico. {tudo_ok
-          ? "As tres pecas responderam."
-          : "Alguma peca esta fora — o detalhe esta abaixo."}
-      </p>
+    <main className="relative mx-auto flex h-dvh max-w-md flex-col overflow-hidden">
+      {/* A foto vai de y=0 a y=517 dos 844 do desenho — 61% da altura. O
+          `object-top` reproduz o enquadramento: no Figma ela comeca acima do
+          quadro, entao o que se ve e o topo. */}
+      <div className="relative h-[56%] shrink-0">
+        <Image
+          src="/marca/boas-vindas.jpg"
+          alt=""
+          fill
+          priority
+          sizes="28rem"
+          className="object-cover object-top"
+        />
+        {/* O `Rectangle 208` do desenho: o degrade que funde a foto no branco,
+            de y=346 a y=518. */}
+        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-linear-to-b from-transparent to-white h-full" />
+      </div>
 
-      <ul className="testes">
-        {resultados.map((resultado) => (
-          <li key={resultado.titulo} className={resultado.ok ? "teste ok" : "teste erro"}>
-            <span className="marca" aria-hidden="true">
-              {resultado.ok ? "✓" : "✗"}
-            </span>
-            <div>
-              <h2>{resultado.titulo}</h2>
-              <p>{resultado.detalhe}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="flex flex-1 flex-col items-center px-8 py-10">
+        {/* 186 de 390 = 48% da largura, em y=452 (logo abaixo da foto). */}
+        <MarcaComNome largura={186} className="-mt-8 w-[48%]" />
 
-      <p className="rodape">
-        Cada teste roda isolado: a falha de um nao esconde o resultado dos outros.
-      </p>
+        <h1 className="mt-3 text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
+          Conecte coracoes.
+          <br />
+          Reencontre historias.
+        </h1>
+
+        {/* 326 de 390 = 84%; os botoes ficam colados no rodape do desenho. */}
+        <div className="mt-auto grid w-full gap-3.5 pb-6">
+          <BotaoLink href="/entrar" largo>
+            Login
+          </BotaoLink>
+          <BotaoLink
+            href="/cadastro"
+            aparencia="secundaria"
+            largo
+          >
+            Cadastro
+          </BotaoLink>
+          <Link
+            href="/animais"
+            className="py-1 text-center text-sm font-semibold text-primaria"
+          >
+            Entrar sem cadastro
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

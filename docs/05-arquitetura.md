@@ -187,6 +187,40 @@ pooler.
 - Cada ambiente usa o Auth do seu próprio projeto (DT-06): usuário criado no
   `localizapet-dev` não existe em produção
 
+### DT-08 — Tailwind e componentização, mobile primeiro
+
+**Substitui a decisão anterior de CSS puro.** O `CLAUDE.md` e o RNF-11
+diziam "CSS puro, sem Tailwind, sem biblioteca de UI"; a partir daqui a
+interface usa **Tailwind CSS v4**, com as fichas técnicas do Figma
+declaradas em `@theme` no `globals.css`.
+
+**Por quê.** As telas construídas com CSS puro divergiram do Figma, e o
+motivo foi estrutural: sem as fichas técnicas amarradas ao código, cada tela
+reinventava espaçamento e cor. Com `@theme`, `bg-primary` **é** o
+`theme/primary` do Figma — a divergência passa a exigir esforço em vez de
+acontecer sozinha.
+
+**Continua valendo:** nenhuma biblioteca de componentes prontos. Os
+componentes são do projeto, em `src/components/`, e o RNF-11 segue exigindo
+interface em português e responsiva.
+
+**Mobile primeiro, e isto não é preferência.** O Figma só tem o layout de
+390 px. Escrever para desktop e adaptar para o celular produz uma tela que
+funciona onde ninguém desenhou e falha onde o desenho existe. As regras de
+desktop entram por `min-width` e ficam registradas em
+[07 — Interface](07-interface.md).
+
+**Assets saem do Figma pela exportação**, não são recriados à mão. Emoji no
+lugar de ícone desenhado descarta trabalho de design.
+
+**Consequências.**
+- `globals.css` deixa de acumular classes por tela e passa a declarar só as
+  fichas técnicas e o punhado de estilos que Tailwind não cobre
+- Tela não escreve estilo: compõe componentes. Utilitário repetido em três
+  telas é componente que falta
+- Um documento novo, [07 — Interface](07-interface.md), passa a ser a fonte
+  da verdade da interface, com as divergências conhecidas listadas
+
 ---
 
 ## Variáveis de ambiente
@@ -223,7 +257,8 @@ Entradas para o registro de riscos, ainda não escrito.
 |---|---|---|
 | Projeto Supabase pausa por inatividade | Aplicação fora do ar na apresentação | Acessar o banco na véspera; incluir no checklist de entrega |
 | Uso da connection string direta em vez do pooler | `too many connections` sob carga, justo na demonstração | Registrado em DT-02; o `.env.example` traz a porta correta no comentário |
-| CORS do bucket não aplicado | Upload falha só em produção | Versionar a política de CORS no repositório; acrescentar a URL de produção ao publicar |
+| CORS do bucket não aplicado **ou incompleto** | Upload falha só no navegador | Testar o *preflight* como o navegador faz, não só se a política existe. Aconteceu em 07/09/2026: a política existia com `GET` apenas, e o upload é `PUT` |
+| Objeto órfão no bucket | Armazenamento cresce sem uso | Remover a foto no formulário apaga o objeto; apagar anúncio apaga as fotos junto. **Falta:** formulário abandonado depois do envio |
 | Cota gratuita estourada | Serviço suspenso | Volume de trabalho acadêmico está muito abaixo das cotas; conferir os limites vigentes antes da entrega |
 | Migration esquecida no deploy | Schema desatualizado em produção | `npm run migrate` é manual e faz parte do procedimento de publicação |
 

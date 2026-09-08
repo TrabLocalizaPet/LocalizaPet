@@ -41,7 +41,9 @@ registrada como decisão técnica.
   usa `ST_DWithin` sobre índice GIST
 - `zod` para validação de entrada nas rotas
 - `@aws-sdk/client-s3` apontando para o endpoint do R2
-- CSS puro em `src/app/globals.css` — sem Tailwind, sem biblioteca de UI
+- **Tailwind CSS v4** (DT-08), com as fichas técnicas do Figma declaradas em
+  `@theme` no `globals.css`. Sem biblioteca de componentes prontos — os
+  componentes são do projeto, em `src/components/`
 - Leaflet + OpenStreetMap para o mapa, e Nominatim para endereco a partir
   da coordenada. **Nao sugira Google Maps**: exige cartao de credito mesmo
   na cota gratuita, o que conflita com a restricao de custo zero.
@@ -56,7 +58,9 @@ registrada como decisão técnica.
 | `src/queries/` | **todo** o SQL, com retorno tipado |
 | `src/lib/db.ts` | pool do Postgres (singleton) |
 | `src/lib/r2.ts` | cliente do R2 e geração de URL assinada |
+| `src/components/` | componentes de interface. **Tela não escreve estilo** |
 | `src/types/` | tipos do domínio, compartilhados entre front e API |
+| `public/marca/` | assets exportados do Figma — nunca recriados à mão |
 | `migrations/` | schema versionado em SQL |
 | `scripts/migrate.ts` | runner que aplica migrations pendentes |
 | `scripts/seed.ts` | dados de teste, inclusive o catálogo de características |
@@ -77,6 +81,11 @@ registrada como decisão técnica.
 - Mensagens de commit em português, no imperativo ("adiciona filtro por
   espécie", não "adicionado").
 - Código e comentários em português. Nomes de coluna e variável sem acento.
+- **O Figma só tem o layout mobile (390 px).** Escreva a tela para o celular
+  e adapte o desktop depois, com `min-width` — nunca o contrário. Ver
+  `docs/07-interface.md`.
+- **Ícone, ilustração e logotipo saem do Figma pela exportação.** Nada de
+  emoji nem SVG desenhado à mão no lugar do que já foi desenhado.
 
 ## Escopo e ordem
 

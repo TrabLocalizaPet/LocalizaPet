@@ -6,6 +6,7 @@ import {
   atualizar_perfil,
   buscar_perfil,
   garantir_perfil,
+  registrar_intencao,
 } from "@/queries/perfis";
 
 /**
@@ -30,6 +31,20 @@ const telefone = z
 const CriacaoDePerfil = z.object({
   nome: z.string().trim().min(2, "nome muito curto").max(120),
   telefone,
+  // A faixa repete o CHECK da 002_ para devolver 422 com mensagem util em vez
+  // de deixar o banco recusar com erro cru.
+  data_nascimento: z
+    .iso
+    .date()
+    .refine((d) => d > "1900-01-01" && d <= new Date().toISOString().slice(0, 10), {
+      message: "data de nascimento fora da faixa aceita",
+    })
+    .nullish()
+    .transform((v) => v ?? null),
+});
+
+const RegistroDeIntencao = z.object({
+  intencao: z.enum(["perdi_pet", "achei_pet", "quero_adotar", "quero_doar"]),
 });
 
 const EdicaoDePerfil = z.object({
@@ -77,9 +92,32 @@ export async function POST(requisicao: Request) {
     nome: corpo.data.nome,
     email: usuario.email ?? "",
     telefone: corpo.data.telefone,
+    data_nascimento: corpo.data.data_nascimento,
   });
 
   return NextResponse.json(perfil, { status: 201 });
+}
+
+/**
+ * Ultimo passo do cadastro: "O que te trouxe aqui?" (tela do Figma).
+ *
+ * Rota propria, e nao um campo do PATCH, porque e outro momento — obrigar a
+ * tela de onboarding a reenviar nome e telefone so para nao apaga-los seria
+ * convidar ao engano.
+ */
+export async function PUT(requisicao: Request) {
+  const usuario = await usuario_atual();
+  if (!usuario) return sem_sessao();
+
+  const corpo = RegistroDeIntencao.safeParse(await requisicao.json());
+  if (!corpo.success) return entrada_invalida(corpo.error);
+
+  const perfil = await registrar_intencao(usuario.id, corpo.data.intencao);
+  if (!perfil) {
+    return NextResponse.json({ erro: "perfil ainda nao criado" }, { status: 404 });
+  }
+
+  return NextResponse.json(perfil);
 }
 
 export async function PATCH(requisicao: Request) {

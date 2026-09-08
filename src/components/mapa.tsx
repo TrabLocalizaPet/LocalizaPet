@@ -34,10 +34,49 @@ const INICIAL: Record<TipoDeAnuncio, string> = {
   adocao: "A",
 };
 
+// O Leaflet injeta esta marcacao fora do React, entao o estilo vai inline em
+// vez de classe do Tailwind: utilitario que so aparece dentro de uma string
+// montada em tempo de execucao nao entra no CSS gerado.
+const PINO =
+  "display:grid;place-items:center;width:26px;height:26px;border-radius:50%;" +
+  "color:#fff;font-size:12px;font-weight:700;border:2px solid #fff;" +
+  "box-shadow:0 1px 3px rgb(0 0 0 / 0.35)";
+
+/**
+ * Pino com a foto do animal (RF-05, RF-12).
+ *
+ * A foto ocupa o circulo e a **borda** passa a carregar a cor do tipo. So
+ * isso nao bastaria: cor sozinha nao distingue perdido de adocao para quem
+ * nao ve vermelho e verde. Por isso vai junto um selo com a inicial, no
+ * canto — mesma informacao da legenda, em cima da foto.
+ *
+ * Sem foto, cai no circulo colorido com a inicial, que e o que existia antes.
+ */
+function pino_com_foto(animal: AnimalNoMapa) {
+  const cor = COR[animal.tipo_anuncio];
+
+  return L.divIcon({
+    className: "",
+    html: `
+      <span style="position:relative;display:block;width:44px;height:44px">
+        <img src="${animal.foto_url}" alt=""
+             style="width:44px;height:44px;border-radius:50%;object-fit:cover;
+                    border:3px solid ${cor};box-shadow:0 1px 4px rgb(0 0 0 / 0.35);
+                    background:#fff" />
+        <span style="position:absolute;right:-2px;bottom:-2px;display:grid;
+                     place-items:center;width:18px;height:18px;border-radius:50%;
+                     background:${cor};color:#fff;font-size:10px;font-weight:700;
+                     border:2px solid #fff">${INICIAL[animal.tipo_anuncio]}</span>
+      </span>`,
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+  });
+}
+
 function pino(tipo: TipoDeAnuncio) {
   return L.divIcon({
     className: "",
-    html: `<span class="pino" style="background:${COR[tipo]}">${INICIAL[tipo]}</span>`,
+    html: `<span style="${PINO};background:${COR[tipo]}">${INICIAL[tipo]}</span>`,
     iconSize: [26, 26],
     iconAnchor: [13, 13],
   });
@@ -46,7 +85,7 @@ function pino(tipo: TipoDeAnuncio) {
 function alvo() {
   return L.divIcon({
     className: "",
-    html: `<span class="pino alvo">+</span>`,
+    html: `<span style="${PINO};background:#332430">+</span>`,
     iconSize: [26, 26],
     iconAnchor: [13, 13],
   });
@@ -112,7 +151,11 @@ export default function Mapa({
 
     for (const animal of animais) {
       const nome = animal.nome ?? "Sem nome";
-      L.marker([animal.lat, animal.lng], { icon: pino(animal.tipo_anuncio) })
+      const icone = animal.foto_url
+        ? pino_com_foto(animal)
+        : pino(animal.tipo_anuncio);
+
+      L.marker([animal.lat, animal.lng], { icon: icone })
         .bindPopup(
           `<strong>${nome}</strong><br>${animal.tipo_anuncio} · ${animal.especie}`,
         )
@@ -140,5 +183,7 @@ export default function Mapa({
     }
   }, [local_escolhido]);
 
-  return <div ref={div} className="mapa" />;
+  // A altura vem de quem usa: no detalhe o mapa e um bloco, na tela do mapa
+  // ele ocupa o que sobra. O componente so preenche o espaco que recebe.
+  return <div ref={div} className="h-full w-full" />;
 }

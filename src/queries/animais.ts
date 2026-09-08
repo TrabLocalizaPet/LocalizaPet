@@ -1,5 +1,12 @@
 import { consultar, obter_pool } from "@/lib/db";
-import type { AnimalNoMapa, NovoAnuncio } from "@/types/animal";
+import { url_publica } from "@/lib/r2";
+import type {
+  AnimalEmDetalhe,
+  AnimalNaLista,
+  AnimalNoMapa,
+  NovoAnuncio,
+  TipoDeAnuncio,
+} from "@/types/animal";
 
 /**
  * Consultas de animais (RF-12).
@@ -35,7 +42,8 @@ export async function animais_no_mapa(): Promise<AnimalNoMapa[]> {
             a.especie,
             ST_Y(v.local::geometry) AS lat,
             ST_X(v.local::geometry) AS lng,
-            v.visto_em
+            v.visto_em,
+            capa.url AS foto_url
        FROM animais a
        JOIN LATERAL (
             SELECT av.local, av.visto_em
@@ -44,9 +52,130 @@ export async function animais_no_mapa(): Promise<AnimalNoMapa[]> {
              ORDER BY av.visto_em DESC
              LIMIT 1
        ) v ON true
+       LEFT JOIN LATERAL (
+            SELECT f.url
+              FROM fotos f
+             WHERE f.animal_id = a.id
+             ORDER BY f.ordem, f.criado_em
+             LIMIT 1
+       ) capa ON true
       WHERE a.situacao = 'ativo'
       ORDER BY v.visto_em DESC`,
   );
+}
+
+/**
+ * Colunas do anuncio mais a coordenada do avistamento mais recente.
+ *
+ * `LEFT JOIN LATERAL` aqui, e nao `JOIN` como no mapa: na listagem o anuncio
+ * de adocao sem local **precisa** aparecer (RN-03). No mapa ele nao entra
+ * porque nao ha onde desenhar o pino.
+ */
+const SELECAO_DA_LISTA = `
+  a.id, a.nome, a.tipo_anuncio, a.especie, a.sexo, a.porte, a.cor,
+  a.idade_meses, a.criado_em,
+  ST_Y(v.local::geometry) AS lat,
+  ST_X(v.local::geometry) AS lng,
+  v.endereco_texto,
+  capa.url AS foto_url
+`;
+
+/**
+ * Foto de capa: a de menor `ordem` (RNF-05).
+ *
+ * `LEFT JOIN LATERAL` com `LIMIT 1` em vez de trazer todas e escolher na
+ * aplicacao — sao N+1 consultas evitadas numa listagem de ate 100 anuncios.
+ * `LEFT` porque anuncio sem foto continua aparecendo.
+ */
+const FOTO_DE_CAPA = `
+  LEFT JOIN LATERAL (
+       SELECT f.url
+         FROM fotos f
+        WHERE f.animal_id = a.id
+        ORDER BY f.ordem, f.criado_em
+        LIMIT 1
+  ) capa ON true
+`;
+
+const ULTIMO_AVISTAMENTO = `
+  LEFT JOIN LATERAL (
+       SELECT av.local, av.endereco_texto, av.visto_em
+         FROM avistamentos av
+        WHERE av.animal_id = a.id
+        ORDER BY av.visto_em DESC
+        LIMIT 1
+  ) v ON true
+`;
+
+/**
+ * Anuncios ativos, mais recentes primeiro (RF-09), com filtro por tipo
+ * opcional (RF-10).
+ *
+ * `situacao = 'ativo'` cumpre RN-09: anuncio resolvido ou arquivado nao
+ * aparece em listagem nenhuma. O `LIMIT 100` e RN-16.
+ *
+ * O filtro entra como parametro `$1` nulo quando ausente, em vez de montar
+ * SQL diferente: uma consulta so, sem concatenacao de string, sem chance de
+ * injecao.
+ */
+export async function listar_animais(
+  tipo: TipoDeAnuncio | null = null,
+): Promise<AnimalNaLista[]> {
+  return consultar<AnimalNaLista>(
+    `SELECT ${SELECAO_DA_LISTA}
+       FROM animais a
+       ${ULTIMO_AVISTAMENTO}
+       ${FOTO_DE_CAPA}
+      WHERE a.situacao = 'ativo'
+        AND ($1::TEXT IS NULL OR a.tipo_anuncio = $1)
+      ORDER BY a.criado_em DESC
+      LIMIT 100`,
+    [tipo],
+  );
+}
+
+/**
+ * Um anuncio com o contato do autor (RF-15, RF-21).
+ *
+ * **RN-24 acontece no `CASE` desta consulta.** O telefone so e selecionado
+ * quando `telefone_publico` e verdadeiro; caso contrario o campo sai `null`
+ * da API. Filtrar na tela nao cumpriria a regra, porque o dado ainda
+ * viajaria na resposta e qualquer um leria.
+ *
+ * O e-mail do autor nao e selecionado em hipotese nenhuma (RN-25).
+ *
+ * Sem `situacao = 'ativo'`: o detalhe de um anuncio resolvido continua
+ * acessivel por link direto — quem tem a URL de um caso encerrado deve ver
+ * que ele encerrou, nao um 404.
+ */
+export async function buscar_animal(
+  id: string,
+): Promise<AnimalEmDetalhe | null> {
+  const linhas = await consultar<AnimalEmDetalhe>(
+    `SELECT ${SELECAO_DA_LISTA},
+            a.descricao,
+            a.situacao,
+            v.visto_em,
+            p.id   AS autor_id,
+            p.nome AS autor_nome,
+            CASE WHEN p.telefone_publico THEN p.telefone ELSE NULL END
+                   AS autor_telefone,
+            -- A galeria inteira, em ordem. Subconsulta em array em vez de
+            -- JOIN: com JOIN o anuncio se repetiria uma vez por foto e a
+            -- aplicacao teria de reagrupar.
+            ARRAY(
+              SELECT f.url FROM fotos f
+               WHERE f.animal_id = a.id
+               ORDER BY f.ordem, f.criado_em
+            ) AS fotos
+       FROM animais a
+       JOIN perfis p ON p.id = a.autor_id
+       ${ULTIMO_AVISTAMENTO}
+       ${FOTO_DE_CAPA}
+      WHERE a.id = $1`,
+    [id],
+  );
+  return linhas[0] ?? null;
 }
 
 /** Tipos de anuncio que nao existem sem local (RN-03). */
@@ -111,6 +240,21 @@ export async function criar_anuncio(dados: NovoAnuncio): Promise<{ id: string }>
         // ST_MakePoint recebe (X, Y): longitude antes de latitude. Trocar os
         // dois poe o anuncio no oceano sem erro nenhum.
         [id, dados.autor_id, dados.local.lng, dados.local.lat],
+      );
+    }
+
+    // RN-34: as fotos entram na MESMA transacao do anuncio e do avistamento.
+    // Gravadas depois, um erro deixaria anuncio sem as fotos que a pessoa
+    // acabou de enviar, e ninguem saberia.
+    //
+    // `url` e `chave_r2` sao guardadas separadas de proposito: excluir o
+    // objeto no R2 precisa da chave, e deriva-la da URL seria fragil se o
+    // dominio publico mudar.
+    for (const [ordem, chave] of dados.fotos.entries()) {
+      await cliente.query(
+        `INSERT INTO fotos (animal_id, url, chave_r2, ordem)
+         VALUES ($1, $2, $3, $4)`,
+        [id, url_publica(chave), chave, ordem],
       );
     }
 

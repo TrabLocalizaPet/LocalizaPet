@@ -28,6 +28,52 @@ export type AnimalNoMapa = {
   lat: number;
   lng: number;
   visto_em: Date;
+  /** Foto de capa (RNF-05). `null` enquanto o anuncio nao tiver nenhuma. */
+  foto_url: string | null;
+};
+
+/**
+ * Um anuncio na listagem (RF-09, RF-10).
+ *
+ * `lat` e `lng` sao nulos quando o anuncio nao tem avistamento nenhum —
+ * acontece so em adocao, que dispensa local (RN-03). O anuncio continua
+ * aparecendo na lista; o que ele nao faz e aparecer na busca por raio.
+ */
+export type AnimalNaLista = {
+  id: string;
+  nome: string | null;
+  tipo_anuncio: TipoDeAnuncio;
+  especie: Especie;
+  sexo: Sexo | null;
+  porte: Porte | null;
+  cor: string | null;
+  idade_meses: number | null;
+  criado_em: Date;
+  lat: number | null;
+  lng: number | null;
+  endereco_texto: string | null;
+  /** Foto de capa: a de menor `ordem` (RNF-05). */
+  foto_url: string | null;
+};
+
+/**
+ * Um anuncio na tela de detalhe (RF-15, RF-21).
+ *
+ * `autor_telefone` ja chega filtrado por RN-24: vem `null` quando o autor
+ * nao autorizou. A decisao acontece na consulta, nao na tela — esconder na
+ * interface deixaria o telefone viajar na resposta da API.
+ *
+ * `autor_email` nao existe neste tipo, e e proposital (RN-25).
+ */
+export type AnimalEmDetalhe = AnimalNaLista & {
+  descricao: string | null;
+  situacao: Situacao;
+  autor_id: string;
+  autor_nome: string;
+  autor_telefone: string | null;
+  visto_em: Date | null;
+  /** Todas as fotos, em ordem. A tela de detalhe mostra a galeria. */
+  fotos: string[];
 };
 
 /**
@@ -49,4 +95,6 @@ export type NovoAnuncio = {
   idade_meses: number | null;
   descricao: string | null;
   local: { lat: number; lng: number } | null;
+  /** Chaves ja enviadas ao R2 pelo navegador. No maximo 6 (RN-06). */
+  fotos: string[];
 };

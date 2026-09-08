@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
-import { criar_anuncio } from "@/queries/animais";
+import { criar_anuncio, listar_animais } from "@/queries/animais";
+import type { TipoDeAnuncio } from "@/types/animal";
 
 /**
  * Publicacao de anuncio nos tres fluxos (RF-01, RF-02, RF-03).
@@ -48,6 +49,13 @@ const NovoAnuncio = z
       .transform((v) => v ?? null),
     descricao: texto_opcional(2000),
     local: Coordenada.nullish().transform((v) => v ?? null),
+    // RN-06. A regra e de formulario, nao de schema: contar linhas no banco
+    // exigiria trigger. As chaves ja foram enviadas ao R2 pelo navegador
+    // (RNF-10); aqui so viram linhas em `fotos`.
+    fotos: z
+      .array(z.string().min(1).max(200))
+      .max(6, "no maximo 6 fotos")
+      .default([]),
   })
   // RN-03: perdido e encontrado exigem local. Sem coordenada o anuncio nao
   // aparece em nenhuma busca por regiao, que e a funcao central do produto.
@@ -60,6 +68,27 @@ const NovoAnuncio = z
       message: "anuncio de perdido ou encontrado exige o local no mapa",
     },
   );
+
+const TIPOS: TipoDeAnuncio[] = ["perdido", "encontrado", "adocao"];
+
+/**
+ * Listagem de anuncios ativos (RF-09), com filtro por tipo (RF-10).
+ *
+ * Aberta, sem sessao (RF-22). Nao devolve e-mail de ninguem, e o telefone
+ * so aparece na tela de detalhe, filtrado por RN-24.
+ *
+ * `?tipo=` desconhecido e tratado como ausente, nao como erro: o parametro
+ * vem da URL, que qualquer um edita, e uma listagem completa e uma resposta
+ * mais util que um 400 para quem so errou a digitacao.
+ */
+export async function GET(requisicao: Request) {
+  const pedido = new URL(requisicao.url).searchParams.get("tipo");
+  const tipo = TIPOS.includes(pedido as TipoDeAnuncio)
+    ? (pedido as TipoDeAnuncio)
+    : null;
+
+  return NextResponse.json(await listar_animais(tipo));
+}
 
 export async function POST(requisicao: Request) {
   // Publicar exige sessao — ao contrario de ler o mapa, que e aberto (RF-22).

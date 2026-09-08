@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Mitr } from "next/font/google";
+
+import Navegacao from "@/components/navegacao";
 import "./globals.css";
 
 // As duas fontes do arquivo do Figma: Inter no corpo, Mitr nos titulos.
@@ -18,12 +20,27 @@ export const metadata: Metadata = {
     "Cadastro publico de animais perdidos, encontrados e disponiveis para adocao, organizado por localizacao.",
 };
 
+/**
+ * `viewportFit: "cover"` e o par do `pb-[env(safe-area-inset-bottom)]` da
+ * navegacao: sem ele a barra de abas fica sob a faixa de gestos do iPhone e
+ * o ultimo botao nao recebe toque.
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f68b1e",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${mitr.variable}`}>
-      <body>{children}</body>
+      <body>
+        <Navegacao />
+        {children}
+      </body>
     </html>
   );
 }

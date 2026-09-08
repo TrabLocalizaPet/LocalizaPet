@@ -3,6 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { Botao } from "@/components/ui/botao";
+import { Campo, Interruptor } from "@/components/ui/campo";
+import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
 import type { Perfil } from "@/types/perfil";
 
@@ -11,7 +14,7 @@ type Estado = "carregando" | "sem_perfil" | "pronto";
 /**
  * Minha conta (RF-19, RF-20).
  *
- * Tres situacoes possiveis, e a terceira e a que costuma ser esquecida:
+ * Tres situacoes, e a terceira e a que costuma ser esquecida:
  *
  * - sem sessao (401) -> vai para /entrar
  * - com sessao e sem perfil (404) -> o cadastro parou entre os dois passos, e
@@ -34,15 +37,8 @@ export default function MinhaConta() {
     async function carregar() {
       const resposta = await fetch("/api/perfil");
 
-      if (resposta.status === 401) {
-        router.replace("/entrar");
-        return;
-      }
-
-      if (resposta.status === 404) {
-        definir_estado("sem_perfil");
-        return;
-      }
+      if (resposta.status === 401) return router.replace("/entrar");
+      if (resposta.status === 404) return definir_estado("sem_perfil");
 
       const perfil: Perfil = await resposta.json();
       definir_nome(perfil.nome);
@@ -96,75 +92,68 @@ export default function MinhaConta() {
 
   if (estado === "carregando") {
     return (
-      <main className="conta">
-        <p className="apoio">Carregando...</p>
-      </main>
+      <Tela largura="estreita">
+        <Apoio>Carregando...</Apoio>
+      </Tela>
     );
   }
 
   return (
-    <main className="conta">
-      <h1>{estado === "sem_perfil" ? "Complete seu cadastro" : "Minha conta"}</h1>
-      <p className="apoio">
+    <Tela largura="estreita">
+      <Titulo>
+        {estado === "sem_perfil" ? "Complete seu cadastro" : "Minha conta"}
+      </Titulo>
+      <Apoio>
         {estado === "sem_perfil"
           ? "Sua conta ja existe. Faltam so estes dados."
           : email}
-      </p>
+      </Apoio>
 
-      {erro && <p className="aviso">{erro}</p>}
-      {aviso && <p className="aviso bom">{aviso}</p>}
+      {erro && <Aviso>{erro}</Aviso>}
+      {aviso && <Aviso tom="bom">{aviso}</Aviso>}
 
-      <form onSubmit={salvar}>
-        <label className="campo">
-          <span>Nome</span>
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => definir_nome(e.target.value)}
-            minLength={2}
-            required
-          />
-        </label>
-
-        <label className="campo">
-          <span>Telefone</span>
-          <input
-            type="tel"
-            value={telefone}
-            onChange={(e) => definir_telefone(e.target.value)}
-            placeholder="(21) 99999-9999"
-          />
-        </label>
+      <form onSubmit={salvar} className="mt-4 grid gap-3">
+        <Campo
+          rotulo="Nome"
+          type="text"
+          value={nome}
+          onChange={(e) => definir_nome(e.target.value)}
+          minLength={2}
+          required
+        />
+        <Campo
+          rotulo="Telefone"
+          type="tel"
+          value={telefone}
+          onChange={(e) => definir_telefone(e.target.value)}
+          placeholder="(21) 99999-9999"
+        />
 
         {estado === "pronto" && (
-          <label className="interruptor">
-            <input
-              type="checkbox"
-              checked={telefone_publico}
-              onChange={(e) => definir_telefone_publico(e.target.checked)}
-            />
-            <span>
-              Mostrar meu telefone nos anuncios
-              <span className="explica">
-                Desligado, ninguem ve seu telefone — nem na tela, nem na
-                resposta da API. Nasce desligado (RN-24).
-              </span>
-            </span>
-          </label>
+          <Interruptor
+            rotulo="Mostrar meu telefone nos anuncios"
+            apoio="Desligado, ninguem ve seu telefone — nem na tela, nem na resposta da API. Nasce desligado (RN-24)."
+            checked={telefone_publico}
+            onChange={(e) => definir_telefone_publico(e.target.checked)}
+          />
         )}
 
-        <button className="botao" type="submit" disabled={salvando}>
+        <Botao type="submit" largo disabled={salvando}>
           {salvando ? "Salvando..." : "Salvar"}
-        </button>
+        </Botao>
       </form>
 
       {estado === "pronto" && (
-        <p className="alternativa">
-          <button className="botao secundario" type="button" onClick={sair}>
-            Sair
-          </button>
-        </p>
+        <Botao
+          aparencia="secundaria"
+          largo
+          type="button"
+          onClick={sair}
+          className="mt-3"
+        >
+          Sair
+        </Botao>
       )}
-    </main>
+    </Tela>
   );
 }
