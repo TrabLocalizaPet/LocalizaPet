@@ -156,24 +156,33 @@ export default function Cadastro() {
     return (
       <Casca>
         <FormasDeFundo />
-        <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
+        {/* Sem a seta nao ha volta para as boas-vindas: a tela e a entrada do
+            fluxo, e quem entrou por engano ficaria preso. */}
+        <Topo aoVoltar={() => router.push("/")} />
+
+        {/* Alturas do desenho: ilustracao em y=179 de 844, titulo em y=471,
+            apoio em y=559 e botao em y=625. Descontando a seta (56 px), o
+            primeiro espaco e 14dvh em vez de 21dvh. */}
+        <div className="flex flex-col items-center px-8 text-center">
           <Ilustracao
             arquivo="/ilustracoes/inicio-cadastro.png"
             descricao="Dois cachorros sentados lado a lado"
+            className="mt-[14dvh]"
           />
-          <h1 className="mt-8 font-titulo text-2xl leading-tight font-semibold text-escura">
+          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
             E hora do cadastro!
           </h1>
-          <p className="mt-3 max-w-72 text-sm text-suave">
+          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
             Sao apenas alguns passos para voce se cadastrar, e bem rapido.
             Vamos la?
           </p>
         </div>
-        <Rodape>
+
+        <div className="mt-[3dvh] px-8">
           <Botao largo onClick={() => definir_passo("nome")}>
             Vamos la!
           </Botao>
-        </Rodape>
+        </div>
       </Casca>
     );
   }
@@ -183,25 +192,29 @@ export default function Cadastro() {
     return (
       <Casca>
         <FormasDeFundo />
-        <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
+        {/* Sem seta de proposito: a conta ja existe, e voltar para o passo da
+            senha nao desfaz nada — so confundiria. */}
+        <div className="flex flex-col items-center px-8 text-center">
           <Ilustracao
             arquivo="/ilustracoes/ilustracao-cadastro-final.png"
             descricao="Pessoa cumprimentando um cachorro"
+            className="mt-[21dvh]"
           />
-          <h1 className="mt-8 font-titulo text-2xl leading-tight font-semibold text-escura">
+          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
             Cadastro realizado
             <br />
             com sucesso
           </h1>
-          <p className="mt-3 max-w-72 text-sm text-suave">
+          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
             Agora vamos configurar o aplicativo especialmente para voce!
           </p>
         </div>
-        <Rodape>
+
+        <div className="mt-[3dvh] px-8">
           <Botao largo onClick={() => definir_passo("intencao")}>
             Prosseguir
           </Botao>
-        </Rodape>
+        </div>
       </Casca>
     );
   }
@@ -211,8 +224,8 @@ export default function Cadastro() {
     return (
       <Casca>
           <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
-        <div className="flex flex-1 flex-col px-8">
-          <h1 className="text-center font-titulo text-xl font-semibold">
+        <div className="flex flex-col px-8">
+          <h1 className="mt-[4dvh] text-center font-titulo text-xl font-semibold">
             O que te trouxe aqui?
           </h1>
 
@@ -252,11 +265,13 @@ export default function Cadastro() {
             })}
           </ul>
         </div>
-        <Rodape>
+        {/* Aqui o botao fica mesmo perto do rodape: a lista de opcoes ocupa
+            o meio da tela e o "Proximo" fecha a escolha embaixo. */}
+        <div className="mt-auto px-8 pb-10">
           <Botao largo disabled={!intencao || enviando} onClick={salvar_intencao}>
             {enviando ? "Salvando..." : "Proximo"}
           </Botao>
-        </Rodape>
+        </div>
       </Casca>
     );
   }
@@ -450,17 +465,6 @@ function Topo({ aoVoltar, rotulo = "Voltar" }: { aoVoltar: () => void; rotulo?: 
 }
 
 /**
- * Rodape das telas de abertura e sucesso.
- *
- * O botao delas fica em y=625 de 844 no desenho, o que deixa 21% de tela
- * abaixo — nao esta colado no rodape. Daí o `pb-[21dvh]` em vez de um
- * espacamento fixo.
- */
-function Rodape({ children }: { children: React.ReactNode }) {
-  return <div className="mt-auto px-8 pt-6 pb-[21dvh]">{children}</div>;
-}
-
-/**
  * Ilustracao das telas de abertura e sucesso.
  *
  * `dog-paw/amico` e `dog-high-five/amico` no Figma, ambas da biblioteca
@@ -470,11 +474,19 @@ function Rodape({ children }: { children: React.ReactNode }) {
  * O `onError` esconde o quadro se o arquivo sumir, em vez de deixar o icone
  * de imagem quebrada no meio da tela.
  */
-function Ilustracao({ arquivo, descricao }: { arquivo: string; descricao: string }) {
+function Ilustracao({
+  arquivo,
+  descricao,
+  className,
+}: {
+  arquivo: string;
+  descricao: string;
+  className?: string;
+}) {
   const [falhou, definir_falhou] = useState(false);
 
   return (
-    <div className="relative aspect-[270/268] w-[69%]">
+    <div className={`relative aspect-[270/268] w-[69%] ${className ?? ""}`}>
       {!falhou && (
         <Image
           src={arquivo}
