@@ -41,6 +41,107 @@ API.
 A única fronteira com CORS é o `PUT` do navegador direto no R2, que exige
 política de CORS configurada no bucket.
 
+
+## Diagrama de implantação
+
+Onde cada peça roda, e por qual protocolo elas se falam. Notação UML de
+implantação: `«device»` é máquina, `«execution environment»` é o que hospeda
+código, `«artifact»` é o que foi implantado.
+
+```mermaid
+flowchart TB
+    NAV["#171;device#187; Celular ou computador
+    ─────────────
+    #171;execution environment#187; Navegador
+    #171;artifact#187; páginas React 19
+    #171;artifact#187; Leaflet"]
+
+    subgraph VERCEL["#171;execution environment#187; Vercel · Hobby · região gru1"]
+        EST["#171;artifact#187; páginas e Server Components"]
+        FUN["#171;artifact#187; funções serverless
+        src/app/api/*"]
+    end
+
+    subgraph SUPABASE["#171;device#187; Supabase · plano Free"]
+        PG[("#171;artifact#187; Postgres 17 + PostGIS
+        8 tabelas, 9 índices")]
+        AUTH["#171;artifact#187; GoTrue
+        /auth/v1"]
+    end
+
+    subgraph CF["#171;device#187; Cloudflare R2"]
+        BUCKET[("#171;artifact#187; objetos de foto")]
+    end
+
+    OSM["#171;device#187; OpenStreetMap
+    #171;artifact#187; tiles + Nominatim"]
+
+    NAV -->|"HTTPS"| EST
+    NAV -->|"HTTPS · fetch /api/*"| FUN
+    NAV -->|"HTTPS · e-mail e senha"| AUTH
+    NAV -->|"HTTPS · PUT com URL assinada"| BUCKET
+    NAV -->|"HTTPS · GET da foto"| BUCKET
+    NAV -->|"HTTPS · tiles"| OSM
+
+    FUN -->|"TCP 6543 · pooler, driver pg"| PG
+    FUN -->|"HTTPS · valida o token da sessão"| AUTH
+    FUN -->|"S3 API · assina a URL de upload"| BUCKET
+    FUN -->|"HTTPS · geocodificação reversa"| OSM
+```
+
+Três coisas que o diagrama torna visíveis:
+
+**A foto nunca passa pela Vercel.** A função só **assina** a URL; o `PUT` sai
+do navegador direto para o R2 (RNF-10). É a única fronteira do sistema que
+exige CORS, e por isso é a que mais quebra.
+
+**Não há servidor de API separado.** As Route Handlers são artefatos do mesmo
+deploy das páginas, no mesmo domínio — daí o front usar caminho relativo e
+não existir CORS entre front e API (DT-01).
+
+**O navegador fala com quatro nós diferentes.** Vercel, Supabase Auth, R2 e
+OpenStreetMap. Cada um é um ponto de falha independente, e é por isso que o
+painel de `/diagnostico` testa as peças em separado.
+
+### Os dois ambientes sobre a mesma topologia
+
+A topologia acima é uma só; o que muda é **para qual instância** cada escopo
+da Vercel aponta (DT-06).
+
+```mermaid
+flowchart LR
+    subgraph ESCOPOS["Escopos da Vercel"]
+        PROD["Production
+        branch main"]
+        PREV["Preview
+        cada pull request"]
+        DEV["Development
+        .env local"]
+    end
+
+    PROD --> SP[("Supabase
+    localizapet-prod")]
+    PROD --> BP[("R2
+    bucket localizapet")]
+
+    PREV --> SD[("Supabase
+    localizapet-dev")]
+    PREV --> BD[("R2
+    bucket localizapet-dev")]
+    DEV --> SD
+    DEV --> BD
+```
+
+O que separa os ambientes é **só o valor da variável** — nunca um `if` no
+código. A conta da Cloudflare e o token de API são os mesmos nos dois lados;
+o que difere é o bucket.
+
+**Consequência que custa caro esquecer:** migration é aplicada duas vezes, em
+momentos diferentes — `npm run migrate` contra o dev antes do pull request, e
+`npm run migrate:prod` contra a produção depois do merge. O runner imprime o
+host antes de agir, justamente porque não há como desfazer a que foi no alvo
+errado.
+
 ---
 
 ## Decisões técnicas
