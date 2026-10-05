@@ -226,3 +226,23 @@ export function IconeTelefone(props: Props) {
     </svg>
   );
 }
+
+/** `logout` — no 1:3274, o sair do cabecalho da Home. */
+export function IconeSair(props: Props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M16 15.5L19.5 12L16 8.5" />
+      <path d="M13.4958 21H6.5C5.39543 21 4.5 19.8487 4.5 18.4286V5.57143C4.5 4.15127 5.39543 3 6.5 3H13.5" />
+      <path d="M9.5 11.9958H19.5" />
+    </svg>
+  );
+}
