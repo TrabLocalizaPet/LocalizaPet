@@ -1,14 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FormasDeFundo } from "@/components/formas-de-fundo";
+import {
+  Casca,
+  Ilustracao,
+  ListaDeOpcoes,
+  OpcaoDeLista,
+  TituloDoPasso,
+  Topo,
+} from "@/components/passo";
 import { Botao } from "@/components/ui/botao";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
-import { SetaVoltar } from "@/components/ui/icones";
 import { Aviso } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
 import {
@@ -229,48 +235,22 @@ export default function Cadastro() {
   if (passo === "intencao") {
     return (
       <Casca>
-          <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
-        <div className="flex flex-col px-8">
-          <h1 className="mt-[4dvh] text-center font-titulo text-xl font-semibold">
-            O que te trouxe aqui?
-          </h1>
+        <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
 
-          <ul className="mt-6 grid gap-3">
-            {INTENCOES.map((opcao) => {
-              const marcada = intencao === opcao.valor;
+        <TituloDoPasso tamanho="normal">O que te trouxe aqui?</TituloDoPasso>
 
-              return (
-                <li key={opcao.valor}>
-                  <button
-                    type="button"
-                    onClick={() => definir_intencao(opcao.valor)}
-                    aria-pressed={marcada}
-                    className={
-                      "relative w-full rounded-[--radius-padrao] border px-4 py-3 text-left transition " +
-                      (marcada
-                        ? "border-primaria bg-primaria text-white"
-                        : "border-borda bg-cartao hover:border-primaria")
-                    }
-                  >
-                    <span className="block text-sm font-semibold">{opcao.titulo}</span>
-                    <span
-                      className={
-                        "block text-sm " + (marcada ? "text-white/85" : "text-suave")
-                      }
-                    >
-                      {opcao.apoio}
-                    </span>
-                    {marcada && (
-                      <span className="absolute top-2 right-2 grid size-5 place-items-center rounded-full bg-white text-xs text-primaria">
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <ListaDeOpcoes>
+          {INTENCOES.map((opcao) => (
+            <li key={opcao.valor}>
+              <OpcaoDeLista
+                rotulo={opcao.titulo}
+                apoio={opcao.apoio}
+                marcada={intencao === opcao.valor}
+                onClick={() => definir_intencao(opcao.valor)}
+              />
+            </li>
+          ))}
+        </ListaDeOpcoes>
         {/* Aqui o botao fica mesmo perto do rodape: a lista de opcoes ocupa
             o meio da tela e o "Proximo" fecha a escolha embaixo. */}
         <div className="mt-auto px-8 pb-10">
@@ -326,11 +306,9 @@ export default function Cadastro() {
           Em `dvh` e nao em `%` porque margem em porcentagem no CSS se mede
           pela **largura** do bloco, nao pela altura: com `%` tudo ficaria
           amontoado no topo. */}
-      <div className="flex flex-col px-8">
-        <h1 className="mt-[4dvh] text-center font-titulo text-xl leading-snug font-semibold">
-          {PERGUNTAS.titulo}
-        </h1>
+      <TituloDoPasso tamanho="normal">{PERGUNTAS.titulo}</TituloDoPasso>
 
+      <div className="flex flex-col px-8">
         {erro && <Aviso>{erro}</Aviso>}
 
         <div className="mt-[16.5dvh] flex justify-center">
@@ -453,67 +431,5 @@ export default function Cadastro() {
         )}
       </div>
     </Casca>
-  );
-}
-
-/* ------------------------------------------------------------------ casca */
-
-function Casca({ children }: { children: React.ReactNode }) {
-  return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col">
-      {children}
-    </main>
-  );
-}
-
-/** Seta de voltar em y=44, x=28 — a mesma posicao em todas as telas do fluxo. */
-function Topo({ aoVoltar, rotulo = "Voltar" }: { aoVoltar: () => void; rotulo?: string }) {
-  return (
-    <div className="px-7 pt-3">
-      <button
-        type="button"
-        onClick={aoVoltar}
-        aria-label={rotulo}
-        className="-ml-3 inline-grid size-11 place-items-center text-primaria"
-      >
-        <SetaVoltar className="size-6" />
-      </button>
-    </div>
-  );
-}
-
-/**
- * Ilustracao das telas de abertura e sucesso.
- *
- * `dog-paw/amico` e `dog-high-five/amico` no Figma, ambas da biblioteca
- * Storyset, exportadas para `public/ilustracoes/`. A proporcao 270x268 e a
- * do desenho, e a largura de 69% vem de 270 sobre os 390 do quadro.
- *
- * O `onError` esconde o quadro se o arquivo sumir, em vez de deixar o icone
- * de imagem quebrada no meio da tela.
- */
-function Ilustracao({
-  arquivo,
-  descricao,
-  className,
-}: {
-  arquivo: string;
-  descricao: string;
-  className?: string;
-}) {
-  const [falhou, definir_falhou] = useState(false);
-
-  return (
-    <div className={`relative aspect-[270/268] w-[69%] ${className ?? ""}`}>
-      {!falhou && (
-        <Image
-          src={arquivo}
-          alt={descricao}
-          fill
-          className="object-contain"
-          onError={() => definir_falhou(true)}
-        />
-      )}
-    </div>
   );
 }

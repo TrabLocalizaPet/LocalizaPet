@@ -99,3 +99,43 @@ export function SetaVoltar(props: Props) {
     </svg>
   );
 }
+
+/**
+ * `Vector` do no 1:473 — o certo dentro do circulo, do item selecionado da
+ * lista de opcoes do cadastro.
+ */
+export function IconeMarcado(props: Props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 0C5.376 0 0 5.376 0 12C0 18.624 5.376 24 12 24C18.624 24 24 18.624 24 12C24 5.376 18.624 0 12 0ZM9.6 18L3.6 12L5.292 10.308L9.6 14.604L18.708 5.496L20.4 7.2L9.6 18Z" />
+    </svg>
+  );
+}
+
+/** `Ellipse 14` — no 1:470, o circulo vazio do item nao selecionado. */
+export function IconeDesmarcado(props: Props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <circle cx="12" cy="12" r="11.5" stroke="currentColor" />
+    </svg>
+  );
+}
+
+/** `Group` do no 1:2221 — a camera da tela "Hora da foto do pet!". */
+export function IconeCamera(props: Props) {
+  return (
+    <svg
+      viewBox="0 0 30 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M1 5H8L11 1H19L22 5H29V23H1V5Z" />
+      <path d="M15 18C17.7614 18 20 15.7614 20 13C20 10.2386 17.7614 8 15 8C12.2386 8 10 10.2386 10 13C10 15.7614 12.2386 18 15 18Z" />
+    </svg>
+  );
+}
