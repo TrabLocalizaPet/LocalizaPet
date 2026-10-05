@@ -11,6 +11,7 @@ import {
   IconeInicio,
   IconePata,
   IconePerfil,
+  IconeSino,
 } from "./ui/icones";
 
 /**
@@ -40,7 +41,21 @@ const ANTES: Destino[] = [
   { href: "/mapa", rotulo: "Buscar", Icone: IconeBuscar },
 ];
 
+/**
+ * Dois de cada lado, e isso **nao e enfeite**: a pata fica no meio da barra
+ * so se os lados tiverem o mesmo numero de itens. Com dois a esquerda e um a
+ * direita, como estava, ela caia a 62,5% da largura — perto do meio o
+ * bastante para ninguem saber dizer o que estava errado, longe o bastante
+ * para parecer torto.
+ *
+ * O desenho tem cinco lugares (Inicio, Buscar, Central Pet, Mensagens,
+ * Perfil). "Mensagens" continua fora, porque nao ha conversa entre pessoas
+ * (DT-05), e quem ocupa o lugar e "Avisos" — que existe desde a caixa de
+ * notificacoes (RF-25) e assim fica alcancavel de qualquer tela, nao so da
+ * Home.
+ */
 const DEPOIS: Destino[] = [
+  { href: "/notificacoes", rotulo: "Avisos", Icone: IconeSino },
   { href: "/perfil", rotulo: "Perfil", Icone: IconePerfil },
 ];
 
