@@ -1,16 +1,28 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { FormasDeFundo } from "@/components/formas-de-fundo";
+import {
+  Casca,
+  Ilustracao,
+  ListaDeOpcoes,
+  OpcaoDeLista,
+  TituloDoPasso,
+  Topo,
+} from "@/components/passo";
 import { Botao } from "@/components/ui/botao";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
-import { SetaVoltar } from "@/components/ui/icones";
 import { Aviso } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
+import {
+  data_de_nascimento,
+  digitos_ate,
+  mascara_telefone,
+  telefone_completo,
+} from "@/lib/mascaras";
 import type { Intencao } from "@/types/perfil";
 
 /**
@@ -85,11 +97,11 @@ export default function Cadastro() {
     definir_passo(ORDEM[atual + 1]);
   }
 
-  /** ISO `AAAA-MM-DD`, ou `null` se a pessoa deixou em branco. */
-  function nascimento_iso(): string | null {
-    if (!dia || !mes || !ano) return null;
-    return `${ano.padStart(4, "0")}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
-  }
+  /**
+   * `AAAA-MM-DD`, ou `null` se os tres campos nao formam uma data que
+   * existe. Em branco tambem da `null` — a coluna aceita (`002_`).
+   */
+  const nascimento = data_de_nascimento(dia, mes, ano);
 
   async function criar_conta() {
     definir_erro(null);
@@ -122,7 +134,7 @@ export default function Cadastro() {
       body: JSON.stringify({
         nome,
         telefone: telefone || null,
-        data_nascimento: nascimento_iso(),
+        data_nascimento: nascimento,
       }),
     });
 
@@ -223,48 +235,22 @@ export default function Cadastro() {
   if (passo === "intencao") {
     return (
       <Casca>
-          <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
-        <div className="flex flex-col px-8">
-          <h1 className="mt-[4dvh] text-center font-titulo text-xl font-semibold">
-            O que te trouxe aqui?
-          </h1>
+        <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
 
-          <ul className="mt-6 grid gap-3">
-            {INTENCOES.map((opcao) => {
-              const marcada = intencao === opcao.valor;
+        <TituloDoPasso tamanho="normal">O que te trouxe aqui?</TituloDoPasso>
 
-              return (
-                <li key={opcao.valor}>
-                  <button
-                    type="button"
-                    onClick={() => definir_intencao(opcao.valor)}
-                    aria-pressed={marcada}
-                    className={
-                      "relative w-full rounded-[--radius-padrao] border px-4 py-3 text-left transition " +
-                      (marcada
-                        ? "border-primaria bg-primaria text-white"
-                        : "border-borda bg-cartao hover:border-primaria")
-                    }
-                  >
-                    <span className="block text-sm font-semibold">{opcao.titulo}</span>
-                    <span
-                      className={
-                        "block text-sm " + (marcada ? "text-white/85" : "text-suave")
-                      }
-                    >
-                      {opcao.apoio}
-                    </span>
-                    {marcada && (
-                      <span className="absolute top-2 right-2 grid size-5 place-items-center rounded-full bg-white text-xs text-primaria">
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <ListaDeOpcoes>
+          {INTENCOES.map((opcao) => (
+            <li key={opcao.valor}>
+              <OpcaoDeLista
+                rotulo={opcao.titulo}
+                apoio={opcao.apoio}
+                marcada={intencao === opcao.valor}
+                onClick={() => definir_intencao(opcao.valor)}
+              />
+            </li>
+          ))}
+        </ListaDeOpcoes>
         {/* Aqui o botao fica mesmo perto do rodape: a lista de opcoes ocupa
             o meio da tela e o "Proximo" fecha a escolha embaixo. */}
         <div className="mt-auto px-8 pb-10">
@@ -286,12 +272,12 @@ export default function Cadastro() {
     telefone: {
       titulo: "Qual o seu telefone?",
       apoio: "Pode ficar tranquilo! Nao mandaremos mensagens e ligacoes para voce",
-      pronto: telefone.trim() !== "",
+      pronto: telefone_completo(telefone),
     },
     nascimento: {
       titulo: "Qual a sua data de nascimento?",
       apoio: null,
-      pronto: dia !== "" && mes !== "" && ano.length === 4,
+      pronto: nascimento !== null,
     },
     email: {
       titulo: "Qual o seu email?",
@@ -320,11 +306,9 @@ export default function Cadastro() {
           Em `dvh` e nao em `%` porque margem em porcentagem no CSS se mede
           pela **largura** do bloco, nao pela altura: com `%` tudo ficaria
           amontoado no topo. */}
-      <div className="flex flex-col px-8">
-        <h1 className="mt-[4dvh] text-center font-titulo text-xl leading-snug font-semibold">
-          {PERGUNTAS.titulo}
-        </h1>
+      <TituloDoPasso tamanho="normal">{PERGUNTAS.titulo}</TituloDoPasso>
 
+      <div className="flex flex-col px-8">
         {erro && <Aviso>{erro}</Aviso>}
 
         <div className="mt-[16.5dvh] flex justify-center">
@@ -345,7 +329,11 @@ export default function Cadastro() {
               inputMode="tel"
               placeholder="(DDD) 00000-0000"
               value={telefone}
-              onChange={(e) => definir_telefone(e.target.value)}
+              /* A mascara reescreve o valor a cada tecla, entao o campo
+                 aceita texto colado e numero digitado do mesmo jeito. O
+                 `maxLength` e o do formato completo, 15 caracteres. */
+              onChange={(e) => definir_telefone(mascara_telefone(e.target.value))}
+              maxLength={15}
               autoComplete="tel"
               autoFocus
             />
@@ -362,7 +350,7 @@ export default function Cadastro() {
                   maxLength={2}
                   placeholder="06"
                   value={dia}
-                  onChange={(e) => definir_dia(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => definir_dia(digitos_ate(e.target.value, 2))}
                   className="w-14"
                   autoFocus
                 />
@@ -372,7 +360,7 @@ export default function Cadastro() {
                   maxLength={2}
                   placeholder="10"
                   value={mes}
-                  onChange={(e) => definir_mes(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => definir_mes(digitos_ate(e.target.value, 2))}
                   className="w-14"
                 />
                 <CampoDeLinha
@@ -381,10 +369,18 @@ export default function Cadastro() {
                   maxLength={4}
                   placeholder="1999"
                   value={ano}
-                  onChange={(e) => definir_ano(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => definir_ano(digitos_ate(e.target.value, 4))}
                   className="w-20"
                 />
               </div>
+
+              {/* Sem esta linha o unico sinal de 31/02 seria o botao
+                  continuar apagado, e quem digitou nao saberia por que. */}
+              {dia !== "" && mes !== "" && ano.length === 4 && nascimento === null && (
+                <p className="mt-3 text-center text-xs text-suave">
+                  Essa data nao existe. Confira o dia, o mes e o ano.
+                </p>
+              )}
             </div>
           )}
 
@@ -435,67 +431,5 @@ export default function Cadastro() {
         )}
       </div>
     </Casca>
-  );
-}
-
-/* ------------------------------------------------------------------ casca */
-
-function Casca({ children }: { children: React.ReactNode }) {
-  return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col">
-      {children}
-    </main>
-  );
-}
-
-/** Seta de voltar em y=44, x=28 — a mesma posicao em todas as telas do fluxo. */
-function Topo({ aoVoltar, rotulo = "Voltar" }: { aoVoltar: () => void; rotulo?: string }) {
-  return (
-    <div className="px-7 pt-3">
-      <button
-        type="button"
-        onClick={aoVoltar}
-        aria-label={rotulo}
-        className="-ml-3 inline-grid size-11 place-items-center text-primaria"
-      >
-        <SetaVoltar className="size-6" />
-      </button>
-    </div>
-  );
-}
-
-/**
- * Ilustracao das telas de abertura e sucesso.
- *
- * `dog-paw/amico` e `dog-high-five/amico` no Figma, ambas da biblioteca
- * Storyset, exportadas para `public/ilustracoes/`. A proporcao 270x268 e a
- * do desenho, e a largura de 69% vem de 270 sobre os 390 do quadro.
- *
- * O `onError` esconde o quadro se o arquivo sumir, em vez de deixar o icone
- * de imagem quebrada no meio da tela.
- */
-function Ilustracao({
-  arquivo,
-  descricao,
-  className,
-}: {
-  arquivo: string;
-  descricao: string;
-  className?: string;
-}) {
-  const [falhou, definir_falhou] = useState(false);
-
-  return (
-    <div className={`relative aspect-[270/268] w-[69%] ${className ?? ""}`}>
-      {!falhou && (
-        <Image
-          src={arquivo}
-          alt={descricao}
-          fill
-          className="object-contain"
-          onError={() => definir_falhou(true)}
-        />
-      )}
-    </div>
   );
 }

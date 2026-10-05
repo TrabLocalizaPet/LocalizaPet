@@ -72,9 +72,11 @@ export default function Navegacao() {
   const caminho = usePathname();
 
   // Telas sem barra: a de boas-vindas e as de conta, porque no Figma elas
-  // vem antes de haver aonde navegar, e o painel de diagnostico, que e
-  // ferramenta de quem desenvolve e nao tela de produto.
-  const SEM_BARRA = ["/", "/entrar", "/cadastro", "/diagnostico"];
+  // vem antes de haver aonde navegar; o painel de diagnostico, que e
+  // ferramenta de quem desenvolve e nao tela de produto; e o cadastro do
+  // pet, que e um fluxo em passos — no desenho ele ocupa a tela inteira, e
+  // a barra competiria com o "Proximo" bem onde ele fica.
+  const SEM_BARRA = ["/", "/entrar", "/cadastro", "/diagnostico", "/publicar"];
   if (SEM_BARRA.some((r) => (r === "/" ? caminho === "/" : caminho.startsWith(r)))) {
     return null;
   }

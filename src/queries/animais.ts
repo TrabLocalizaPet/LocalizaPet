@@ -136,6 +136,33 @@ export async function listar_animais(
 }
 
 /**
+ * Os anuncios de uma pessoa, para a tela de perfil.
+ *
+ * **Sem o filtro de `situacao`**, ao contrario da listagem: RN-09 esconde o
+ * anuncio resolvido de quem procura, nao de quem publicou. O autor precisa
+ * continuar vendo o que ja fechou — e dele o historico.
+ *
+ * `AnimalNaLista` traz `situacao`? Nao: a listagem publica so tem anuncio
+ * ativo e nao precisaria do campo. Aqui ele e selecionado a mais, porque a
+ * tela marca o que esta encerrado.
+ */
+export async function animais_do_autor(
+  autor_id: string,
+): Promise<(AnimalNaLista & { situacao: Situacao })[]> {
+  return consultar<AnimalNaLista & { situacao: Situacao }>(
+    `SELECT ${SELECAO_DA_LISTA},
+            a.situacao
+       FROM animais a
+       ${ULTIMO_AVISTAMENTO}
+       ${FOTO_DE_CAPA}
+      WHERE a.autor_id = $1
+      ORDER BY a.criado_em DESC
+      LIMIT 100`,
+    [autor_id],
+  );
+}
+
+/**
  * Um anuncio com o contato do autor (RF-15, RF-21).
  *
  * **RN-24 acontece no `CASE` desta consulta.** O telefone so e selecionado

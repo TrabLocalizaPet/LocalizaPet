@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
+import { FORMATO_TELEFONE } from "@/lib/mascaras";
 import {
   atualizar_perfil,
   buscar_perfil,
@@ -21,12 +22,27 @@ import {
  * perfil de outra.
  */
 
+/**
+ * O telefone chega formatado, no mesmo formato que a mascara da tela produz
+ * (`src/lib/mascaras.ts`).
+ *
+ * A coluna e TEXT e aceitaria qualquer coisa; quem decide a convencao e esta
+ * rota. Guardar formatado — e nao digito cru — e o que o `scripts/seed.ts`
+ * faz desde a F-02, e o detalhe do anuncio (RF-21) exibe a coluna como ela
+ * esta. Duas convencoes na mesma coluna obrigariam toda tela a adivinhar
+ * qual delas veio.
+ *
+ * Vazio vira `null`, nao string vazia: quem apagou o campo nao informou
+ * telefone, e RN-24 trata ausencia, nao `""`.
+ */
 const telefone = z
   .string()
   .trim()
-  .max(20, "telefone longo demais")
   .nullish()
-  .transform((valor) => (valor ? valor : null));
+  .transform((valor) => (valor ? valor : null))
+  .refine((valor) => valor === null || FORMATO_TELEFONE.test(valor), {
+    message: "telefone deve estar no formato (DD) 00000-0000",
+  });
 
 const CriacaoDePerfil = z.object({
   nome: z.string().trim().min(2, "nome muito curto").max(120),
