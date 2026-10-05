@@ -28,8 +28,11 @@ const COR: Record<TipoDeAnuncio, string> = {
 export function EtiquetaDeTipo({ tipo }: { tipo: TipoDeAnuncio }) {
   return (
     <span
+      /* Geometria do `Badge` do Figma (no 1:3297): canto de 8, 8 px nas
+         laterais, 2 em cima e embaixo, 12 px semibold. Nao e pilula nem
+         caixa alta — era a diferenca para o desenho. */
       className={classes(
-        "inline-block rounded-full px-2 py-0.5 text-xs font-bold tracking-wide text-white uppercase",
+        "inline-block rounded-[--radius-padrao] px-2 py-0.5 text-xs font-semibold text-white",
         COR[tipo],
       )}
     >
@@ -61,7 +64,7 @@ export function EtiquetaDeSituacao({ situacao }: { situacao: Situacao }) {
   if (situacao === "ativo") return null;
 
   return (
-    <span className="inline-block rounded-full bg-escura px-2 py-0.5 text-xs font-bold tracking-wide text-white uppercase">
+    <span className="inline-block rounded-[--radius-padrao] bg-escura px-2 py-0.5 text-xs font-semibold text-white">
       {situacao === "resolvido" ? "Resolvido" : "Arquivado"}
     </span>
   );
