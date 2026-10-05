@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { classes } from "./ui/classes";
-import type { TipoDeAnuncio } from "@/types/animal";
+import type { Situacao, TipoDeAnuncio } from "@/types/animal";
 
 /**
  * Etiqueta em pilula.
@@ -43,6 +43,26 @@ export function Etiqueta({ children }: { children: ReactNode }) {
   return (
     <span className="inline-block rounded-full bg-primaria px-2.5 py-1 text-xs font-semibold text-white">
       {children}
+    </span>
+  );
+}
+
+/**
+ * Situacao do anuncio (RN-07), quando ela nao e `ativo`.
+ *
+ * Fica na cor escura da marca, e nao numa das tres cores de tipo: o estado
+ * do anuncio nao compete com o que ele e. O texto carrega o sentido —
+ * "RESOLVIDO" ao lado de "PERDIDO" nao depende de distinguir cor nenhuma.
+ *
+ * `ativo` nao tem etiqueta: anuncio ativo e o normal, e etiqueta em tudo
+ * deixa de informar.
+ */
+export function EtiquetaDeSituacao({ situacao }: { situacao: Situacao }) {
+  if (situacao === "ativo") return null;
+
+  return (
+    <span className="inline-block rounded-full bg-escura px-2 py-0.5 text-xs font-bold tracking-wide text-white uppercase">
+      {situacao === "resolvido" ? "Resolvido" : "Arquivado"}
     </span>
   );
 }

@@ -5,6 +5,7 @@ import type {
   AnimalNaLista,
   AnimalNoMapa,
   NovoAnuncio,
+  Situacao,
   TipoDeAnuncio,
 } from "@/types/animal";
 
@@ -266,4 +267,73 @@ export async function criar_anuncio(dados: NovoAnuncio): Promise<{ id: string }>
   } finally {
     cliente.release();
   }
+}
+
+/**
+ * Por que a tentativa de resolver nao deu certo.
+ *
+ * Tres motivos diferentes, e a rota os traduz em tres codigos diferentes:
+ * quem errou a URL nao recebe a mesma resposta de quem tentou fechar o
+ * anuncio de outra pessoa.
+ */
+export type RecusaAoResolver = "inexistente" | "nao_e_seu" | "ja_encerrado";
+
+/**
+ * O autor marca o proprio anuncio como resolvido (RF-08, RN-10).
+ *
+ * **O `WHERE` leva o `autor_id`**, e nao so o `id`: e a propria consulta que
+ * garante RN-10. Conferir o autor antes e atualizar so pelo `id` deixaria uma
+ * janela entre as duas coisas, e bastaria um caminho novo chamar a funcao sem
+ * a conferencia para a regra sumir.
+ *
+ * O `SELECT` que vem antes **nao e a guarda** — serve so para dizer qual dos
+ * tres motivos recusou, porque `UPDATE` que nao acerta linha nenhuma nao
+ * conta o porque. A garantia e o `WHERE` do `UPDATE`.
+ *
+ * `resolvido_em` entra junto por RN-08: o `CONSTRAINT resolucao_coerente`
+ * recusa `situacao = 'resolvido'` sem data. A data vem do `now()` do banco, e
+ * nao do relogio da funcao serverless, que e outra maquina.
+ *
+ * `atualizado_em` passa a ser escrito aqui. Era copia de `criado_em` em toda
+ * linha (DP-01); com esta consulta ela significa algo em quem foi resolvido,
+ * e continua igual a `criado_em` no resto. A decisao de DP-01 — trigger ou
+ * remocao — segue aberta.
+ */
+export async function resolver_anuncio(
+  id: string,
+  autor_id: string,
+): Promise<
+  | { ok: true; animal: { id: string; situacao: Situacao; resolvido_em: Date } }
+  | { ok: false; recusa: RecusaAoResolver }
+> {
+  const atual = await consultar<{ autor_id: string; situacao: Situacao }>(
+    `SELECT autor_id, situacao FROM animais WHERE id = $1`,
+    [id],
+  );
+
+  if (atual.length === 0) return { ok: false, recusa: "inexistente" };
+  if (atual[0].autor_id !== autor_id) return { ok: false, recusa: "nao_e_seu" };
+  if (atual[0].situacao !== "ativo") return { ok: false, recusa: "ja_encerrado" };
+
+  const linhas = await consultar<{
+    id: string;
+    situacao: Situacao;
+    resolvido_em: Date;
+  }>(
+    `UPDATE animais
+        SET situacao      = 'resolvido',
+            resolvido_em  = now(),
+            atualizado_em = now()
+      WHERE id = $1
+        AND autor_id = $2
+        AND situacao = 'ativo'
+      RETURNING id, situacao, resolvido_em`,
+    [id, autor_id],
+  );
+
+  // Chega aqui so se outra requisicao resolveu o mesmo anuncio no meio do
+  // caminho. O `WHERE` recusou, e e o resultado certo: ja esta resolvido.
+  if (linhas.length === 0) return { ok: false, recusa: "ja_encerrado" };
+
+  return { ok: true, animal: linhas[0] };
 }
