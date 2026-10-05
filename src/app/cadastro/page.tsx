@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { FormasDeFundo } from "@/components/formas-de-fundo";
 import {
@@ -87,6 +87,31 @@ export default function Cadastro() {
 
   const [erro, definir_erro] = useState<string | null>(null);
   const [enviando, definir_enviando] = useState(false);
+
+  /**
+   * Os tres campos da data conversam entre si: completou o dia, o foco vai
+   * para o mes; completou o mes, vai para o ano; apagou com o campo ja vazio,
+   * volta para o anterior.
+   *
+   * No celular isso e a diferenca entre digitar oito numeros e digitar oito
+   * numeros parando duas vezes para acertar o dedo no campo seguinte.
+   */
+  const campo_dia = useRef<HTMLInputElement>(null);
+  const campo_mes = useRef<HTMLInputElement>(null);
+  const campo_ano = useRef<HTMLInputElement>(null);
+
+  /** Backspace num campo vazio devolve o foco ao anterior, sem apagar nada
+   *  la: quem voltou quer ver o que escreveu antes de mexer. */
+  function ao_apagar_vazio(
+    evento: React.KeyboardEvent<HTMLInputElement>,
+    valor: string,
+    anterior: React.RefObject<HTMLInputElement | null>,
+  ) {
+    if (evento.key === "Backspace" && valor === "") {
+      evento.preventDefault();
+      anterior.current?.focus();
+    }
+  }
 
   function voltar() {
     const atual = ORDEM.indexOf(passo);
@@ -347,31 +372,44 @@ export default function Cadastro() {
             <div className="w-full">
               <div className="flex items-end justify-center gap-4">
                 <CampoDeLinha
+                  ref={campo_dia}
                   aria-label="Dia"
                   inputMode="numeric"
                   maxLength={2}
                   placeholder="06"
                   value={dia}
-                  onChange={(e) => definir_dia(digitos_ate(e.target.value, 2))}
+                  onChange={(e) => {
+                    const novo = digitos_ate(e.target.value, 2);
+                    definir_dia(novo);
+                    if (novo.length === 2) campo_mes.current?.focus();
+                  }}
                   className="w-14"
                   autoFocus
                 />
                 <CampoDeLinha
+                  ref={campo_mes}
                   aria-label="Mes"
                   inputMode="numeric"
                   maxLength={2}
                   placeholder="10"
                   value={mes}
-                  onChange={(e) => definir_mes(digitos_ate(e.target.value, 2))}
+                  onChange={(e) => {
+                    const novo = digitos_ate(e.target.value, 2);
+                    definir_mes(novo);
+                    if (novo.length === 2) campo_ano.current?.focus();
+                  }}
+                  onKeyDown={(e) => ao_apagar_vazio(e, mes, campo_dia)}
                   className="w-14"
                 />
                 <CampoDeLinha
+                  ref={campo_ano}
                   aria-label="Ano"
                   inputMode="numeric"
                   maxLength={4}
                   placeholder="1999"
                   value={ano}
                   onChange={(e) => definir_ano(digitos_ate(e.target.value, 4))}
+                  onKeyDown={(e) => ao_apagar_vazio(e, ano, campo_mes)}
                   className="w-20"
                 />
               </div>
