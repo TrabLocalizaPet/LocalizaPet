@@ -11,6 +11,10 @@ import { classes } from "./classes";
  *
  * Medidas do desenho: linha de 327 de largura, valor de 28 de altura acima
  * dela, apoio de 186 de largura abaixo.
+ *
+ * O `ref` chega ate o `<input>` junto com o resto das props — no React 19 ele
+ * e prop comum em componente de funcao, sem `forwardRef`. E o que permite a
+ * data de nascimento pular de campo sozinha.
  */
 export function CampoDeLinha({
   apoio,
