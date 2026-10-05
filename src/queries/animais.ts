@@ -271,6 +271,51 @@ export async function criar_anuncio(dados: NovoAnuncio): Promise<{ id: string }>
       );
     }
 
+    // RN-27: quem monitora a regiao e avisado (RF-24).
+    //
+    // Na MESMA transacao do anuncio, e nao depois do COMMIT: ou o anuncio
+    // existe com os avisos dele, ou nao existe. O preco e assumido — uma
+    // falha ao gravar o aviso desfaz a publicacao. E o lado certo de errar:
+    // publicacao desfeita a pessoa refaz e percebe, aviso perdido ninguem
+    // percebe, e e justamente quem mora perto que deixaria de procurar.
+    //
+    // So acontece quando ha local. Anuncio de adocao sem coordenada (RN-03)
+    // nao tem como estar "na regiao" de ninguem.
+    //
+    // Sobre o 50000 do penultimo ST_DWithin: e o teto do CHECK raio_na_faixa
+    // (RN-15), e esta ali por **desempenho**, nao por regra. Com distancia
+    // constante o PostGIS usa o indice GIST do centro; a linha seguinte, que
+    // compara com o raio de cada area, nao usaria o indice sozinha, porque
+    // raio_metros e coluna e a expansao da caixa de busca precisa de um valor
+    // fixo. Uma peneira larga pelo indice, depois a conta exata.
+    if (dados.local) {
+      await cliente.query(
+        `WITH ponto AS (
+           SELECT ST_SetSRID(ST_MakePoint($1, $2), 4326)::GEOGRAPHY AS g
+         )
+         INSERT INTO notificacoes (perfil_id, animal_id, tipo, titulo)
+         SELECT m.perfil_id,
+                $3,
+                'novo_na_regiao',
+                CASE $4
+                  WHEN 'perdido'    THEN 'Novo pet perdido'
+                  WHEN 'encontrado' THEN 'Pet encontrado'
+                  ELSE                   'Novo pet para adocao'
+                END || ' perto de ' || m.apelido
+           FROM areas_monitoradas m, ponto p
+          -- RN-29: area desativada nao notifica. E o mesmo filtro do indice
+          -- parcial idx_areas_centro.
+          WHERE m.ativa
+            -- Quem publicou nao recebe aviso do proprio anuncio.
+            AND m.perfil_id <> $5
+            -- RN-28: lista de tipos vazia quer dizer "todos".
+            AND (cardinality(m.tipos) = 0 OR $4 = ANY (m.tipos))
+            AND ST_DWithin(m.centro, p.g, 50000)
+            AND ST_DWithin(m.centro, p.g, m.raio_metros)`,
+        [dados.local.lng, dados.local.lat, id, dados.tipo_anuncio, dados.autor_id],
+      );
+    }
+
     // RN-34: as fotos entram na MESMA transacao do anuncio e do avistamento.
     // Gravadas depois, um erro deixaria anuncio sem as fotos que a pessoa
     // acabou de enviar, e ninguem saberia.

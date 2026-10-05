@@ -180,6 +180,37 @@ const ANIMAIS = [
   },
 ] as const;
 
+/**
+ * Areas monitoradas de exemplo (RN-27).
+ *
+ * Existem para a RF-24 poder ser **vista funcionando**: sem nenhuma area
+ * cadastrada, publicar um anuncio nao notifica ninguem e a feature parece
+ * nao existir. Enquanto a tela de cadastrar area (RF-23) nao chega, e o seed
+ * que cria as primeiras.
+ *
+ * `autor` e a posicao em PERFIS. A Beatriz monitora o centro de Niteroi, que
+ * e onde os anuncios de exemplo acontecem; a segunda area e do mesmo centro
+ * mas so para adocao, e serve para ver RN-28 separando os tipos.
+ */
+const AREAS = [
+  {
+    autor: 3,
+    apelido: "Perto de casa",
+    lat: -22.9068,
+    lng: -43.1289,
+    raio_metros: 5000,
+    tipos: [] as string[], // RN-28: vazio notifica sobre todos os tipos
+  },
+  {
+    autor: 3,
+    apelido: "Quero adotar na regiao",
+    lat: -22.9068,
+    lng: -43.1289,
+    raio_metros: 10000,
+    tipos: ["adocao"],
+  },
+] as const;
+
 async function semear(): Promise<void> {
   const pool = obter_pool();
   const cliente = await pool.connect();
@@ -309,6 +340,22 @@ async function semear(): Promise<void> {
       }
     }
 
+    for (const area of AREAS) {
+      await cliente.query(
+        `INSERT INTO areas_monitoradas (perfil_id, apelido, centro, raio_metros, tipos)
+         VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 4326)::GEOGRAPHY, $5, $6)`,
+        // ST_MakePoint recebe (X, Y) — longitude antes de latitude.
+        [
+          PERFIS[area.autor - 1].id,
+          area.apelido,
+          area.lng,
+          area.lat,
+          area.raio_metros,
+          area.tipos,
+        ],
+      );
+    }
+
     await cliente.query("COMMIT");
 
     // Depois do COMMIT, nunca antes: se a transacao tivesse sido desfeita, os
@@ -320,7 +367,8 @@ async function semear(): Promise<void> {
     }
 
     console.log(
-      `${PERFIS.length} perfis, ${CARACTERISTICAS.length} caracteristicas e ` +
+      `${PERFIS.length} perfis, ${CARACTERISTICAS.length} caracteristicas, ` +
+      `${AREAS.length} areas monitoradas e ` +
         `${ANIMAIS.length} anuncios no banco.`,
     );
   } catch (erro) {

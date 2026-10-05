@@ -110,3 +110,19 @@ export function data_de_nascimento(
 export function digitos_ate(valor: string, tamanho: number): string {
   return apenas_digitos(valor).slice(0, tamanho);
 }
+
+/**
+ * O e-mail esta escrito de um jeito plausivel?
+ *
+ * **Nao diz que o endereco existe** — isso so o e-mail de confirmacao
+ * responde. Serve para pegar o erro de digitacao na hora em que a pessoa
+ * digita, em vez de deixar a conta ser criada e a confirmacao nunca chegar.
+ *
+ * A regra aceita o que o Supabase aceita e recusa o que ele recusaria: um
+ * arroba, texto dos dois lados, um ponto no dominio e duas letras no fim.
+ * Nada de espaco. Nao tenta cobrir a RFC inteira de proposito — validador de
+ * e-mail ambicioso erra recusando endereco valido, que e o erro caro.
+ */
+export function email_plausivel(valor: string): boolean {
+  return /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-z]{2,}$/i.test(valor.trim());
+}
