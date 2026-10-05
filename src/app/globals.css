@@ -10,6 +10,9 @@
   --color-primaria: #f68b1e;
   --color-primaria-texto: #ffffff;
   --color-secundaria: #f95c7e;
+  /* `color/theme/tertiary` do Figma. Aparece no nome e na lista de pets da
+     tela de perfil (no 1:3350) — e o marrom da marca, nao o texto comum. */
+  --color-terciaria: #662b00;
   --color-creme: #fff3e0;
   --color-escura: #332430;
 
