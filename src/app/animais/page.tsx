@@ -6,6 +6,7 @@ import { AtalhosPorTipo } from "@/components/atalhos-por-tipo";
 import { CabecalhoDaHome } from "@/components/cabecalho-da-home";
 import { CampoDeBusca } from "@/components/campo-de-busca";
 import { CartaoDeAnuncio } from "@/components/cartao-de-anuncio";
+import { SinoDeNotificacoes } from "@/components/sino-de-notificacoes";
 import { Apoio, Aviso, Tela } from "@/components/ui/tela";
 import { resumo } from "@/lib/formato";
 import type { AnimalNaLista, TipoDeAnuncio } from "@/types/animal";
@@ -72,8 +73,13 @@ export default function Home() {
 
   return (
     <Tela>
-      {/* Cabecalho do no 1:3273: sair a esquerda, "Inicio" ao centro. */}
-      <CabecalhoDaHome titulo="Inicio" autenticado={autenticado} />
+      {/* Cabecalho do no 1:3273: sair a esquerda, "Inicio" ao centro, sino a
+          direita. */}
+      <CabecalhoDaHome
+        titulo="Inicio"
+        autenticado={autenticado}
+        acao={<SinoDeNotificacoes autenticado={autenticado} />}
+      />
 
       <div className="mt-6">
         <CampoDeBusca
