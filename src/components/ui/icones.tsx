@@ -246,3 +246,22 @@ export function IconeSair(props: Props) {
     </svg>
   );
 }
+
+/** `bell` — no 1:3276, o sino da caixa de notificacoes (RF-25). */
+export function IconeSino(props: Props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M8.64288 18.3676C9.27165 19.9207 10.0712 21 12 21C13.9287 21 14.7283 19.9207 15.3571 18.3676" />
+      <path d="M18.831 10.2561C18.831 6.55462 16.3704 3 12.0179 3C7.6654 3 5.20478 6.55462 5.20478 10.2561C5.20478 11.7576 4.21699 12.9104 3.3872 14.1148C-0.34292 20.0861 24.1939 19.8178 20.6486 14.1149C19.8188 12.9104 18.831 11.7576 18.831 10.2561Z" />
+    </svg>
+  );
+}
