@@ -214,8 +214,12 @@ export default function Detalhe() {
 
       {/* ------------------------------------------------- acoes redondas */}
       {/* 80x80 no desenho, montados sobre o rodape da foto (y=480 de 520).
-          O `-mt-10` e a metade da altura: metade sobre a foto, metade fora. */}
-      <div className="-mt-10 flex justify-center gap-6">
+          O `-mt-10` e a metade da altura: metade sobre a foto, metade fora.
+
+          `relative z-10` nao e enfeite: o quadro da foto e `relative`, e
+          elemento posicionado pinta por cima de elemento que nao e. Sem isso
+          a metade de cima dos botoes fica atras da foto. */}
+      <div className="relative z-10 -mt-10 flex justify-center gap-6">
         <button
           type="button"
           onClick={compartilhar}
