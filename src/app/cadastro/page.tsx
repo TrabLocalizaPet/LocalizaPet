@@ -11,6 +11,12 @@ import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { SetaVoltar } from "@/components/ui/icones";
 import { Aviso } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
+import {
+  data_de_nascimento,
+  digitos_ate,
+  mascara_telefone,
+  telefone_completo,
+} from "@/lib/mascaras";
 import type { Intencao } from "@/types/perfil";
 
 /**
@@ -85,11 +91,11 @@ export default function Cadastro() {
     definir_passo(ORDEM[atual + 1]);
   }
 
-  /** ISO `AAAA-MM-DD`, ou `null` se a pessoa deixou em branco. */
-  function nascimento_iso(): string | null {
-    if (!dia || !mes || !ano) return null;
-    return `${ano.padStart(4, "0")}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
-  }
+  /**
+   * `AAAA-MM-DD`, ou `null` se os tres campos nao formam uma data que
+   * existe. Em branco tambem da `null` — a coluna aceita (`002_`).
+   */
+  const nascimento = data_de_nascimento(dia, mes, ano);
 
   async function criar_conta() {
     definir_erro(null);
@@ -122,7 +128,7 @@ export default function Cadastro() {
       body: JSON.stringify({
         nome,
         telefone: telefone || null,
-        data_nascimento: nascimento_iso(),
+        data_nascimento: nascimento,
       }),
     });
 
@@ -286,12 +292,12 @@ export default function Cadastro() {
     telefone: {
       titulo: "Qual o seu telefone?",
       apoio: "Pode ficar tranquilo! Nao mandaremos mensagens e ligacoes para voce",
-      pronto: telefone.trim() !== "",
+      pronto: telefone_completo(telefone),
     },
     nascimento: {
       titulo: "Qual a sua data de nascimento?",
       apoio: null,
-      pronto: dia !== "" && mes !== "" && ano.length === 4,
+      pronto: nascimento !== null,
     },
     email: {
       titulo: "Qual o seu email?",
@@ -345,7 +351,11 @@ export default function Cadastro() {
               inputMode="tel"
               placeholder="(DDD) 00000-0000"
               value={telefone}
-              onChange={(e) => definir_telefone(e.target.value)}
+              /* A mascara reescreve o valor a cada tecla, entao o campo
+                 aceita texto colado e numero digitado do mesmo jeito. O
+                 `maxLength` e o do formato completo, 15 caracteres. */
+              onChange={(e) => definir_telefone(mascara_telefone(e.target.value))}
+              maxLength={15}
               autoComplete="tel"
               autoFocus
             />
@@ -362,7 +372,7 @@ export default function Cadastro() {
                   maxLength={2}
                   placeholder="06"
                   value={dia}
-                  onChange={(e) => definir_dia(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => definir_dia(digitos_ate(e.target.value, 2))}
                   className="w-14"
                   autoFocus
                 />
@@ -372,7 +382,7 @@ export default function Cadastro() {
                   maxLength={2}
                   placeholder="10"
                   value={mes}
-                  onChange={(e) => definir_mes(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => definir_mes(digitos_ate(e.target.value, 2))}
                   className="w-14"
                 />
                 <CampoDeLinha
@@ -381,10 +391,18 @@ export default function Cadastro() {
                   maxLength={4}
                   placeholder="1999"
                   value={ano}
-                  onChange={(e) => definir_ano(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => definir_ano(digitos_ate(e.target.value, 4))}
                   className="w-20"
                 />
               </div>
+
+              {/* Sem esta linha o unico sinal de 31/02 seria o botao
+                  continuar apagado, e quem digitou nao saberia por que. */}
+              {dia !== "" && mes !== "" && ano.length === 4 && nascimento === null && (
+                <p className="mt-3 text-center text-xs text-suave">
+                  Essa data nao existe. Confira o dia, o mes e o ano.
+                </p>
+              )}
             </div>
           )}
 

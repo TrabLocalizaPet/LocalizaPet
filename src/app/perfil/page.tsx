@@ -7,6 +7,7 @@ import { Botao } from "@/components/ui/botao";
 import { Campo, Interruptor } from "@/components/ui/campo";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
+import { mascara_telefone, telefone_completo } from "@/lib/mascaras";
 import type { Perfil } from "@/types/perfil";
 
 type Estado = "carregando" | "sem_perfil" | "pronto";
@@ -84,6 +85,9 @@ export default function MinhaConta() {
     definir_salvando(false);
   }
 
+  /** Em branco e valido (nao informou); pela metade, nao. */
+  const telefone_pronto = telefone === "" || telefone_completo(telefone);
+
   async function sair() {
     await cliente_navegador().auth.signOut();
     router.refresh();
@@ -121,12 +125,22 @@ export default function MinhaConta() {
           minLength={2}
           required
         />
+        {/* A rota recusa telefone fora do formato (422). O campo mascara o
+            que se digita, e o apoio explica o que falta enquanto o numero
+            esta incompleto — melhor que mandar e receber o erro. */}
         <Campo
           rotulo="Telefone"
           type="tel"
+          inputMode="tel"
           value={telefone}
-          onChange={(e) => definir_telefone(e.target.value)}
+          onChange={(e) => definir_telefone(mascara_telefone(e.target.value))}
+          maxLength={15}
           placeholder="(21) 99999-9999"
+          apoio={
+            telefone !== "" && !telefone_completo(telefone)
+              ? "Faltam digitos: DDD e o numero, com 8 ou 9 digitos."
+              : undefined
+          }
         />
 
         {estado === "pronto" && (
@@ -138,7 +152,7 @@ export default function MinhaConta() {
           />
         )}
 
-        <Botao type="submit" largo disabled={salvando}>
+        <Botao type="submit" largo disabled={salvando || !telefone_pronto}>
           {salvando ? "Salvando..." : "Salvar"}
         </Botao>
       </form>
