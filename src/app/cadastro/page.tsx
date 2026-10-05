@@ -21,6 +21,7 @@ import { cliente_navegador } from "@/lib/auth-navegador";
 import {
   data_de_nascimento,
   digitos_ate,
+  email_plausivel,
   mascara_telefone,
   telefone_completo,
 } from "@/lib/mascaras";
@@ -283,7 +284,7 @@ export default function Cadastro() {
     email: {
       titulo: "Qual o seu email?",
       apoio: "Pode ficar tranquilo! Usaremos apenas para criacao e confirmacao da sua conta.",
-      pronto: /.+@.+\..+/.test(email),
+      pronto: email_plausivel(email),
     },
     senha: {
       titulo: "Defina sua senha",
@@ -385,14 +386,25 @@ export default function Cadastro() {
             </div>
           )}
 
+          {/* A conferencia acontece enquanto se digita, e nao no envio: so o
+              passo seguinte e a senha, e descobrir o e-mail errado depois de
+              criar a conta significa confirmacao que nunca chega.
+
+              O espaco e tirado na entrada porque e-mail colado do WhatsApp ou
+              do bloco de notas quase sempre vem com um sobrando, e o erro
+              resultante nao tem como ser visto na tela. */}
           {passo === "email" && (
             <CampoDeLinha
-              apoio={PERGUNTAS.apoio}
+              apoio={
+                email !== "" && !email_plausivel(email)
+                  ? "Confira: falta o @ ou o final do endereco (.com, .br)."
+                  : PERGUNTAS.apoio
+              }
               type="email"
               inputMode="email"
               placeholder="email@email.com"
               value={email}
-              onChange={(e) => definir_email(e.target.value)}
+              onChange={(e) => definir_email(e.target.value.trim())}
               autoComplete="email"
               autoFocus
             />
