@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Botao } from "@/components/ui/botao";
+import { SetaVoltar } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { ha_quanto_tempo } from "@/lib/formato";
 import type { NotificacaoNaCaixa } from "@/queries/notificacoes";
@@ -68,6 +69,19 @@ export default function Notificacoes() {
 
   return (
     <Tela largura="estreita">
+      {/* A caixa e um desvio do caminho: a pessoa entrou para ver um aviso e
+          quer voltar para onde estava. `back()` devolve ao ponto de partida —
+          que pode ser a Home, o detalhe de um anuncio ou o perfil —, e so cai
+          na Home quando nao ha para onde voltar (link aberto direto). */}
+      <button
+        type="button"
+        onClick={() => (window.history.length > 1 ? router.back() : router.push("/animais"))}
+        className="-ml-3 mb-1 inline-flex min-h-11 items-center gap-2 px-3 text-sm font-semibold text-primaria"
+      >
+        <SetaVoltar className="size-5" />
+        Voltar
+      </button>
+
       <Titulo>Notificacoes</Titulo>
       <Apoio>
         {nao_lidas === 0
