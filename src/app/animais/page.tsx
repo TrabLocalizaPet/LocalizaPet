@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { AtalhosPorTipo } from "@/components/atalhos-por-tipo";
+import { CabecalhoDaHome } from "@/components/cabecalho-da-home";
 import { CampoDeBusca } from "@/components/campo-de-busca";
 import { CartaoDeAnuncio } from "@/components/cartao-de-anuncio";
+import { SinoDeNotificacoes } from "@/components/sino-de-notificacoes";
 import { Apoio, Aviso, Tela } from "@/components/ui/tela";
 import { resumo } from "@/lib/formato";
 import type { AnimalNaLista, TipoDeAnuncio } from "@/types/animal";
@@ -30,6 +32,15 @@ export default function Home() {
   const [procurado, definir_procurado] = useState("");
   const [animais, definir_animais] = useState<AnimalNaLista[]>([]);
   const [carregando, definir_carregando] = useState(true);
+  /** `null` ate a resposta chegar — ver `CabecalhoDaHome`. */
+  const [autenticado, definir_autenticado] = useState<boolean | null>(null);
+
+  // A Home e aberta (RF-22); isto so decide o que o cabecalho oferece.
+  useEffect(() => {
+    fetch("/api/perfil")
+      .then((r) => definir_autenticado(r.status !== 401))
+      .catch(() => definir_autenticado(false));
+  }, []);
 
   // O tipo vai no `?tipo=` da API porque a consulta ja filtra por ele e usa o
   // indice parcial. O texto nao: a busca de verdade e a F-07, e mandar texto
@@ -62,8 +73,13 @@ export default function Home() {
 
   return (
     <Tela>
-      {/* "Inicio" centralizado em 12 px, como no desenho (no 1:3275). */}
-      <p className="text-center text-xs">Inicio</p>
+      {/* Cabecalho do no 1:3273: sair a esquerda, "Inicio" ao centro, sino a
+          direita. */}
+      <CabecalhoDaHome
+        titulo="Inicio"
+        autenticado={autenticado}
+        acao={<SinoDeNotificacoes autenticado={autenticado} />}
+      />
 
       <div className="mt-6">
         <CampoDeBusca

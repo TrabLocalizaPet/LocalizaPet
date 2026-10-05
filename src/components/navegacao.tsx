@@ -89,14 +89,19 @@ export default function Navegacao() {
       className={classes(
         "fixed inset-x-0 bottom-0 z-[1000] flex items-stretch border-t border-borda bg-cartao",
         "pb-[env(safe-area-inset-bottom)]",
-        "md:sticky md:top-0 md:bottom-auto md:items-center md:gap-6 md:border-t-0 md:border-b md:px-6 md:py-2",
+        "md:sticky md:top-0 md:bottom-auto md:block md:border-t-0 md:border-b md:py-2",
       )}
     >
+      {/* No desktop o conteudo da barra fica na mesma coluna central das
+          telas (max-w-4xl do componente Tela), em vez de grudado nas bordas
+          da janela: a barra e o cabecalho, e cabecalho desalinhado do
+          conteudo faz a pagina parecer torta. */}
+      <div className="contents md:mx-auto md:flex md:w-full md:max-w-4xl md:items-center md:gap-6 md:px-5">
       <Link href="/animais" className="hidden md:block">
         <MarcaComNome />
       </Link>
 
-      <div className="flex flex-1 items-stretch md:flex-none md:items-center md:gap-1">
+      <div className="flex flex-1 items-stretch md:items-center md:justify-center md:gap-1">
         {ANTES.map((destino) => (
           <Aba
             key={destino.href}
@@ -105,13 +110,16 @@ export default function Navegacao() {
           />
         ))}
 
-        {/* "Central Pet": sobe acima da barra no celular, como no Figma. No
-            desktop vira uma aba comum — nao ha barra para sobressair. */}
+        {/* "Central Pet": no celular ele sobe acima da barra, no meio, como
+            no Figma. No desktop sai do meio e vai para a ponta direita
+            (`md:order-last md:ml-auto`): ali ele deixa de disputar o centro
+            com as abas e passa a ocupar o lugar onde cabecalho de web poe a
+            acao principal. */}
         <Link
           href="/publicar"
           aria-label="Publicar anuncio"
           aria-current={publicando ? "page" : undefined}
-          className="flex flex-1 flex-col items-center md:flex-none"
+          className="flex flex-1 flex-col items-center md:order-last md:ml-auto md:flex-none md:flex-row md:gap-2"
         >
           <IconePata
             className={classes(
@@ -121,7 +129,7 @@ export default function Navegacao() {
           />
           <span
             className={classes(
-              "pb-2 text-xs md:hidden",
+              "pb-2 text-xs md:pb-0 md:text-sm",
               publicando ? "text-primaria font-semibold" : "text-suave",
             )}
           >
@@ -136,6 +144,7 @@ export default function Navegacao() {
             ativo={estaAtivo(caminho, destino.href)}
           />
         ))}
+      </div>
       </div>
     </nav>
   );
