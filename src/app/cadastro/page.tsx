@@ -16,6 +16,7 @@ import {
 import { Botao } from "@/components/ui/botao";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
+import { mensagem_de_auth } from "@/lib/auth-mensagens";
 import { cliente_navegador } from "@/lib/auth-navegador";
 import {
   data_de_nascimento,
@@ -113,7 +114,7 @@ export default function Cadastro() {
     });
 
     if (error) {
-      definir_erro(error.message);
+      definir_erro(mensagem_de_auth(error));
       definir_enviando(false);
       return;
     }
