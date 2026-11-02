@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import {
   Casca,
   Ilustracao,
@@ -18,6 +19,7 @@ import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
 import { CENTRO_PADRAO } from "@/lib/geo";
+import { useMinhaLocalizacao } from "@/lib/geolocalizacao";
 import { digitos_ate } from "@/lib/mascaras";
 import type { Especie, Porte, Sexo, TipoDeAnuncio } from "@/types/animal";
 
@@ -116,6 +118,8 @@ export default function Publicar() {
   const [descricao, definir_descricao] = useState("");
   const [fotos, definir_fotos] = useState<{ chave: string; previa: string }[]>([]);
   const [local, definir_local] = useState<[number, number] | null>(null);
+  const [centro, definir_centro] = useState<[number, number]>(CENTRO_PADRAO);
+  const localizacao = useMinhaLocalizacao();
 
   const [criado_id, definir_criado_id] = useState<string | null>(null);
   const [erro, definir_erro] = useState<string | null>(null);
@@ -490,6 +494,21 @@ export default function Publicar() {
           O mapa ocupa o rodape da tela, na altura do desenho (303 de 844). */}
       {passo === "local" && (
         <div className="mt-6 flex flex-1 flex-col">
+          {/* RF-13: marca o local e leva o mapa ate ele, como no alerta de
+              fuga. O toque no mapa continua ajustando. */}
+          <div className="mb-3 px-8">
+            <BotaoDeLocalizacao
+              estado={localizacao.estado}
+              posicao={localizacao.posicao}
+              ao_pedir={() =>
+                localizacao.pedir(({ lat, lng }) => {
+                  definir_local([lat, lng]);
+                  definir_centro([lat, lng]);
+                })
+              }
+            />
+          </div>
+
           <p className="px-8 text-center text-sm text-suave">
             {local ? (
               <>
@@ -506,7 +525,7 @@ export default function Publicar() {
           <div className="mt-4 h-[36dvh] min-h-64">
             <Mapa
               animais={[]}
-              centro={CENTRO_PADRAO}
+              centro={centro}
               local_escolhido={local}
               ao_escolher_local={(lat, lng) => definir_local([lat, lng])}
             />
