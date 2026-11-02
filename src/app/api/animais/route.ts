@@ -109,6 +109,19 @@ export async function POST(requisicao: Request) {
     );
   }
 
+  // A foto precisa ser de quem publica. A chave de upload leva o id do autor
+  // no caminho (`url_assinada_para_upload`), e e a mesma trava do DELETE de
+  // `/api/uploads`: sem ela, quem descobrisse a chave de um envio alheio
+  // ainda nao publicado poderia anexa-lo ao proprio anuncio — e a dona nao
+  // conseguiria mais apaga-lo, porque a chave passaria a constar em `fotos`.
+  const prefixo = `animais/${usuario.id}/`;
+  if (corpo.data.fotos.some((chave) => !chave.startsWith(prefixo))) {
+    return NextResponse.json(
+      { erro: "alguma das fotos nao foi enviada por voce" },
+      { status: 403 },
+    );
+  }
+
   // O autor sai da sessao, nunca do corpo: aceita-lo do cliente deixaria
   // qualquer pessoa publicar em nome de outra.
   const { id } = await criar_anuncio({
