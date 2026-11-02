@@ -15,7 +15,7 @@ import type { AnimalNaLista, Situacao } from "@/types/animal";
 import type { Perfil } from "@/types/perfil";
 
 type MeuAnuncio = AnimalNaLista & { situacao: Situacao };
-type Estado = "carregando" | "sem_perfil" | "pronto";
+type Estado = "carregando" | "sem_perfil" | "pronto" | "falhou";
 
 /**
  * Perfil (RF-19, RF-20) — tela "Perfil" do Figma (no 1:3350).
@@ -69,6 +69,9 @@ export default function MinhaConta() {
         definir_ajustes(true);
         return definir_estado("sem_perfil");
       }
+      // Qualquer outra recusa e o servidor fora do ar, nao um estado da
+      // conta. Sem este desvio, a tela ficava presa no "Carregando...".
+      if (!resposta.ok) return definir_estado("falhou");
 
       const perfil: Perfil = await resposta.json();
       definir_nome(perfil.nome);
@@ -81,7 +84,7 @@ export default function MinhaConta() {
       if (anuncios.ok) definir_meus(await anuncios.json());
     }
 
-    carregar();
+    carregar().catch(() => definir_estado("falhou"));
   }, [router]);
 
   /** Em branco e valido (nao informou); pela metade, nao. */
@@ -130,6 +133,15 @@ export default function MinhaConta() {
     return (
       <Tela largura="estreita">
         <Apoio>Carregando...</Apoio>
+      </Tela>
+    );
+  }
+
+  if (estado === "falhou") {
+    return (
+      <Tela largura="estreita">
+        <Titulo>Perfil</Titulo>
+        <Aviso>Nao foi possivel carregar o seu perfil agora. Tente de novo.</Aviso>
       </Tela>
     );
   }
