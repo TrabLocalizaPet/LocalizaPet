@@ -32,8 +32,12 @@ function configuracao(): { url: string; chave: string } {
 }
 
 export async function cliente_servidor() {
-  const { url, chave } = configuracao();
+  // `cookies()` antes de `configuracao()`, e a ordem importa: e o `cookies()`
+  // que marca a rota como dinamica. Na ordem inversa, um build sem as
+  // variaveis lanca durante a pre-renderizacao de `/` e derruba o build
+  // inteiro, em vez de deixar a pagina para a hora da requisicao.
   const armazenamento = await cookies();
+  const { url, chave } = configuracao();
 
   return createServerClient(url, chave, {
     cookies: {
