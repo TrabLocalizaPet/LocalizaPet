@@ -18,6 +18,7 @@ import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
 import { CENTRO_PADRAO } from "@/lib/geo";
+import { digitos_ate } from "@/lib/mascaras";
 import type { Especie, Porte, Sexo, TipoDeAnuncio } from "@/types/animal";
 
 const Mapa = dynamic(() => import("@/components/mapa"), {
@@ -147,6 +148,17 @@ export default function Publicar() {
     if (anos === "" && meses === "") return null;
     return (anos === "" ? 0 : Number(anos)) * 12 + (meses === "" ? 0 : Number(meses));
   }
+
+  /**
+   * A idade cabe na RN-05 (0 a 399 meses) e os meses fecham um ano?
+   *
+   * Conferido no proprio passo, e nao so na rota: 33 anos e 4 meses ja sao
+   * 400, e sem isto a pessoa so descobria no "Publicar", tres telas depois,
+   * com uma mensagem que nao dizia qual campo estava errado.
+   */
+  const idade = idade_em_meses();
+  const idade_valida =
+    (meses === "" || Number(meses) <= 11) && (idade === null || idade <= 399);
 
   async function publicar() {
     definir_erro(null);
@@ -285,7 +297,7 @@ export default function Publicar() {
     detalhes: {
       titulo: "Mais alguma coisa sobre ele?",
       apoio: "Tudo aqui e opcional, mas ajuda quem for reconhecer o pet.",
-      pronto: true,
+      pronto: idade_valida,
     },
     foto: {
       titulo: "Hora da foto do pet!",
@@ -408,23 +420,33 @@ export default function Publicar() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
+            {/* Texto numerico, e nao `type="number"`: o campo numerico do
+                navegador aceita "-1" e "1.5", que a rota recusa (RN-05 e
+                inteiro). So digito entra, como na data do cadastro. */}
             <Campo
               rotulo="Idade — anos"
-              type="number"
-              min={0}
-              max={33}
+              inputMode="numeric"
               value={anos}
-              onChange={(e) => definir_anos(e.target.value)}
+              onChange={(e) => definir_anos(digitos_ate(e.target.value, 2))}
             />
             <Campo
               rotulo="e meses"
-              type="number"
-              min={0}
-              max={11}
+              inputMode="numeric"
               value={meses}
-              onChange={(e) => definir_meses(e.target.value)}
+              onChange={(e) => definir_meses(digitos_ate(e.target.value, 2))}
+              apoio={
+                meses !== "" && Number(meses) > 11
+                  ? "De 0 a 11 — 12 meses ja e um ano."
+                  : undefined
+              }
             />
           </div>
+
+          {idade !== null && idade > 399 && (
+            <p className="text-xs text-perdido">
+              A idade vai ate 33 anos e 3 meses.
+            </p>
+          )}
 
           <CampoLongo
             rotulo="Descricao"
