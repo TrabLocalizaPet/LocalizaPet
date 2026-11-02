@@ -90,8 +90,9 @@ export default function Navegacao() {
   // vem antes de haver aonde navegar; o painel de diagnostico, que e
   // ferramenta de quem desenvolve e nao tela de produto; e o cadastro do
   // pet, que e um fluxo em passos — no desenho ele ocupa a tela inteira, e
-  // a barra competiria com o "Proximo" bem onde ele fica.
-  const SEM_BARRA = ["/", "/entrar", "/cadastro", "/diagnostico", "/publicar"];
+  // a barra competiria com o "Proximo" bem onde ele fica. O alerta de fuga
+  // e o mesmo caso, com o "Publicar alerta" no rodape.
+  const SEM_BARRA = ["/", "/entrar", "/cadastro", "/diagnostico", "/publicar", "/alerta"];
   if (SEM_BARRA.some((r) => (r === "/" ? caminho === "/" : caminho.startsWith(r)))) {
     return null;
   }

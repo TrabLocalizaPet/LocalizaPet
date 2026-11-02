@@ -13,7 +13,7 @@ import {
   Topo,
 } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
-import { Botao } from "@/components/ui/botao";
+import { Botao, BotaoLink } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
@@ -237,10 +237,15 @@ export default function Publicar() {
           </p>
         </div>
 
-        <div className="mt-[3dvh] px-8">
+        <div className="mt-[3dvh] grid gap-3 px-8">
           <Botao largo onClick={avancar}>
             Vamos la!
           </Botao>
+          {/* O atalho de quem nao tem tempo para oito telas: o pet acabou de
+              fugir e o aviso precisa sair agora. */}
+          <BotaoLink href="/alerta" aparencia="secundaria" largo>
+            Meu pet acabou de fugir
+          </BotaoLink>
         </div>
       </Casca>
     );
