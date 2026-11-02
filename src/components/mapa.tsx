@@ -43,6 +43,23 @@ const PINO =
   "box-shadow:0 1px 3px rgb(0 0 0 / 0.35)";
 
 /**
+ * Escapa texto antes de ele entrar em HTML montado como string.
+ *
+ * O React escapa sozinho; o Leaflet nao. O popup e o icone recebem HTML cru,
+ * e o nome do animal e texto livre de quem publicou — sem isto, um nome como
+ * `<img src=x onerror=...>` roda script no navegador de todo mundo que abre o
+ * mapa, que e aberto a qualquer visitante (RF-22).
+ */
+function escapar(texto: string): string {
+  return texto
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+/**
  * Pino com a foto do animal (RF-05, RF-12).
  *
  * A foto ocupa o circulo e a **borda** passa a carregar a cor do tipo. So
@@ -59,7 +76,7 @@ function pino_com_foto(animal: AnimalNoMapa) {
     className: "",
     html: `
       <span style="position:relative;display:block;width:44px;height:44px">
-        <img src="${animal.foto_url}" alt=""
+        <img src="${escapar(animal.foto_url ?? "")}" alt=""
              style="width:44px;height:44px;border-radius:50%;object-fit:cover;
                     border:3px solid ${cor};box-shadow:0 1px 4px rgb(0 0 0 / 0.35);
                     background:#fff" />
@@ -150,7 +167,7 @@ export default function Mapa({
     camada.clearLayers();
 
     for (const animal of animais) {
-      const nome = animal.nome ?? "Sem nome";
+      const nome = escapar(animal.nome ?? "Sem nome");
       const icone = animal.foto_url
         ? pino_com_foto(animal)
         : pino(animal.tipo_anuncio);
