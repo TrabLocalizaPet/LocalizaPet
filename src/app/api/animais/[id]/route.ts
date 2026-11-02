@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
+import { ler_corpo } from "@/lib/requisicao";
 import { buscar_animal, resolver_anuncio } from "@/queries/animais";
 
 /**
@@ -81,7 +82,7 @@ export async function PATCH(
     );
   }
 
-  const corpo = MudancaDeSituacao.safeParse(await requisicao.json());
+  const corpo = MudancaDeSituacao.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     return NextResponse.json(
       { erro: "dados invalidos", detalhes: z.treeifyError(corpo.error) },

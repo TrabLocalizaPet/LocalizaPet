@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
+import { ler_corpo } from "@/lib/requisicao";
 import { FORMATO_TELEFONE } from "@/lib/mascaras";
 import {
   atualizar_perfil,
@@ -98,7 +99,7 @@ export async function POST(requisicao: Request) {
   const usuario = await usuario_atual();
   if (!usuario) return sem_sessao();
 
-  const corpo = CriacaoDePerfil.safeParse(await requisicao.json());
+  const corpo = CriacaoDePerfil.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) return entrada_invalida(corpo.error);
 
   // O e-mail sai da sessao, nao do corpo: e o provedor quem garante que ele
@@ -125,7 +126,7 @@ export async function PUT(requisicao: Request) {
   const usuario = await usuario_atual();
   if (!usuario) return sem_sessao();
 
-  const corpo = RegistroDeIntencao.safeParse(await requisicao.json());
+  const corpo = RegistroDeIntencao.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) return entrada_invalida(corpo.error);
 
   const perfil = await registrar_intencao(usuario.id, corpo.data.intencao);
@@ -140,7 +141,7 @@ export async function PATCH(requisicao: Request) {
   const usuario = await usuario_atual();
   if (!usuario) return sem_sessao();
 
-  const corpo = EdicaoDePerfil.safeParse(await requisicao.json());
+  const corpo = EdicaoDePerfil.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) return entrada_invalida(corpo.error);
 
   // O WHERE da consulta usa o id da sessao, entao nao ha como editar o perfil

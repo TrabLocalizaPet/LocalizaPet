@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
+import { ler_corpo } from "@/lib/requisicao";
 import { criar_anuncio, listar_animais } from "@/queries/animais";
 import type { TipoDeAnuncio } from "@/types/animal";
 
@@ -100,7 +101,7 @@ export async function POST(requisicao: Request) {
     );
   }
 
-  const corpo = NovoAnuncio.safeParse(await requisicao.json());
+  const corpo = NovoAnuncio.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     // 422 antes de qualquer escrita: o anuncio recusado nao chega a existir.
     return NextResponse.json(
