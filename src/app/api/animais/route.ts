@@ -50,6 +50,18 @@ const NovoAnuncio = z
       .transform((v) => v ?? null),
     descricao: texto_opcional(2000),
     local: Coordenada.nullish().transform((v) => v ?? null),
+    // Quando o animal foi visto no `local` — no alerta de fuga, quando
+    // sumiu. ISO com fuso, porque o celular de quem publica e o banco nao
+    // estao no mesmo relogio. Cinco minutos de folga no futuro cobrem
+    // relogio de celular adiantado; alem disso e engano de digitacao.
+    visto_em: z.iso
+      .datetime({ offset: true })
+      .transform((v) => new Date(v))
+      .refine((d) => d.getTime() <= Date.now() + 5 * 60_000, {
+        message: "a hora em que o animal foi visto nao pode estar no futuro",
+      })
+      .nullish()
+      .transform((v) => v ?? null),
     // RN-06. A regra e de formulario, nao de schema: contar linhas no banco
     // exigiria trigger. As chaves ja foram enviadas ao R2 pelo navegador
     // (RNF-10); aqui so viram linhas em `fotos`.
@@ -68,7 +80,13 @@ const NovoAnuncio = z
       path: ["local"],
       message: "anuncio de perdido ou encontrado exige o local no mapa",
     },
-  );
+  )
+  // A hora pertence ao avistamento, e sem local nao ha avistamento: aceitar
+  // `visto_em` sozinho seria guardar nada em silencio.
+  .refine((dados) => dados.visto_em === null || dados.local !== null, {
+    path: ["visto_em"],
+    message: "a hora em que o animal foi visto exige o local",
+  });
 
 const TIPOS: TipoDeAnuncio[] = ["perdido", "encontrado", "adocao"];
 

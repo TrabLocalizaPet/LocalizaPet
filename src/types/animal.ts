@@ -71,7 +71,7 @@ export type AnimalEmDetalhe = AnimalNaLista & {
   autor_id: string;
   autor_nome: string;
   autor_telefone: string | null;
-  visto_em?: Date | null;
+  visto_em: Date | null;
   /** Todas as fotos, em ordem. A tela de detalhe mostra a galeria. */
   fotos: string[];
 };
@@ -100,7 +100,7 @@ export type NovoAnuncio = {
    * Vira o `visto_em` do primeiro avistamento (RN-12). `null` e "agora", que
    * e o que o formulario completo sempre gravou.
    */
-  visto_em?: Date | null;
+  visto_em: Date | null;
   /** Chaves ja enviadas ao R2 pelo navegador. No maximo 6 (RN-06). */
   fotos: string[];
 };

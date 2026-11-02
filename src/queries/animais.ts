@@ -271,7 +271,7 @@ export async function criar_anuncio(dados: NovoAnuncio): Promise<{ id: string }>
                  COALESCE($5::TIMESTAMPTZ, now()))`,
         // ST_MakePoint recebe (X, Y): longitude antes de latitude. Trocar os
         // dois poe o anuncio no oceano sem erro nenhum.
-        [id, dados.autor_id, dados.local.lng, dados.local.lat, dados.visto_em ?? null],
+        [id, dados.autor_id, dados.local.lng, dados.local.lat, dados.visto_em],
       );
     }
 
