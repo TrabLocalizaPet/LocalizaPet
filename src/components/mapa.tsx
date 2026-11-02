@@ -42,6 +42,12 @@ const PINO =
   "color:#fff;font-size:12px;font-weight:700;border:2px solid #fff;" +
   "box-shadow:0 1px 3px rgb(0 0 0 / 0.35)";
 
+const ROTULO: Record<TipoDeAnuncio, string> = {
+  perdido: "Perdido",
+  encontrado: "Encontrado",
+  adocao: "Adocao",
+};
+
 /**
  * Escapa texto antes de ele entrar em HTML montado como string.
  *
@@ -172,9 +178,12 @@ export default function Mapa({
         ? pino_com_foto(animal)
         : pino(animal.tipo_anuncio);
 
+      // O popup leva ao detalhe (RF-15): reconhecer o animal no mapa e
+      // justamente o momento em que a pessoa quer o contato de quem publicou.
       L.marker([animal.lat, animal.lng], { icon: icone })
         .bindPopup(
-          `<strong>${nome}</strong><br>${animal.tipo_anuncio} · ${animal.especie}`,
+          `<strong>${nome}</strong><br>${ROTULO[animal.tipo_anuncio]} · ${animal.especie}` +
+            `<br><a href="/animais/${escapar(animal.id)}">Ver anuncio</a>`,
         )
         .addTo(camada);
     }
