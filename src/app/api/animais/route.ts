@@ -123,12 +123,38 @@ export async function POST(requisicao: Request) {
     );
   }
 
-  // O autor sai da sessao, nunca do corpo: aceita-lo do cliente deixaria
-  // qualquer pessoa publicar em nome de outra.
-  const { id } = await criar_anuncio({
-    ...corpo.data,
-    autor_id: usuario.id,
-  });
+  try {
+    // O autor sai da sessao, nunca do corpo: aceita-lo do cliente deixaria
+    // qualquer pessoa publicar em nome de outra.
+    const { id } = await criar_anuncio({
+      ...corpo.data,
+      autor_id: usuario.id,
+    });
 
-  return NextResponse.json({ id }, { status: 201 });
+    return NextResponse.json({ id }, { status: 201 });
+  } catch (erro) {
+    // Conta no provedor sem perfil no banco: o cadastro parou entre os dois
+    // passos (com "Confirm email" ligado, e o caminho normal ate o primeiro
+    // acesso a /perfil). A FK `animais.autor_id -> perfis` recusa, e isso e
+    // um estado da conta, nao defeito do servidor — 409, com o que fazer.
+    if (sem_perfil(erro)) {
+      return NextResponse.json(
+        { erro: "complete o seu perfil antes de publicar" },
+        { status: 409 },
+      );
+    }
+    throw erro;
+  }
+}
+
+/** A FK do autor recusou o anuncio? Codigo 23503 e `foreign_key_violation`. */
+function sem_perfil(erro: unknown): boolean {
+  return (
+    typeof erro === "object" &&
+    erro !== null &&
+    "code" in erro &&
+    erro.code === "23503" &&
+    "constraint" in erro &&
+    erro.constraint === "animais_autor_id_fkey"
+  );
 }
