@@ -262,12 +262,16 @@ export async function criar_anuncio(dados: NovoAnuncio): Promise<{ id: string }>
     const id = anuncio.rows[0].id;
 
     if (dados.local) {
+      // `visto_em` informado e a hora do sumico (alerta de fuga); ausente,
+      // fica o `now()` do banco, como sempre foi. O COALESCE mantem o default
+      // num lugar so — a coluna — em vez de repeti-lo aqui.
       await cliente.query(
-        `INSERT INTO avistamentos (animal_id, autor_id, local)
-         VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 4326)::GEOGRAPHY)`,
+        `INSERT INTO avistamentos (animal_id, autor_id, local, visto_em)
+         VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 4326)::GEOGRAPHY,
+                 COALESCE($5::TIMESTAMPTZ, now()))`,
         // ST_MakePoint recebe (X, Y): longitude antes de latitude. Trocar os
         // dois poe o anuncio no oceano sem erro nenhum.
-        [id, dados.autor_id, dados.local.lng, dados.local.lat],
+        [id, dados.autor_id, dados.local.lng, dados.local.lat, dados.visto_em ?? null],
       );
     }
 
