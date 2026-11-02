@@ -120,11 +120,14 @@ export default function Publicar() {
   const [erro, definir_erro] = useState<string | null>(null);
   const [enviando, definir_enviando] = useState(false);
 
-  // Publicar exige sessao. A rota tambem confere — aqui e so para nao deixar
-  // a pessoa percorrer os passos todos antes de descobrir.
+  // Publicar exige sessao **e perfil**. A rota tambem confere — aqui e so
+  // para nao deixar a pessoa percorrer os passos todos antes de descobrir.
+  // O 404 e a conta sem perfil (cadastro parado entre os dois passos): o
+  // anuncio precisa de um autor em `perfis`, e a /perfil termina o cadastro.
   useEffect(() => {
     fetch("/api/perfil").then((r) => {
       if (r.status === 401) router.replace("/entrar");
+      if (r.status === 404) router.replace("/perfil");
     });
   }, [router]);
 
@@ -178,6 +181,7 @@ export default function Publicar() {
     });
 
     if (resposta.status === 401) return router.replace("/entrar");
+    if (resposta.status === 409) return router.replace("/perfil");
 
     if (!resposta.ok) {
       definir_erro("Nao foi possivel publicar. Confira os campos.");
