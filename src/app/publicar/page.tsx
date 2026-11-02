@@ -173,6 +173,9 @@ export default function Publicar() {
 
     definir_enviando(true);
 
+    // Sem rede o `fetch` lanca em vez de responder. Sem o `catch`, o botao
+    // ficava em "Publicando..." desabilitado para sempre, e a pessoa — na
+    // rua, com sinal ruim — perdia tudo o que tinha preenchido.
     const resposta = await fetch("/api/animais", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -190,7 +193,13 @@ export default function Publicar() {
         // navegador. A ordem define a capa.
         fotos: fotos.map((f) => f.chave),
       }),
-    });
+    }).catch(() => null);
+
+    if (!resposta) {
+      definir_erro("Sem conexao. Confira a internet e toque em Publicar de novo.");
+      definir_enviando(false);
+      return;
+    }
 
     if (resposta.status === 401) return router.replace("/entrar");
     if (resposta.status === 409) return router.replace("/perfil");
