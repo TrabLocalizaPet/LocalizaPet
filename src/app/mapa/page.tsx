@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Botao } from "@/components/ui/botao";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { CENTRO_PADRAO } from "@/lib/geo";
+import { useMinhaLocalizacao } from "@/lib/geolocalizacao";
 import type { AnimalNoMapa } from "@/types/animal";
 
 /**
@@ -26,8 +27,6 @@ const Mapa = dynamic(() => import("@/components/mapa"), {
   ),
 });
 
-type EstadoDoCentro = "padrao" | "buscando" | "navegador" | "negado";
-
 const LEGENDA = [
   { cor: "bg-perdido", inicial: "P", rotulo: "Perdido" },
   { cor: "bg-encontrado", inicial: "E", rotulo: "Encontrado" },
@@ -37,7 +36,6 @@ const LEGENDA = [
 export default function PaginaDoMapa() {
   const [animais, definir_animais] = useState<AnimalNoMapa[]>([]);
   const [centro, definir_centro] = useState<[number, number]>(CENTRO_PADRAO);
-  const [estado, definir_estado] = useState<EstadoDoCentro>("padrao");
 
   useEffect(() => {
     fetch("/api/animais/mapa")
@@ -46,23 +44,13 @@ export default function PaginaDoMapa() {
       .catch(() => definir_animais([]));
   }, []);
 
-  /**
-   * RF-13. O aceite da feature e o caminho do erro: negar a permissao **nao
-   * pode travar a tela**. Todo desfecho — negado, indisponivel, tempo
-   * esgotado — cai no centro padrao, que ja valia desde o inicio.
-   */
-  function usar_minha_localizacao() {
-    if (!navigator.geolocation) return definir_estado("negado");
+  // RF-13. Todo desfecho ruim cai no centro padrao, que ja valia desde o
+  // inicio — ver `useMinhaLocalizacao`.
+  const localizacao = useMinhaLocalizacao();
+  const estado = localizacao.estado;
 
-    definir_estado("buscando");
-    navigator.geolocation.getCurrentPosition(
-      (posicao) => {
-        definir_centro([posicao.coords.latitude, posicao.coords.longitude]);
-        definir_estado("navegador");
-      },
-      () => definir_estado("negado"),
-      { timeout: 8000 },
-    );
+  function usar_minha_localizacao() {
+    localizacao.pedir((posicao) => definir_centro([posicao.lat, posicao.lng]));
   }
 
   return (

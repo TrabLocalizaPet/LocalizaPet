@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import { Casca, TituloDoPasso, Topo } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
 import { Botao } from "@/components/ui/botao";
@@ -11,6 +12,7 @@ import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/tela";
 import { para_data_hora_local } from "@/lib/formato";
 import { CENTRO_PADRAO } from "@/lib/geo";
+import { useMinhaLocalizacao } from "@/lib/geolocalizacao";
 import type { Especie } from "@/types/animal";
 
 const Mapa = dynamic(() => import("@/components/mapa"), {
@@ -55,6 +57,8 @@ export default function AlertaDeFuga() {
   // Abre em "agora": e o caso mais comum, e a pessoa so mexe se nao for.
   const [quando, definir_quando] = useState(() => para_data_hora_local(new Date()));
   const [local, definir_local] = useState<[number, number] | null>(null);
+  const [centro, definir_centro] = useState<[number, number]>(CENTRO_PADRAO);
+  const localizacao = useMinhaLocalizacao();
   const [fotos, definir_fotos] = useState<{ chave: string; previa: string }[]>([]);
   const [descricao, definir_descricao] = useState("");
 
@@ -69,6 +73,18 @@ export default function AlertaDeFuga() {
       if (r.status === 404) router.replace("/perfil");
     });
   }, [router]);
+
+  /**
+   * GPS (RF-13): marca o local **e** leva o mapa ate ele. So marcar, com o
+   * mapa parado em Niteroi, esconderia o pino de quem esta em outra cidade —
+   * e e vendo o pino que a pessoa confere se o ponto esta certo.
+   */
+  function usar_minha_localizacao() {
+    localizacao.pedir(({ lat, lng }) => {
+      definir_local([lat, lng]);
+      definir_centro([lat, lng]);
+    });
+  }
 
   const agora = para_data_hora_local(new Date());
   // O campo e texto `AAAA-MM-DDTHH:MM`, e nesse formato a ordem alfabetica e
@@ -172,15 +188,22 @@ export default function AlertaDeFuga() {
       {/* O mapa sangra ate as bordas, como no passo do local do `/publicar`. */}
       <div className="mt-6">
         <p className="px-8 text-sm font-semibold">Onde foi visto pela ultima vez?</p>
-        <p className="mt-1 px-8 text-xs text-suave">
+        <div className="mt-3 px-8">
+          <BotaoDeLocalizacao
+            estado={localizacao.estado}
+            posicao={localizacao.posicao}
+            ao_pedir={usar_minha_localizacao}
+          />
+        </div>
+        <p className="mt-3 px-8 text-xs text-suave">
           {local
-            ? `Local marcado em ${local[0].toFixed(5)}, ${local[1].toFixed(5)}.`
-            : "Toque no mapa para marcar."}
+            ? `Local marcado em ${local[0].toFixed(5)}, ${local[1].toFixed(5)}. Toque no mapa para ajustar.`
+            : "Ou toque no mapa para marcar."}
         </p>
         <div className="mt-3 h-[36dvh] min-h-64">
           <Mapa
             animais={[]}
-            centro={CENTRO_PADRAO}
+            centro={centro}
             local_escolhido={local}
             ao_escolher_local={(lat, lng) => definir_local([lat, lng])}
           />
