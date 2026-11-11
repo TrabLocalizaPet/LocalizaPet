@@ -27,14 +27,21 @@ export default function Notificacoes() {
   const [estado, definir_estado] = useState<"carregando" | "pronto">("carregando");
   const [erro, definir_erro] = useState<string | null>(null);
 
+  // Qualquer desfecho que nao seja a lista sai do "Carregando...": o corpo de
+  // um erro e `{ erro }`, nao um array, e guarda-lo como caixa quebraria a
+  // tela no primeiro `.filter`.
   useEffect(() => {
     fetch("/api/notificacoes")
       .then(async (r) => {
         if (r.status === 401) return router.replace("/entrar");
+        if (!r.ok) throw new Error(String(r.status));
         definir_caixa(await r.json());
         definir_estado("pronto");
       })
-      .catch(() => definir_erro("Nao foi possivel carregar agora."));
+      .catch(() => {
+        definir_erro("Nao foi possivel carregar agora.");
+        definir_estado("pronto");
+      });
   }, [router]);
 
   async function marcar(ids: string[] | null) {
@@ -91,7 +98,8 @@ export default function Notificacoes() {
 
       {erro && <Aviso>{erro}</Aviso>}
 
-      {caixa.length === 0 && (
+      {/* Com erro a caixa vazia nao quer dizer "nada chegou". */}
+      {caixa.length === 0 && !erro && (
         <Aviso>
           Voce ainda nao tem notificacoes. Elas chegam quando aparece um
           anuncio dentro de uma area que voce monitora.

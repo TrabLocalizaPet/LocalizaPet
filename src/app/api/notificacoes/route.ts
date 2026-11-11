@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
+import { ler_corpo } from "@/lib/requisicao";
 import { marcar_lidas, notificacoes_do_perfil } from "@/queries/notificacoes";
 
 /**
@@ -32,7 +33,7 @@ export async function PATCH(requisicao: Request) {
   const usuario = await usuario_atual();
   if (!usuario) return sem_sessao();
 
-  const corpo = Leitura.safeParse(await requisicao.json());
+  const corpo = Leitura.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     return NextResponse.json(
       { erro: "dados invalidos", detalhes: z.treeifyError(corpo.error) },

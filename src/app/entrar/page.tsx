@@ -11,6 +11,7 @@ import { Campo } from "@/components/ui/campo";
 import { CampoDeSenha } from "@/components/ui/campo-de-senha";
 import { SetaVoltar } from "@/components/ui/icones";
 import { Aviso } from "@/components/ui/tela";
+import { mensagem_de_auth } from "@/lib/auth-mensagens";
 import { cliente_navegador } from "@/lib/auth-navegador";
 
 /**
@@ -50,9 +51,14 @@ export default function Entrar() {
     });
 
     if (error) {
-      // Mensagem unica de proposito: dizer "esse e-mail nao existe" contaria
-      // a um estranho quem tem conta aqui.
-      definir_erro("E-mail ou senha incorretos.");
+      // E-mail inexistente e senha errada chegam do Supabase com o mesmo
+      // `invalid_credentials`, e a traducao os mantem numa frase so: dizer
+      // "esse e-mail nao existe" contaria a um estranho quem tem conta aqui.
+      //
+      // O que a traducao separa e o resto — sobretudo `email_not_confirmed`,
+      // que so aparece com a senha certa. Era ele que virava "senha
+      // incorreta" para quem acabou de se cadastrar e ainda nao confirmou.
+      definir_erro(mensagem_de_auth(error));
       definir_enviando(false);
       return;
     }

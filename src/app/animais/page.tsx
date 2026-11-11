@@ -27,13 +27,36 @@ import type { AnimalNaLista, TipoDeAnuncio } from "@/types/animal";
  * Home de quem nao tem conta — contraria o RF-22, que e requisito `M`. O
  * documento manda sobre o desenho.
  */
+const TIPOS: TipoDeAnuncio[] = ["perdido", "encontrado", "adocao"];
+
 export default function Home() {
-  const [tipo, definir_tipo] = useState<TipoDeAnuncio | null>(null);
+  /**
+   * `undefined` ate a URL ser lida; depois, o tipo ou `null` ("todos").
+   *
+   * O filtro inicial vem do `?tipo=`: e por ele que o fim do cadastro abre a
+   * Home ja em "Adocao" para quem respondeu "Quero adotar". Sem ler o
+   * parametro, a pessoa caia na lista inteira. Valor desconhecido vale como
+   * ausente, como na rota.
+   *
+   * Lido de `window.location` num efeito, e nao com `useSearchParams`: este
+   * exige um `Suspense` em volta, e com ele a pagina aberta com `?tipo=` nao
+   * hidratava em desenvolvimento — a tela aparecia e nao respondia a nada.
+   */
+  const [tipo, definir_tipo] = useState<TipoDeAnuncio | null | undefined>(
+    undefined,
+  );
   const [procurado, definir_procurado] = useState("");
   const [animais, definir_animais] = useState<AnimalNaLista[]>([]);
   const [carregando, definir_carregando] = useState(true);
   /** `null` ate a resposta chegar — ver `CabecalhoDaHome`. */
   const [autenticado, definir_autenticado] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const pedido = new URLSearchParams(window.location.search).get("tipo");
+    definir_tipo(
+      TIPOS.includes(pedido as TipoDeAnuncio) ? (pedido as TipoDeAnuncio) : null,
+    );
+  }, []);
 
   // A Home e aberta (RF-22); isto so decide o que o cabecalho oferece.
   useEffect(() => {
@@ -46,6 +69,9 @@ export default function Home() {
   // indice parcial. O texto nao: a busca de verdade e a F-07, e mandar texto
   // para uma rota que nao o entende daria a impressao de que funciona.
   useEffect(() => {
+    // Antes de a URL ser lida nao se sabe o filtro, e buscar "todos" para
+    // logo depois buscar "adocao" seria uma consulta jogada fora.
+    if (tipo === undefined) return;
     definir_carregando(true);
 
     fetch(`/api/animais${tipo ? `?tipo=${tipo}` : ""}`)
@@ -91,7 +117,7 @@ export default function Home() {
 
       {/* 24 px acima dos atalhos e 16 abaixo, como no no 1:3282. */}
       <div className="mt-6 mb-4">
-        <AtalhosPorTipo selecionado={tipo} ao_escolher={definir_tipo} />
+        <AtalhosPorTipo selecionado={tipo ?? null} ao_escolher={definir_tipo} />
       </div>
 
       {/* O titulo e o do desenho. Hoje a lista e "mais recentes primeiro", e
@@ -103,7 +129,7 @@ export default function Home() {
 
         {/* O "Ver todos" do desenho e o que desfaz o filtro. Some quando nao
             ha filtro nenhum: nao teria o que fazer. */}
-        {(tipo !== null || procurado !== "") && (
+        {(tipo != null || procurado !== "") && (
           <button
             type="button"
             onClick={() => {

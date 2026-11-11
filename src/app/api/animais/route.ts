@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
+import { ler_corpo } from "@/lib/requisicao";
 import { criar_anuncio, listar_animais } from "@/queries/animais";
 import type { TipoDeAnuncio } from "@/types/animal";
 
@@ -100,7 +101,7 @@ export async function POST(requisicao: Request) {
     );
   }
 
-  const corpo = NovoAnuncio.safeParse(await requisicao.json());
+  const corpo = NovoAnuncio.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     // 422 antes de qualquer escrita: o anuncio recusado nao chega a existir.
     return NextResponse.json(
@@ -109,12 +110,51 @@ export async function POST(requisicao: Request) {
     );
   }
 
-  // O autor sai da sessao, nunca do corpo: aceita-lo do cliente deixaria
-  // qualquer pessoa publicar em nome de outra.
-  const { id } = await criar_anuncio({
-    ...corpo.data,
-    autor_id: usuario.id,
-  });
+  // A foto precisa ser de quem publica. A chave de upload leva o id do autor
+  // no caminho (`url_assinada_para_upload`), e e a mesma trava do DELETE de
+  // `/api/uploads`: sem ela, quem descobrisse a chave de um envio alheio
+  // ainda nao publicado poderia anexa-lo ao proprio anuncio — e a dona nao
+  // conseguiria mais apaga-lo, porque a chave passaria a constar em `fotos`.
+  const prefixo = `animais/${usuario.id}/`;
+  if (corpo.data.fotos.some((chave) => !chave.startsWith(prefixo))) {
+    return NextResponse.json(
+      { erro: "alguma das fotos nao foi enviada por voce" },
+      { status: 403 },
+    );
+  }
 
-  return NextResponse.json({ id }, { status: 201 });
+  try {
+    // O autor sai da sessao, nunca do corpo: aceita-lo do cliente deixaria
+    // qualquer pessoa publicar em nome de outra.
+    const { id } = await criar_anuncio({
+      ...corpo.data,
+      autor_id: usuario.id,
+    });
+
+    return NextResponse.json({ id }, { status: 201 });
+  } catch (erro) {
+    // Conta no provedor sem perfil no banco: o cadastro parou entre os dois
+    // passos (com "Confirm email" ligado, e o caminho normal ate o primeiro
+    // acesso a /perfil). A FK `animais.autor_id -> perfis` recusa, e isso e
+    // um estado da conta, nao defeito do servidor — 409, com o que fazer.
+    if (sem_perfil(erro)) {
+      return NextResponse.json(
+        { erro: "complete o seu perfil antes de publicar" },
+        { status: 409 },
+      );
+    }
+    throw erro;
+  }
+}
+
+/** A FK do autor recusou o anuncio? Codigo 23503 e `foreign_key_violation`. */
+function sem_perfil(erro: unknown): boolean {
+  return (
+    typeof erro === "object" &&
+    erro !== null &&
+    "code" in erro &&
+    erro.code === "23503" &&
+    "constraint" in erro &&
+    erro.constraint === "animais_autor_id_fkey"
+  );
 }

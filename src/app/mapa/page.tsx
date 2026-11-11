@@ -9,7 +9,10 @@ import { CENTRO_PADRAO } from "@/lib/geo";
 import type { AnimalNoMapa } from "@/types/animal";
 
 /**
- * Mapa dos anuncios (RF-04, RF-12, RF-13).
+ * Mapa dos anuncios (RF-12, RF-13).
+ *
+ * O toque no mapa nao marca local aqui: isso era a prova do RF-04 antes de
+ * a publicacao existir, e hoje mora no passo do local em `/publicar`.
  *
  * `ssr: false` e o ponto todo: o Leaflet toca `window` ao ser importado, e
  * sem isto o build quebra na geracao das paginas (DT-04).
@@ -35,7 +38,6 @@ export default function PaginaDoMapa() {
   const [animais, definir_animais] = useState<AnimalNoMapa[]>([]);
   const [centro, definir_centro] = useState<[number, number]>(CENTRO_PADRAO);
   const [estado, definir_estado] = useState<EstadoDoCentro>("padrao");
-  const [escolhido, definir_escolhido] = useState<[number, number] | null>(null);
 
   useEffect(() => {
     fetch("/api/animais/mapa")
@@ -67,8 +69,8 @@ export default function PaginaDoMapa() {
     <Tela>
       <Titulo>Pets perto de voce</Titulo>
       <Apoio>
-        {animais.length} anuncio(s) ativo(s). Toque no mapa para marcar um
-        local.
+        {animais.length} anuncio(s) ativo(s). Toque num pino para ver o
+        anuncio.
       </Apoio>
 
       {/* Altura em `dvh` para nao encolher quando a barra do navegador do
@@ -77,8 +79,7 @@ export default function PaginaDoMapa() {
         <Mapa
           animais={animais}
           centro={centro}
-          local_escolhido={escolhido}
-          ao_escolher_local={(lat, lng) => definir_escolhido([lat, lng])}
+          local_escolhido={null}
         />
       </div>
 
@@ -110,17 +111,6 @@ export default function PaginaDoMapa() {
           </li>
         ))}
       </ul>
-
-      {/* O formulario de publicacao e a F-04. Aqui a coordenada so e exibida,
-          para provar que o toque no mapa a define (RF-04). */}
-      {escolhido && (
-        <p className="mt-3 text-sm">
-          Local marcado:{" "}
-          <code className="rounded border border-borda bg-cartao px-1.5 py-0.5">
-            {escolhido[0].toFixed(5)}, {escolhido[1].toFixed(5)}
-          </code>
-        </p>
-      )}
     </Tela>
   );
 }

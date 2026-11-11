@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { EtiquetaDeSituacao, EtiquetaDeTipo } from "@/components/etiqueta";
 import { Botao } from "@/components/ui/botao";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { ha_quanto_tempo, idade_por_extenso, resumo } from "@/lib/formato";
-import type { AnimalEmDetalhe, Situacao } from "@/types/animal";
+import type { AnimalEmDetalhe, AnimalNoMapa, Situacao } from "@/types/animal";
 import type { Perfil } from "@/types/perfil";
 
 const Mapa = dynamic(() => import("@/components/mapa"), {
@@ -145,6 +145,40 @@ export default function Detalhe() {
     }
   }
 
+  /**
+   * O pino e o centro do mapa, montados uma vez por anuncio.
+   *
+   * O componente do mapa reage a **referencia** de `animais` e `centro`. Como
+   * literal no JSX, cada render criava um array novo: clicar em compartilhar
+   * ou em encerrar recentralizava o mapa, desfazia o zoom de quem estava
+   * olhando e fechava o popup. Fica antes dos `return` antecipados porque
+   * hook nao pode depender deles.
+   */
+  const lat = animal?.lat ?? null;
+  const lng = animal?.lng ?? null;
+  const centro = useMemo<[number, number] | null>(
+    () => (lat !== null && lng !== null ? [lat, lng] : null),
+    [lat, lng],
+  );
+  const pino = useMemo<AnimalNoMapa[]>(
+    () =>
+      animal && lat !== null && lng !== null
+        ? [
+            {
+              id: animal.id,
+              nome: animal.nome,
+              tipo_anuncio: animal.tipo_anuncio,
+              especie: animal.especie,
+              lat,
+              lng,
+              visto_em: animal.visto_em ?? animal.criado_em,
+              foto_url: animal.foto_url,
+            },
+          ]
+        : [],
+    [animal, lat, lng],
+  );
+
   if (estado === "carregando") {
     return (
       <Tela largura="estreita">
@@ -166,7 +200,7 @@ export default function Detalhe() {
     );
   }
 
-  const tem_local = animal.lat !== null && animal.lng !== null;
+  const tem_local = centro !== null;
   const sou_o_autor = meu_id !== null && meu_id === animal.autor_id;
 
   return (
@@ -369,19 +403,8 @@ export default function Detalhe() {
                 anuncio; `tem_local` ja garantiu que a coordenada existe. */}
             <div className="mt-3 aspect-[342/239] overflow-hidden rounded-[--radius-padrao]">
               <Mapa
-                animais={[
-                  {
-                    id: animal.id,
-                    nome: animal.nome,
-                    tipo_anuncio: animal.tipo_anuncio,
-                    especie: animal.especie,
-                    lat: animal.lat!,
-                    lng: animal.lng!,
-                    visto_em: animal.visto_em ?? animal.criado_em,
-                    foto_url: animal.foto_url,
-                  },
-                ]}
-                centro={[animal.lat!, animal.lng!]}
+                animais={pino}
+                centro={centro!}
                 local_escolhido={null}
               />
             </div>

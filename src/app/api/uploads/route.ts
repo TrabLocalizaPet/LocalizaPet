@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { usuario_atual } from "@/lib/auth";
+import { ler_corpo } from "@/lib/requisicao";
 import {
   TIPOS_DE_IMAGEM,
   excluir_objetos,
@@ -37,7 +38,7 @@ export async function POST(requisicao: Request) {
     );
   }
 
-  const corpo = Pedido.safeParse(await requisicao.json());
+  const corpo = Pedido.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     return NextResponse.json(
       { erro: "formato de imagem nao aceito", detalhes: z.treeifyError(corpo.error) },
@@ -80,7 +81,7 @@ export async function DELETE(requisicao: Request) {
     return NextResponse.json({ erro: "e preciso estar autenticado" }, { status: 401 });
   }
 
-  const corpo = Exclusao.safeParse(await requisicao.json());
+  const corpo = Exclusao.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     return NextResponse.json({ erro: "chave invalida" }, { status: 422 });
   }
