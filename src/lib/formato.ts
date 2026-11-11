@@ -51,3 +51,14 @@ export function ha_quanto_tempo(data: Date | string): string {
   const meses = Math.floor(dias / 30);
   return `ha ${meses} ${meses === 1 ? "mes" : "meses"}`;
 }
+
+/**
+ * `AAAA-MM-DDTHH:MM` no fuso de quem usa — o formato do `datetime-local`.
+ *
+ * `toISOString()` nao serve: sai em UTC, e o campo mostraria tres horas a
+ * mais para quem esta no Brasil. O desvio do fuso e descontado antes.
+ */
+export function para_data_hora_local(data: Date): string {
+  const local = new Date(data.getTime() - data.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
