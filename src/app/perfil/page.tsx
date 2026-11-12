@@ -193,7 +193,7 @@ export default function MinhaConta() {
           {estado === "pronto" && (
             <Interruptor
               rotulo="Mostrar meu telefone nos anuncios"
-              apoio="Desligado, ninguem ve seu telefone — nem na tela, nem na resposta da API. Nasce desligado (RN-24)."
+              apoio="Desligado, ninguem que vir seus anuncios ve o seu telefone."
               checked={telefone_publico}
               onChange={(e) => definir_telefone_publico(e.target.checked)}
             />
