@@ -288,7 +288,13 @@ export default function Publicar() {
             com sucesso!
           </h1>
           <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            Agora voce e seu amigo tem acesso a todas as funcoes do aplicativo.
+            {
+              {
+                perdido: "O anuncio ja aparece no mapa e na lista. Tomara que ele volte logo!",
+                encontrado: "O anuncio ja aparece no mapa e na lista para o tutor encontrar.",
+                adocao: "O anuncio ja aparece na lista para quem quer adotar.",
+              }[tipo ?? "perdido"]
+            }
           </p>
         </div>
 
@@ -312,9 +318,13 @@ export default function Publicar() {
   const PERGUNTA = {
     tipo: { titulo: "O que te trouxe aqui?", apoio: null, pronto: tipo !== null },
     nome: {
-      titulo: "Qual o nome do pet?",
-      apoio: "Esse nome ira aparecer junto ao perfil do seu pet!",
-      // RN-04: quem acha um animal na rua nao sabe o nome.
+      // RN-04: quem acha um animal na rua nao sabe o nome — e a pergunta
+      // escrita para o dono fazia parecer que era obrigatorio.
+      titulo: tipo === "encontrado" ? "Sabe o nome do pet?" : "Qual o nome do pet?",
+      apoio:
+        tipo === "encontrado"
+          ? "Se a coleira tiver um nome, escreva aqui. Se nao, pode seguir sem responder."
+          : "Esse nome ira aparecer junto ao perfil do seu pet!",
       pronto: true,
     },
     especie: {
@@ -338,13 +348,16 @@ export default function Publicar() {
       pronto: true,
     },
     local: {
-      titulo:
-        tipo === "adocao"
-          ? "Aonde esse pet se encontra?"
-          : "Onde o pet foi visto pela ultima vez?",
-      apoio: exige_local
-        ? "Precisamos saber a ultima localizacao para ajudar na busca do pet."
-        : "Opcional para adocao, mas e assim que te encontram por perto.",
+      titulo: {
+        perdido: "Onde o pet foi visto pela ultima vez?",
+        encontrado: "Onde voce encontrou o pet?",
+        adocao: "Aonde esse pet se encontra?",
+      }[tipo ?? "perdido"],
+      apoio: {
+        perdido: "Precisamos saber a ultima localizacao para ajudar na busca do pet.",
+        encontrado: "E por perto daqui que o tutor vai procurar.",
+        adocao: "Opcional para adocao, mas e assim que te encontram por perto.",
+      }[tipo ?? "perdido"],
       pronto: !exige_local || local !== null,
     },
   }[passo];
