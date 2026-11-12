@@ -137,6 +137,19 @@ export default function Publicar() {
     });
   }, [router]);
 
+  // `?tipo=` e o fim do cadastro dizendo o que a pessoa veio fazer ("Achei
+  // um pet", "Quero colocar para adocao"). Perguntar de novo na tela
+  // seguinte seria repetir a pergunta que ela acabou de responder; o tipo ja
+  // vem marcado e o passo dele fica para tras, a uma seta de distancia.
+  // Lido de `window.location` pelo mesmo motivo da Home (sem Suspense).
+  useEffect(() => {
+    const pedido = new URLSearchParams(window.location.search).get("tipo");
+    if (TIPOS.some((opcao) => opcao.tipo === pedido)) {
+      definir_tipo(pedido as TipoDeAnuncio);
+      definir_passo("nome");
+    }
+  }, []);
+
   const exige_local = tipo === "perdido" || tipo === "encontrado";
 
   function voltar() {
