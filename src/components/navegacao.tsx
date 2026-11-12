@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 
 import { MarcaComNome } from "./marca";
@@ -11,8 +12,11 @@ import {
   IconeInicio,
   IconePata,
   IconePerfil,
+  IconeSair,
   IconeSino,
 } from "./ui/icones";
+import { useSair } from "@/lib/auth-navegador";
+import type { NotificacaoNaCaixa } from "@/queries/notificacoes";
 
 /**
  * Navegacao, desenhada a partir da `navbar` do Figma (no 1:3312).
@@ -63,7 +67,59 @@ function estaAtivo(caminho: string, href: string) {
   return caminho.startsWith(href);
 }
 
-function Aba({ destino, ativo }: { destino: Destino; ativo: boolean }) {
+/**
+ * Evento que a caixa de notificacoes dispara depois de marcar como lida, para
+ * a contagem do cabecalho nao continuar mostrando o numero antigo enquanto a
+ * pessoa ainda esta na caixa.
+ */
+export const NOTIFICACOES_MUDARAM = "localizapet:notificacoes-mudaram";
+
+/**
+ * Quem esta navegando e quantas notificacoes nao leu.
+ *
+ * No celular isto fica no cabecalho da Home (o sino e o sair); no desktop
+ * aquele cabecalho some, e o que ele dizia passa a morar aqui. Uma requisicao
+ * so responde as duas perguntas: `/api/notificacoes` devolve 401 para o
+ * visitante (RF-22) e a caixa para quem entrou.
+ *
+ * Busca de novo a cada troca de tela, como o sino: em ambiente serverless nao
+ * ha conexao aberta para empurrar o numero (RN-30).
+ */
+function useCaixa(caminho: string, ativa: boolean) {
+  const [autenticado, definir_autenticado] = useState<boolean | null>(null);
+  const [nao_lidas, definir_nao_lidas] = useState(0);
+
+  useEffect(() => {
+    if (!ativa) return;
+
+    function buscar() {
+      fetch("/api/notificacoes")
+        .then(async (r) => {
+          definir_autenticado(r.status !== 401);
+          if (!r.ok) return definir_nao_lidas(0);
+          const caixa: NotificacaoNaCaixa[] = await r.json();
+          definir_nao_lidas(caixa.filter((n) => n.lida_em === null).length);
+        })
+        .catch(() => undefined);
+    }
+
+    buscar();
+    window.addEventListener(NOTIFICACOES_MUDARAM, buscar);
+    return () => window.removeEventListener(NOTIFICACOES_MUDARAM, buscar);
+  }, [caminho, ativa]);
+
+  return { autenticado, nao_lidas };
+}
+
+function Aba({
+  destino,
+  ativo,
+  contagem = 0,
+}: {
+  destino: Destino;
+  ativo: boolean;
+  contagem?: number;
+}) {
   const { Icone } = destino;
 
   return (
@@ -79,23 +135,35 @@ function Aba({ destino, ativo }: { destino: Destino; ativo: boolean }) {
     >
       <Icone className="size-6 md:size-5" />
       {destino.rotulo}
+      {/* So no desktop: no celular o numero ja esta no sino da Home, que e o
+          que o Figma desenha, e a aba fica como no desenho. */}
+      {contagem > 0 && (
+        <span className="hidden min-w-5 place-items-center rounded-full bg-perdido px-1.5 text-xs font-bold text-white md:grid">
+          {contagem > 9 ? "9+" : contagem}
+          <span className="sr-only">{contagem === 1 ? " nao lida" : " nao lidas"}</span>
+        </span>
+      )}
     </Link>
   );
 }
 
+// Telas sem barra: a de boas-vindas e as de conta, porque no Figma elas
+// vem antes de haver aonde navegar; o painel de diagnostico, que e
+// ferramenta de quem desenvolve e nao tela de produto; e o cadastro do
+// pet, que e um fluxo em passos — no desenho ele ocupa a tela inteira, e
+// a barra competiria com o "Proximo" bem onde ele fica. O alerta de fuga
+// e o mesmo caso, com o "Publicar alerta" no rodape.
+const SEM_BARRA = ["/", "/entrar", "/cadastro", "/diagnostico", "/publicar", "/alerta"];
+
 export default function Navegacao() {
   const caminho = usePathname();
+  const sem_barra = SEM_BARRA.some((r) =>
+    r === "/" ? caminho === "/" : caminho.startsWith(r),
+  );
+  const { autenticado, nao_lidas } = useCaixa(caminho, !sem_barra);
+  const sair = useSair();
 
-  // Telas sem barra: a de boas-vindas e as de conta, porque no Figma elas
-  // vem antes de haver aonde navegar; o painel de diagnostico, que e
-  // ferramenta de quem desenvolve e nao tela de produto; e o cadastro do
-  // pet, que e um fluxo em passos — no desenho ele ocupa a tela inteira, e
-  // a barra competiria com o "Proximo" bem onde ele fica. O alerta de fuga
-  // e o mesmo caso, com o "Publicar alerta" no rodape.
-  const SEM_BARRA = ["/", "/entrar", "/cadastro", "/diagnostico", "/publicar", "/alerta"];
-  if (SEM_BARRA.some((r) => (r === "/" ? caminho === "/" : caminho.startsWith(r)))) {
-    return null;
-  }
+  if (sem_barra) return null;
 
   const publicando = caminho.startsWith("/publicar");
 
@@ -158,9 +226,32 @@ export default function Navegacao() {
             key={destino.href}
             destino={destino}
             ativo={estaAtivo(caminho, destino.href)}
+            contagem={destino.href === "/notificacoes" ? nao_lidas : 0}
           />
         ))}
       </div>
+
+      {/* O sair do cabecalho da Home, que no desktop nao aparece. Para o
+          visitante o lugar vira o "Entrar", pelo mesmo motivo de la: e o que
+          falta para ele. Nada aparece enquanto nao se sabe, para nao piscar. */}
+      {autenticado === true && (
+        <button
+          type="button"
+          onClick={sair}
+          className="hidden items-center gap-2 rounded-[--radius-padrao] px-3 py-2 text-sm text-suave transition hover:text-texto md:flex"
+        >
+          <IconeSair className="size-5" />
+          Sair
+        </button>
+      )}
+      {autenticado === false && (
+        <Link
+          href="/entrar"
+          className="hidden rounded-[--radius-padrao] px-3 py-2 text-sm font-semibold text-primaria md:block"
+        >
+          Entrar
+        </Link>
+      )}
       </div>
     </nav>
   );

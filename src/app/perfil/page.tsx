@@ -9,7 +9,7 @@ import { Botao } from "@/components/ui/botao";
 import { Campo, Interruptor } from "@/components/ui/campo";
 import { IconeAjustes, Seta } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
-import { cliente_navegador } from "@/lib/auth-navegador";
+import { useSair } from "@/lib/auth-navegador";
 import { entrar_e_voltar } from "@/lib/destino";
 import { mascara_telefone, telefone_completo } from "@/lib/mascaras";
 import type { AnimalNaLista, Situacao } from "@/types/animal";
@@ -124,11 +124,7 @@ export default function MinhaConta() {
     definir_salvando(false);
   }
 
-  async function sair() {
-    await cliente_navegador().auth.signOut();
-    router.refresh();
-    router.push("/entrar");
-  }
+  const sair = useSair("/entrar");
 
   if (estado === "carregando") {
     return (
@@ -227,8 +223,11 @@ export default function MinhaConta() {
   return (
     <Tela largura="estreita">
       {/* Cabecalho do desenho: engrenagem a esquerda, "Perfil" ao centro. O
-          sino da direita e a F-14, e nao existe ainda. */}
-      <div className="flex items-center justify-between">
+          sino da direita e a F-14, e nao existe ainda.
+
+          So no celular: no desktop a navegacao ja e o cabecalho, e a
+          engrenagem vira o botao "Ajustes da conta" abaixo do nome. */}
+      <div className="flex items-center justify-between md:hidden">
         <button
           type="button"
           onClick={() => definir_ajustes(true)}
@@ -241,7 +240,7 @@ export default function MinhaConta() {
         <span className="size-11" aria-hidden="true" />
       </div>
 
-      <div className="mt-6 flex flex-col items-center">
+      <div className="mt-6 flex flex-col items-center md:mt-0">
         {/* 96 px no desenho. Sem coluna de foto no modelo, fica a inicial. */}
         <span
           aria-hidden="true"
@@ -255,6 +254,15 @@ export default function MinhaConta() {
           <strong className="font-bold">{meus.length}</strong>{" "}
           {meus.length === 1 ? "pet" : "pets"}
         </p>
+
+        {/* Icone sozinho num canto funciona no celular, onde o desenho o pos;
+            no desktop, sem o cabecalho em volta, ele nao diria o que e. */}
+        <div className="mt-4 hidden md:block">
+          <Botao aparencia="secundaria" onClick={() => definir_ajustes(true)}>
+            <IconeAjustes className="size-5 text-primaria" />
+            Ajustes da conta
+          </Botao>
+        </div>
       </div>
 
       <ul className="mt-8 grid gap-3">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { NOTIFICACOES_MUDARAM } from "@/components/navegacao";
 import { Botao } from "@/components/ui/botao";
 import { SetaVoltar } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
@@ -53,6 +54,9 @@ export default function Notificacoes() {
     });
 
     if (!resposta.ok) return definir_erro("Nao foi possivel marcar como lida.");
+
+    // A contagem do cabecalho do desktop busca de novo ao ouvir isto.
+    window.dispatchEvent(new Event(NOTIFICACOES_MUDARAM));
 
     // A data vem do banco na proxima carga; aqui basta tirar o destaque.
     const agora = new Date();
