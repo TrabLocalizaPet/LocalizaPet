@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { EsqueletoDeLista, EsqueletoDoPerfil } from "@/components/esqueleto";
 import { Botao } from "@/components/ui/botao";
 import { Campo, Interruptor } from "@/components/ui/campo";
 import { IconeAjustes, Seta } from "@/components/ui/icones";
@@ -129,7 +130,10 @@ export default function MinhaConta() {
   if (estado === "carregando") {
     return (
       <Tela largura="estreita">
-        <Apoio>Carregando...</Apoio>
+        <EsqueletoDoPerfil />
+        <div className="mt-8">
+          <EsqueletoDeLista linhas={3} circulo texto="Carregando o perfil" />
+        </div>
       </Tela>
     );
   }

@@ -249,7 +249,8 @@ por comportamento; a captura de tela do navegador falhou durante o reteste.
 ### Dados de teste deixados no banco de desenvolvimento
 
 Três contas `teste.fluxoN@localizapet.test` e os anúncios "Teste Fuga",
-"Teste Contato" e dois gatos "Sem nome" (encontrado).
+"Teste Contato" e dois gatos "Sem nome" (encontrado). **Anúncios removidos em
+12/11/2026** (ver Rodada 2); as contas ficam para os próximos testes.
 
 ## Fora desta rodada
 
@@ -261,4 +262,108 @@ existe — são requisitos ainda não entregues, e cada um merece issue própria
 | RF-11 — Busca por raio | M | A aba "Buscar" abre o mapa; não há raio |
 | RF-17 — Registrar avistamento | S | Sem botão "vi este pet" no detalhe |
 | RF-23 — Cadastrar área monitorada | S | Sem tela; a caixa de notificações depende dela |
-| Acentuação da interface | — | Toda a interface está sem acento ("Adocao", "voce"). Decisão do grupo |
+| Acentuação da interface | — | Resolvida em 12/11/2026, na `feat/layout-desktop` |
+
+---
+
+## Rodada 2 — Reteste depois do layout de desktop
+
+| Campo | Valor |
+|---|---|
+| Data | 12/11/2026 |
+| Branch | `fix/reteste-dos-fluxos` (a partir de `feat/layout-desktop`) |
+| Ambiente | `npm run dev` em `localhost:3001`; visitante testado por `127.0.0.1:3001`, que não compartilha o cookie de sessão com `localhost` |
+| Navegador | Chrome, 1568 px (desktop) e 390 px (iframe) |
+
+### Erro relatado: "ver cão deslogado"
+
+Reproduzido só no servidor de `localhost:3000`, que respondia com tela
+branca e `Jest worker encountered 2 child process exceptions` no console.
+**Não é defeito do código:** a `.next` desse servidor foi sobrescrita por um
+`next build` rodado com ele ligado. Em um servidor novo, o mesmo fluxo
+(boas-vindas → "Entrar sem cadastro" → lista → cão; link direto; pino do
+mapa) passou sem erro no desktop e a 390 px.
+
+> Lição para o grupo: não rodar `next build` com o `npm run dev` ligado —
+> os dois usam a mesma `.next`.
+
+### Avisos (RF-24, RF-25)
+
+**Funcionam.** Os anúncios de teste publicados no Centro de Niterói geraram
+8 notificações para as duas contas com área monitorada (criadas pelo seed),
+apagadas em cascata junto com os anúncios. Anúncio de adoção sem local não
+gera aviso, como manda a regra.
+
+O que falta é o **RF-23**: não há tela para criar área monitorada, então só
+as contas do seed recebem aviso. Já estava em "Fora desta rodada"; continua
+pendente de issue.
+
+### BUG-010 — Idade zero aparece como "0 meses"
+
+| Campo | Valor |
+|---|---|
+| Severidade | Baixa |
+| Prioridade | Baixa |
+| Requisito | RF-15 |
+| Status | Corrigido |
+
+**Resultado obtido:** o detalhe do Buck mostrava "Buck, 0 meses".
+**Resultado esperado:** "menos de 1 mês".
+
+### BUG-011 — Acentos que a revisão de acentuação não alcançou
+
+| Campo | Valor |
+|---|---|
+| Severidade | Baixa |
+| Prioridade | Baixa |
+| Requisito | RNF-11 |
+| Status | Corrigido |
+
+**Resultado obtido:** "ha 3 dias", "1 mes" (`src/lib/formato.ts`) e o título
+de notificação "Novo pet para adocao" (gerado no SQL de
+`src/queries/animais.ts`). A revisão ignorava palavra solta em minúscula,
+para não acentuar valor de enum, e não olhava `src/queries`.
+
+### BUG-012 — Anúncio com o pino na água
+
+| Campo | Valor |
+|---|---|
+| Severidade | Média |
+| Prioridade | Média |
+| Requisito | RF-04, RF-13 |
+| Status | Dado corrigido; prevenção entregue |
+
+**Resultado obtido:** a Fiona ("sumiu perto do Campo de São Bento") estava
+em -22.9068, -43.1230, na Baía de Guanabara junto à Praia das Flechas,
+1,7 km a oeste do lugar descrito. Não é defeito de gravação: os 12 anúncios
+conferidos no Nominatim caem em Niterói, e troca de latitude por longitude
+mandaria o pino para longe da cidade. A causa é o ponto marcado na
+publicação — toque errado ou localização imprecisa do navegador.
+
+**Correção do dado:** avistamento movido para o Campo de São Bento
+(-22.90438, -43.10694), a pedido do grupo.
+
+**Prevenção:** o publicar e o alerta avisam "Esse ponto parece estar na
+água" quando o pino cai em água no mapa (`src/lib/agua.ts`, pela cor do tile
+do OpenStreetMap). O aviso não bloqueia a publicação e fica embaixo do mapa,
+para não deslocá-lo no meio do toque.
+
+**Também na água, não alterado:** o gato "Sem nome" encontrado em Icaraí
+(-22.9110, -43.1180), da conta "Ricardo Franca".
+
+### Melhorias pedidas na rodada
+
+| Pedido | Entrega |
+|---|---|
+| Várias fotos por anúncio | Carrossel na foto do detalhe (arrastar no celular, setas no desktop, teclado) e miniaturas que levam à foto |
+| Busca sem resultado | Texto neutro que repete o termo e diz onde a busca procura |
+| Carregamento | Esqueletos com a forma da Home, do detalhe, do perfil e da caixa de notificações |
+
+Carrossel validado com um anúncio temporário de 3 fotos (adoção, sem local,
+para não disparar aviso), apagado em seguida junto com as fotos do R2.
+
+### Dados de teste removidos
+
+Os 4 anúncios das contas `teste.fluxoN@localizapet.test`, com 8
+notificações e 1 foto no R2. Anúncios das demais contas não foram tocados.
+

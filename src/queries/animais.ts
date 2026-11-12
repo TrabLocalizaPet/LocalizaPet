@@ -304,7 +304,7 @@ export async function criar_anuncio(dados: NovoAnuncio): Promise<{ id: string }>
                 CASE $4
                   WHEN 'perdido'    THEN 'Novo pet perdido'
                   WHEN 'encontrado' THEN 'Pet encontrado'
-                  ELSE                   'Novo pet para adocao'
+                  ELSE                   'Novo pet para adoção'
                 END || ' perto de ' || m.apelido
            FROM areas_monitoradas m, ponto p
           -- RN-29: area desativada nao notifica. E o mesmo filtro do indice
