@@ -45,7 +45,8 @@ Defeitos encontrados durante a execução dos testes, no formato definido em
 | Prioridade | Alta |
 | Requisito | RF-20, RF-21, RN-24 |
 | Caso de teste | CT-43, CT-46 |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `164eb73` |
 
 **Passos para reprodução**
 1. Criar conta informando telefone
@@ -69,7 +70,8 @@ perfil, atrás da engrenagem. Quem acha o pet não tem como avisar o dono.
 | Severidade | Alta |
 | Prioridade | Alta |
 | Requisito | RNF-06 |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `68cd5dc` |
 
 **Passos para reprodução**
 1. Deixar o `npm run dev` rodando com conexões abertas no pool
@@ -91,7 +93,8 @@ capturada — na Vercel isso derruba a função.
 |---|---|
 | Severidade | Média |
 | Prioridade | Alta |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `1908fa6` |
 
 **Passos para reprodução**
 1. Criar conta
@@ -112,7 +115,8 @@ tem destino próprio.
 | Severidade | Média |
 | Prioridade | Alta |
 | Requisito | RF-19 |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `c81092d` |
 
 **Passos para reprodução**
 1. Sem sessão, tocar em Publicar
@@ -133,7 +137,8 @@ de novo.
 | Prioridade | Média |
 | Requisito | RF-02, RN-04 |
 | Caso de teste | CT-03 |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `1368afe` |
 
 **Resultado obtido:** com "Achei um pet perdido" escolhido, o passo do nome
 pergunta "Qual o nome do pet?" sem dizer que é opcional, o do local pergunta
@@ -151,7 +156,8 @@ encontrou", e um fim que diga que o anúncio já está no ar.
 |---|---|
 | Severidade | Baixa |
 | Prioridade | Média |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `288c019` |
 
 **Resultado obtido:** nos ajustes do perfil, "nem na resposta da API. Nasce
 desligado (RN-24)."; no detalhe do próprio anúncio, "(RN-09)".
@@ -169,7 +175,8 @@ técnico.
 | Prioridade | Baixa |
 | Requisito | RF-25 |
 | Caso de teste | CT-54 |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `e3e077e` |
 
 **Resultado obtido:** a caixa vazia usa o mesmo aviso com borda vermelha das
 mensagens de erro.
@@ -189,7 +196,8 @@ mensagens de erro.
 | Severidade | Baixa |
 | Prioridade | Baixa |
 | Requisito | RNF-11 |
-| Status | Aberto |
+| Status | Corrigido — correção aprovada no reteste |
+| Correção | `7ba1772` |
 
 **Passos para reprodução:** abrir `/entrar` com 390 px de largura.
 
@@ -213,6 +221,35 @@ sangra com `-mx-6` sem o pai cortar o excesso.
 no detalhe, "Ultima vez visto em · hoje", sem endereço e sem a hora.
 
 ---
+
+## Reteste — 11/11/2026
+
+Cada correção foi validada logo depois do commit, no mesmo ambiente da
+rodada, e ao fim todos os cenários foram executados de novo como
+regressão.
+
+| Bug | Como foi validado | Resultado |
+|---|---|---|
+| BUG-001 | Alerta publicado com o interruptor ligado no próprio formulário; o detalhe passou a ter o link `tel:` do autor | Aprovado |
+| BUG-002 | Evento `error` forçado no pool: sem a correção o processo cai com stack trace; com ela, registra e a consulta seguinte responde | Aprovado |
+| BUG-003 | Conta nova escolhendo "Perdi meu pet" abre o `/alerta`; `/publicar?tipo=encontrado` e `?tipo=adocao` começam no nome; valor inválido é ignorado | Aprovado |
+| BUG-004 | Visitante em `/publicar` → `/entrar?de=%2Fpublicar` → login → `/publicar`. `?de=//exemplo.com` cai em `/animais` | Aprovado |
+| BUG-005 | Fluxo de encontrado até publicar: "Sabe o nome do pet?", "Onde voce encontrou o pet?" e fim específico do tipo | Aprovado |
+| BUG-006 | Detalhe e ajustes sem "RN-" nem "API" no texto | Aprovado |
+| BUG-007 | Caixa vazia sem barra colorida; aviso de erro do login continua vermelho | Aprovado |
+| BUG-008 | `/entrar` com 390 px de largura rolável em 390 px de tela (antes 399) | Aprovado |
+
+**Regressão:** Home (13 anúncios), filtro de adoção, mapa (13 pinos), detalhe
+com telefone, login com volta, notificações e perfil — tudo como antes.
+`tsc --noEmit`, `eslint` e `next build` sem erros.
+
+**Pendente de conferência visual:** o aviso de contato (BUG-001) foi validado
+por comportamento; a captura de tela do navegador falhou durante o reteste.
+
+### Dados de teste deixados no banco de desenvolvimento
+
+Três contas `teste.fluxoN@localizapet.test` e os anúncios "Teste Fuga",
+"Teste Contato" e dois gatos "Sem nome" (encontrado).
 
 ## Fora desta rodada
 
