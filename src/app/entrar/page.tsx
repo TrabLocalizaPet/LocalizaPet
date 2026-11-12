@@ -71,7 +71,7 @@ export default function Entrar() {
   }
 
   return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col">
+    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-x-clip">
       <FormasDeFundo conjunto="login" />
 
       <div className="px-7 pt-3">
@@ -85,7 +85,8 @@ export default function Entrar() {
       </div>
 
       {/* 437 de largura num quadro de 390: a ilustracao sangra 23 px de cada
-          lado. `-mx-6` reproduz isso sem estourar a rolagem horizontal. */}
+          lado. `-mx-6` reproduz isso, e o `overflow-x-clip` do <main> corta
+          o que passa da tela — sem ele a pagina rolava 24 px para o lado. */}
       <div className="relative -mx-6 mt-2 aspect-[437/325]">
         <Image
           src="/ilustracoes/ilustracao-login.png"
