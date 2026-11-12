@@ -18,7 +18,7 @@ export function obter_pool(): Pool {
 
   const url = process.env.DATABASE_URL;
   if (!url) {
-    throw new Error("DATABASE_URL nao esta definida");
+    throw new Error("DATABASE_URL não está definida");
   }
 
   const local = url.includes("localhost") || url.includes("127.0.0.1");
@@ -38,7 +38,7 @@ export function obter_pool(): Pool {
   // capturada e derruba o processo. O pool ja descarta o cliente sozinho;
   // a proxima consulta abre outro.
   pool.on("error", (erro) => {
-    console.error("[db] conexao ociosa perdida:", erro.message);
+    console.error("[db] conexão ociosa perdida:", erro.message);
   });
 
   global_com_pool.pool_pg = pool;

@@ -50,7 +50,7 @@ export function SeletorDeFotos({
       body: JSON.stringify({ tipo: arquivo.type }),
     });
 
-    if (!pedido.ok) throw new Error("nao foi possivel preparar o envio");
+    if (!pedido.ok) throw new Error("não foi possível preparar o envio");
     const { url, chave } = await pedido.json();
 
     // O PUT vai direto ao R2. Se falhar aqui e quase sempre CORS do bucket —
@@ -75,7 +75,7 @@ export function SeletorDeFotos({
     const cabe = MAXIMO - fotos.length;
 
     if (escolhidas.length > cabe) {
-      definir_erro(`Cabe no maximo ${MAXIMO} fotos.`);
+      definir_erro(`Cabe no máximo ${MAXIMO} fotos.`);
       return;
     }
     if (escolhidas.some((a) => !TIPOS.includes(a.type))) {
@@ -119,7 +119,7 @@ export function SeletorDeFotos({
   return (
     <div>
       <span className="mb-1.5 block text-sm font-semibold">
-        Fotos <span className="font-normal text-suave">(ate {MAXIMO})</span>
+        Fotos <span className="font-normal text-suave">(até {MAXIMO})</span>
       </span>
 
       <div className="grid grid-cols-3 gap-2">
@@ -181,7 +181,7 @@ export function SeletorDeFotos({
 
       {fotos.length > 1 && (
         <p className="mt-2 text-xs text-suave">
-          A primeira foto e a capa, e e ela que aparece na listagem e no mapa.
+          A primeira foto é a capa, e é ela que aparece na listagem e no mapa.
         </p>
       )}
 

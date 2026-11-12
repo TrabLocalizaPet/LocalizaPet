@@ -27,12 +27,12 @@ export async function GET(
   const { id } = await contexto.params;
 
   if (!UUID.test(id)) {
-    return NextResponse.json({ erro: "anuncio nao encontrado" }, { status: 404 });
+    return NextResponse.json({ erro: "anúncio não encontrado" }, { status: 404 });
   }
 
   const animal = await buscar_animal(id);
   if (!animal) {
-    return NextResponse.json({ erro: "anuncio nao encontrado" }, { status: 404 });
+    return NextResponse.json({ erro: "anúncio não encontrado" }, { status: 404 });
   }
 
   return NextResponse.json(animal);
@@ -71,13 +71,13 @@ export async function PATCH(
   const { id } = await contexto.params;
 
   if (!UUID.test(id)) {
-    return NextResponse.json({ erro: "anuncio nao encontrado" }, { status: 404 });
+    return NextResponse.json({ erro: "anúncio não encontrado" }, { status: 404 });
   }
 
   const usuario = await usuario_atual();
   if (!usuario) {
     return NextResponse.json(
-      { erro: "e preciso estar autenticado" },
+      { erro: "é preciso estar autenticado" },
       { status: 401 },
     );
   }
@@ -85,7 +85,7 @@ export async function PATCH(
   const corpo = MudancaDeSituacao.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     return NextResponse.json(
-      { erro: "dados invalidos", detalhes: z.treeifyError(corpo.error) },
+      { erro: "dados inválidos", detalhes: z.treeifyError(corpo.error) },
       { status: 422 },
     );
   }
@@ -94,9 +94,9 @@ export async function PATCH(
 
   if (!resultado.ok) {
     const resposta = {
-      inexistente: { erro: "anuncio nao encontrado", status: 404 },
-      nao_e_seu: { erro: "so o autor pode resolver o anuncio", status: 403 },
-      ja_encerrado: { erro: "este anuncio ja foi encerrado", status: 409 },
+      inexistente: { erro: "anúncio não encontrado", status: 404 },
+      nao_e_seu: { erro: "só o autor pode resolver o anúncio", status: 403 },
+      ja_encerrado: { erro: "este anúncio já foi encerrado", status: 409 },
     }[resultado.recusa];
 
     return NextResponse.json({ erro: resposta.erro }, { status: resposta.status });

@@ -107,14 +107,14 @@ export default function Detalhe() {
     // 409 e o caso das duas abas abertas: outra requisicao resolveu primeiro.
     // Nao e erro de quem clicou — a tela so precisa mostrar o estado certo.
     if (resposta.status === 409) {
-      definir_erro("Este anuncio ja estava encerrado.");
+      definir_erro("Este anúncio já estava encerrado.");
       definir_animal((atual) =>
         atual ? { ...atual, situacao: "resolvido" } : atual,
       );
       return;
     }
 
-    definir_erro("Nao foi possivel encerrar agora. Tente de novo.");
+    definir_erro("Não foi possível encerrar agora. Tente de novo.");
   }
 
   /**
@@ -129,7 +129,7 @@ export default function Detalhe() {
     if (!animal) return;
 
     const endereco = window.location.href;
-    const titulo = `${animal.nome ?? "Anuncio"} no LocalizaPet`;
+    const titulo = `${animal.nome ?? "Anúncio"} no LocalizaPet`;
 
     try {
       if (navigator.share) {
@@ -190,7 +190,7 @@ export default function Detalhe() {
   if (estado === "ausente" || !animal) {
     return (
       <Tela largura="estreita">
-        <Titulo>Anuncio nao encontrado</Titulo>
+        <Titulo>Anúncio não encontrado</Titulo>
         <Apoio>
           <Link href="/animais" className="font-semibold text-primaria">
             Voltar para a listagem
@@ -265,7 +265,7 @@ export default function Detalhe() {
           <button
             type="button"
             onClick={compartilhar}
-            aria-label="Compartilhar este anuncio"
+            aria-label="Compartilhar este anúncio"
             className="grid size-20 place-items-center rounded-full bg-creme text-secundaria shadow-[0_2px_12px_0_rgba(93,42,66,0.24)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria"
           >
             <IconeCompartilhar className="size-8" />
@@ -304,7 +304,7 @@ export default function Detalhe() {
 
         {!animal.autor_telefone && (
           <p className="mt-1 text-sm text-suave">
-            Esta pessoa preferiu nao exibir o telefone.
+            Esta pessoa preferiu não exibir o telefone.
           </p>
         )}
 
@@ -312,7 +312,7 @@ export default function Detalhe() {
             precisa dizer que encerrou — senao alguem liga para o tutor de um
             caso ja fechado. */}
         {animal.situacao === "resolvido" && (
-          <Aviso tom="bom">Este caso ja foi resolvido.</Aviso>
+          <Aviso tom="bom">Este caso já foi resolvido.</Aviso>
         )}
 
         {erro && <Aviso>{erro}</Aviso>}
@@ -348,16 +348,16 @@ export default function Detalhe() {
         {sou_o_autor && animal.situacao === "ativo" && (
           <section className="mt-6 rounded-[--radius-padrao] border border-borda bg-cartao p-4">
             <h2 className="font-titulo text-base font-medium">
-              Este anuncio e seu
+              Este anúncio é seu
             </h2>
 
             {!confirmando ? (
               <>
                 <p className="mt-1 text-sm text-suave">
                   {animal.tipo_anuncio === "adocao"
-                    ? "Ja encontrou um lar para ele?"
-                    : "Ja reencontrou o pet?"}{" "}
-                  Encerrar tira o anuncio da lista e do mapa.
+                    ? "Já encontrou um lar para ele?"
+                    : "Já reencontrou o pet?"}{" "}
+                  Encerrar tira o anúncio da lista e do mapa.
                 </p>
                 <Botao
                   aparencia="secundaria"
@@ -374,11 +374,11 @@ export default function Detalhe() {
                  sai do desenho e trava a tela inteira. */
               <>
                 <p className="mt-1 text-sm">
-                  Encerrar nao tem como desfazer por aqui. Confirma?
+                  Encerrar não tem como desfazer por aqui. Confirma?
                 </p>
                 <div className="mt-3 grid gap-2">
                   <Botao largo disabled={encerrando} onClick={encerrar}>
-                    {encerrando ? "Encerrando..." : "Sim, esta resolvido"}
+                    {encerrando ? "Encerrando..." : "Sim, está resolvido"}
                   </Botao>
                   <Botao
                     aparencia="fantasma"
@@ -386,7 +386,7 @@ export default function Detalhe() {
                     disabled={encerrando}
                     onClick={() => definir_confirmando(false)}
                   >
-                    Nao, continuar procurando
+                    Não, continuar procurando
                   </Botao>
                 </div>
               </>
@@ -399,8 +399,8 @@ export default function Detalhe() {
           <section className="mt-6">
             <h2 className="text-xl leading-7 font-bold">
               {animal.tipo_anuncio === "adocao"
-                ? "Atualmente esta em"
-                : "Ultima vez visto em"}
+                ? "Atualmente está em"
+                : "Última vez visto em"}
             </h2>
             {animal.visto_em && (
               <Apoio>
@@ -420,7 +420,7 @@ export default function Detalhe() {
             </div>
           </section>
         ) : (
-          <Apoio>Este anuncio nao tem local informado.</Apoio>
+          <Apoio>Este anúncio não tem local informado.</Apoio>
         )}
       </div>
     </main>

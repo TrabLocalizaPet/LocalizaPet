@@ -14,7 +14,7 @@ import type { Situacao, TipoDeAnuncio } from "@/types/animal";
 export const ROTULO_DO_TIPO: Record<TipoDeAnuncio, string> = {
   perdido: "Perdido",
   encontrado: "Encontrado",
-  adocao: "Adocao",
+  adocao: "Adoção",
 };
 
 const COR: Record<TipoDeAnuncio, string> = {

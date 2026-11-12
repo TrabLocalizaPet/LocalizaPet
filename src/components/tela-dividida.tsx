@@ -93,9 +93,9 @@ export function PainelLateral({
 
       {/* A frase da boas-vindas, em Mitr e na cor secundaria, como no no 1:600. */}
       <p className="text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
-        Conecte coracoes.
+        Conecte corações.
         <br />
-        Reencontre historias.
+        Reencontre histórias.
       </p>
     </aside>
   );

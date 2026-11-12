@@ -22,34 +22,34 @@ import type { AuthError } from "@supabase/supabase-js";
  */
 
 const POR_CODIGO: Record<string, string> = {
-  user_already_exists: "Ja existe uma conta com esse e-mail.",
-  email_exists: "Ja existe uma conta com esse e-mail.",
+  user_already_exists: "Já existe uma conta com esse e-mail.",
+  email_exists: "Já existe uma conta com esse e-mail.",
   weak_password: "Senha fraca demais. Use pelo menos 8 caracteres.",
   validation_failed: "Confira os dados preenchidos.",
   over_email_send_rate_limit:
     "Muitas tentativas seguidas. Espere um minuto e tente de novo.",
   over_request_rate_limit:
     "Muitas tentativas seguidas. Espere um minuto e tente de novo.",
-  email_address_invalid: "Esse e-mail nao parece valido.",
+  email_address_invalid: "Esse e-mail não parece válido.",
   email_not_confirmed:
     "Confirme o e-mail que enviamos antes de entrar.",
   invalid_credentials: "E-mail ou senha incorretos.",
 };
 
 const POR_TRECHO: [string, string][] = [
-  ["already registered", "Ja existe uma conta com esse e-mail."],
-  ["already exists", "Ja existe uma conta com esse e-mail."],
+  ["already registered", "Já existe uma conta com esse e-mail."],
+  ["already exists", "Já existe uma conta com esse e-mail."],
   ["password should be at least", "A senha precisa de pelo menos 8 caracteres."],
   ["weak password", "Senha fraca demais. Use pelo menos 8 caracteres."],
   ["requires a valid password", "Digite uma senha."],
-  ["unable to validate email", "Esse e-mail nao parece valido."],
-  ["invalid email", "Esse e-mail nao parece valido."],
+  ["unable to validate email", "Esse e-mail não parece válido."],
+  ["invalid email", "Esse e-mail não parece válido."],
   ["rate limit", "Muitas tentativas seguidas. Espere um minuto e tente de novo."],
   ["you can only request this after", "Espere alguns segundos e tente de novo."],
   ["email not confirmed", "Confirme o e-mail que enviamos antes de entrar."],
   ["invalid login credentials", "E-mail ou senha incorretos."],
-  ["network", "Sem conexao com o servidor. Verifique a internet."],
-  ["failed to fetch", "Sem conexao com o servidor. Verifique a internet."],
+  ["network", "Sem conexão com o servidor. Verifique a internet."],
+  ["failed to fetch", "Sem conexão com o servidor. Verifique a internet."],
 ];
 
 export function mensagem_de_auth(erro: AuthError | Error): string {
@@ -61,6 +61,6 @@ export function mensagem_de_auth(erro: AuthError | Error): string {
     if (texto.includes(trecho)) return traducao;
   }
 
-  console.error("[auth] mensagem sem traducao:", erro.message, codigo ?? "");
-  return "Nao foi possivel concluir. Tente de novo em instantes.";
+  console.error("[auth] mensagem sem tradução:", erro.message, codigo ?? "");
+  return "Não foi possível concluir. Tente de novo em instantes.";
 }

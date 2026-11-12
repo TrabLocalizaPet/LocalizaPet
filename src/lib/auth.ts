@@ -24,7 +24,7 @@ function configuracao(): { url: string; chave: string } {
 
   if (!url || !chave) {
     throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL ou NEXT_PUBLIC_SUPABASE_ANON_KEY nao estao definidas",
+      "NEXT_PUBLIC_SUPABASE_URL ou NEXT_PUBLIC_SUPABASE_ANON_KEY não estão definidas",
     );
   }
 

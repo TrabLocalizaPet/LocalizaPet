@@ -30,7 +30,7 @@ type Atalho = {
 
 const ATALHOS: Atalho[] = [
   { tipo: "perdido", rotulo: "Perdidos", Icone: IconePino },
-  { tipo: "adocao", rotulo: "Adocao", Icone: IconeCoracao },
+  { tipo: "adocao", rotulo: "Adoção", Icone: IconeCoracao },
   { tipo: "encontrado", rotulo: "Achar tutor", Icone: IconeTutor },
 ];
 

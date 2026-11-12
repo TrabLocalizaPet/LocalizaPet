@@ -59,8 +59,8 @@ export function AvisoDeContato() {
   if (!perfil.telefone) {
     return (
       <p className="rounded-[--radius-padrao] border border-borda border-l-4 border-l-encontrado bg-cartao px-3.5 py-3 text-sm">
-        Voce nao cadastrou telefone, entao quem vir o anuncio nao tera como
-        falar com voce.{" "}
+        Você não cadastrou telefone, então quem vir o anúncio não terá como
+        falar com você.{" "}
         <Link href="/perfil" className="font-semibold text-primaria">
           Adicionar telefone
         </Link>
@@ -77,11 +77,11 @@ export function AvisoDeContato() {
       }
     >
       <Interruptor
-        rotulo={`Mostrar meu telefone ${perfil.telefone} nos anuncios`}
+        rotulo={`Mostrar meu telefone ${perfil.telefone} nos anúncios`}
         apoio={
           perfil.telefone_publico
-            ? "Quem vir o anuncio pode te ligar. Vale para todos os seus anuncios."
-            : "Desligado, ninguem que vir o anuncio vai ter como falar com voce."
+            ? "Quem vir o anúncio pode te ligar. Vale para todos os seus anúncios."
+            : "Desligado, ninguém que vir o anúncio vai ter como falar com você."
         }
         checked={perfil.telefone_publico}
         disabled={salvando}
@@ -89,7 +89,7 @@ export function AvisoDeContato() {
       />
       {falhou && (
         <p className="-mt-3 pb-3 text-xs text-perdido">
-          Nao foi possivel salvar. Tente de novo.
+          Não foi possível salvar. Tente de novo.
         </p>
       )}
     </div>

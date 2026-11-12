@@ -147,7 +147,7 @@ export default function Entrar() {
           </Link>
 
           <p className="mt-auto py-6 text-center text-sm text-suave lg:mt-6">
-            Ainda nao tem conta?{" "}
+            Ainda não tem conta?{" "}
             <Link href="/cadastro" className="font-semibold text-primaria">
               Cadastre-se
             </Link>

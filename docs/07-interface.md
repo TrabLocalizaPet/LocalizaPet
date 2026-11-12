@@ -82,6 +82,14 @@ Duas famílias: **Inter** no corpo, **Mitr** nos títulos.
 
 Pesos: 400 normal, 500 média, 600 semibold, 700 bold.
 
+**Texto da interface leva acento** ("Adoção", "Início", "Pets próximos de
+você"). A regra de escrever sem acento vale só para nomes de coluna e de
+variável, valores de enum (`adocao`, `femea`) e caminhos (`/notificacoes`),
+que continuam como estão. Rótulos, mensagens de erro das rotas e `aria-label`
+são texto para gente e seguem o português correto — atenção ao seletor
+`nav[aria-label="Navegação principal"]` do `globals.css`, que depende do
+rótulo exato.
+
 ### Espaçamento e forma
 
 Escala de espaçamento em múltiplos de 4 (`2, 8, 12, 24, 32, 40`).

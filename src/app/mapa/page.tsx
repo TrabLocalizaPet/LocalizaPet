@@ -30,7 +30,7 @@ const Mapa = dynamic(() => import("@/components/mapa"), {
 const LEGENDA = [
   { cor: "bg-perdido", inicial: "P", rotulo: "Perdido" },
   { cor: "bg-encontrado", inicial: "E", rotulo: "Encontrado" },
-  { cor: "bg-adocao", inicial: "A", rotulo: "Adocao" },
+  { cor: "bg-adocao", inicial: "A", rotulo: "Adoção" },
 ];
 
 export default function PaginaDoMapa() {
@@ -61,10 +61,10 @@ export default function PaginaDoMapa() {
           celular a ordem e a do fluxo. */}
       <div className="md:grid md:grid-cols-[1fr_auto] md:items-end md:gap-x-6">
         <div>
-          <Titulo>Pets perto de voce</Titulo>
+          <Titulo>Pets perto de você</Titulo>
           <Apoio>
-            {animais.length} anuncio(s) ativo(s). Toque num pino para ver o
-            anuncio.
+            {animais.length} anúncio(s) ativo(s). Toque num pino para ver o
+            anúncio.
           </Apoio>
         </div>
 
@@ -84,13 +84,13 @@ export default function PaginaDoMapa() {
           onClick={usar_minha_localizacao}
           disabled={estado === "buscando"}
         >
-          {estado === "buscando" ? "Localizando..." : "Usar minha localizacao"}
+          {estado === "buscando" ? "Localizando..." : "Usar minha localização"}
         </Botao>
 
         {estado === "negado" && (
           <div className="md:col-span-2">
             <Aviso>
-              Nao conseguimos sua localizacao. O mapa continua no centro padrao —
+              Não conseguimos sua localização. O mapa continua no centro padrão —
               arraste para procurar.
             </Aviso>
           </div>

@@ -41,7 +41,7 @@ type Destino = {
 };
 
 const ANTES: Destino[] = [
-  { href: "/animais", rotulo: "Inicio", Icone: IconeInicio },
+  { href: "/animais", rotulo: "Início", Icone: IconeInicio },
   { href: "/mapa", rotulo: "Buscar", Icone: IconeBuscar },
 ];
 
@@ -140,7 +140,7 @@ function Aba({
       {contagem > 0 && (
         <span className="hidden min-w-5 place-items-center rounded-full bg-perdido px-1.5 text-xs font-bold text-white md:grid">
           {contagem > 9 ? "9+" : contagem}
-          <span className="sr-only">{contagem === 1 ? " nao lida" : " nao lidas"}</span>
+          <span className="sr-only">{contagem === 1 ? " não lida" : " não lidas"}</span>
         </span>
       )}
     </Link>
@@ -169,7 +169,7 @@ export default function Navegacao() {
 
   return (
     <nav
-      aria-label="Navegacao principal"
+      aria-label="Navegação principal"
       className={classes(
         "fixed inset-x-0 bottom-0 z-[1000] flex items-stretch border-t border-borda bg-cartao",
         "pb-[env(safe-area-inset-bottom)]",
@@ -201,7 +201,7 @@ export default function Navegacao() {
             acao principal. */}
         <Link
           href="/publicar"
-          aria-label="Publicar anuncio"
+          aria-label="Publicar anúncio"
           aria-current={publicando ? "page" : undefined}
           className="flex flex-1 flex-col items-center md:order-last md:ml-auto md:flex-none md:flex-row md:gap-2"
         >

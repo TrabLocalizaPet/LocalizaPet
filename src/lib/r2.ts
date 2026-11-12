@@ -20,7 +20,7 @@ const global_com_r2 = globalThis as typeof globalThis & { cliente_r2?: S3Client 
 
 function exigir(nome: string): string {
   const valor = process.env[nome];
-  if (!valor) throw new Error(`${nome} nao esta definida`);
+  if (!valor) throw new Error(`${nome} não está definida`);
   return valor;
 }
 
@@ -123,7 +123,7 @@ export async function excluir_objetos(chaves: string[]): Promise<void> {
       }),
     );
   } catch (erro) {
-    console.error("nao foi possivel apagar do R2:", chaves, erro);
+    console.error("não foi possível apagar do R2:", chaves, erro);
   }
 }
 

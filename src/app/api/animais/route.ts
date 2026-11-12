@@ -58,7 +58,7 @@ const NovoAnuncio = z
       .datetime({ offset: true })
       .transform((v) => new Date(v))
       .refine((d) => d.getTime() <= Date.now() + 5 * 60_000, {
-        message: "a hora em que o animal foi visto nao pode estar no futuro",
+        message: "a hora em que o animal foi visto não pode estar no futuro",
       })
       .nullish()
       .transform((v) => v ?? null),
@@ -67,7 +67,7 @@ const NovoAnuncio = z
     // (RNF-10); aqui so viram linhas em `fotos`.
     fotos: z
       .array(z.string().min(1).max(200))
-      .max(6, "no maximo 6 fotos")
+      .max(6, "no máximo 6 fotos")
       .default([]),
   })
   // RN-03: perdido e encontrado exigem local. Sem coordenada o anuncio nao
@@ -78,7 +78,7 @@ const NovoAnuncio = z
       dados.tipo_anuncio === "adocao" || dados.local !== null,
     {
       path: ["local"],
-      message: "anuncio de perdido ou encontrado exige o local no mapa",
+      message: "anúncio de perdido ou encontrado exige o local no mapa",
     },
   )
   // A hora pertence ao avistamento, e sem local nao ha avistamento: aceitar
@@ -114,7 +114,7 @@ export async function POST(requisicao: Request) {
   const usuario = await usuario_atual();
   if (!usuario) {
     return NextResponse.json(
-      { erro: "e preciso estar autenticado para publicar" },
+      { erro: "é preciso estar autenticado para publicar" },
       { status: 401 },
     );
   }
@@ -123,7 +123,7 @@ export async function POST(requisicao: Request) {
   if (!corpo.success) {
     // 422 antes de qualquer escrita: o anuncio recusado nao chega a existir.
     return NextResponse.json(
-      { erro: "dados invalidos", detalhes: z.treeifyError(corpo.error) },
+      { erro: "dados inválidos", detalhes: z.treeifyError(corpo.error) },
       { status: 422 },
     );
   }
@@ -136,7 +136,7 @@ export async function POST(requisicao: Request) {
   const prefixo = `animais/${usuario.id}/`;
   if (corpo.data.fotos.some((chave) => !chave.startsWith(prefixo))) {
     return NextResponse.json(
-      { erro: "alguma das fotos nao foi enviada por voce" },
+      { erro: "alguma das fotos não foi enviada por você" },
       { status: 403 },
     );
   }

@@ -39,8 +39,8 @@ export function SinoDeNotificacoes({ autenticado }: { autenticado: boolean | nul
       href="/notificacoes"
       aria-label={
         nao_lidas === 0
-          ? "Notificacoes"
-          : `Notificacoes, ${nao_lidas} nao ${nao_lidas === 1 ? "lida" : "lidas"}`
+          ? "Notificações"
+          : `Notificações, ${nao_lidas} não ${nao_lidas === 1 ? "lida" : "lidas"}`
       }
       className="relative -mr-2 grid size-11 place-items-center text-primaria"
     >

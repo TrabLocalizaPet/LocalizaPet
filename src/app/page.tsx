@@ -61,9 +61,9 @@ export default async function BoasVindas() {
           <MarcaComNome largura={186} className="-mt-8 w-[48%] lg:mt-0" />
 
           <h1 className="mt-3 text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
-            Conecte coracoes.
+            Conecte corações.
             <br />
-            Reencontre historias.
+            Reencontre histórias.
           </h1>
 
           {/* 326 de 390 = 84%; os botoes ficam colados no rodape do desenho. */}

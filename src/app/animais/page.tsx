@@ -102,7 +102,7 @@ export default function Home() {
       {/* Cabecalho do no 1:3273: sair a esquerda, "Inicio" ao centro, sino a
           direita. */}
       <CabecalhoDaHome
-        titulo="Inicio"
+        titulo="Início"
         autenticado={autenticado}
         acao={<SinoDeNotificacoes autenticado={autenticado} />}
       />
@@ -114,7 +114,7 @@ export default function Home() {
       <div className="lg:mb-6 lg:flex lg:items-center lg:gap-6">
         <div className="mt-6 md:mt-0 lg:flex-1">
           <CampoDeBusca
-            placeholder="Procure por pets, tutores ou adocoes"
+            placeholder="Procure por pets, tutores ou adoções"
             value={procurado}
             onChange={(e) => definir_procurado(e.target.value)}
           />
@@ -131,7 +131,7 @@ export default function Home() {
           como a proxima feature, entao o titulo nasce certo em vez de mudar
           de novo. */}
       <div className="flex items-center justify-between pb-3">
-        <h1 className="text-base font-bold">Pets proximos de voce</h1>
+        <h1 className="text-base font-bold">Pets próximos de você</h1>
 
         {/* O "Ver todos" do desenho e o que desfaz o filtro. Some quando nao
             ha filtro nenhum: nao teria o que fazer. */}
@@ -154,8 +154,8 @@ export default function Home() {
       {!carregando && visiveis.length === 0 && (
         <Aviso>
           {procurado !== ""
-            ? "Nenhum anuncio com esse texto entre os que estao na tela."
-            : "Nenhum anuncio deste tipo por enquanto."}
+            ? "Nenhum anúncio com esse texto entre os que estão na tela."
+            : "Nenhum anúncio deste tipo por enquanto."}
         </Aviso>
       )}
 

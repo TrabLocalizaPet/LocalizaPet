@@ -71,7 +71,7 @@ const INTENCOES: { valor: Intencao; titulo: string; apoio: string }[] = [
   { valor: "perdi_pet", titulo: "Perdi meu pet", apoio: "Quero ajuda para encontra-lo" },
   { valor: "achei_pet", titulo: "Achei um pet perdido", apoio: "Quero encontrar o tutor" },
   { valor: "quero_adotar", titulo: "Quero adotar", apoio: "Quero encontrar um novo amigo" },
-  { valor: "quero_doar", titulo: "Quero colocar para adocao", apoio: "Quero encontrar um lar para o pet" },
+  { valor: "quero_doar", titulo: "Quero colocar para adoção", apoio: "Quero encontrar um lar para o pet" },
 ];
 
 /**
@@ -181,7 +181,7 @@ export default function Cadastro() {
     });
 
     if (!resposta.ok) {
-      definir_erro("A conta foi criada, mas o perfil nao. Entre e complete o cadastro.");
+      definir_erro("A conta foi criada, mas o perfil não. Entre e complete o cadastro.");
       definir_enviando(false);
       return;
     }
@@ -224,17 +224,17 @@ export default function Cadastro() {
               className="mt-[14dvh]"
             />
             <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
-              E hora do cadastro!
+              É hora do cadastro!
             </h1>
             <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-              Sao apenas alguns passos para voce se cadastrar, e bem rapido.
-              Vamos la?
+              São apenas alguns passos para você se cadastrar, é bem rápido.
+              Vamos lá?
             </p>
           </div>
 
           <div className="mt-[3dvh] px-8">
             <Botao largo onClick={() => definir_passo("nome")}>
-              Vamos la!
+              Vamos lá!
             </Botao>
           </div>
         </Miolo>
@@ -262,7 +262,7 @@ export default function Cadastro() {
               com sucesso
             </h1>
             <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-              Agora vamos configurar o aplicativo especialmente para voce!
+              Agora vamos configurar o aplicativo especialmente para você!
             </p>
           </div>
 
@@ -300,7 +300,7 @@ export default function Cadastro() {
             o meio da tela e o "Proximo" fecha a escolha embaixo. */}
         <div className="mt-auto px-8 pb-10">
           <Botao largo disabled={!intencao || enviando} onClick={salvar_intencao}>
-            {enviando ? "Salvando..." : "Proximo"}
+            {enviando ? "Salvando..." : "Próximo"}
           </Botao>
         </div>
       </Casca>
@@ -311,12 +311,12 @@ export default function Cadastro() {
   const PERGUNTAS = {
     nome: {
       titulo: "Qual o seu nome?",
-      apoio: "Seu nome ira aparecer junto ao perfil do seu pet!",
+      apoio: "Seu nome irá aparecer junto ao perfil do seu pet!",
       pronto: nome.trim().length >= 2,
     },
     telefone: {
       titulo: "Qual o seu telefone?",
-      apoio: "Pode ficar tranquilo! Nao mandaremos mensagens e ligacoes para voce",
+      apoio: "Pode ficar tranquilo! Não mandaremos mensagens e ligações para você",
       pronto: telefone_completo(telefone),
     },
     nascimento: {
@@ -326,12 +326,12 @@ export default function Cadastro() {
     },
     email: {
       titulo: "Qual o seu email?",
-      apoio: "Pode ficar tranquilo! Usaremos apenas para criacao e confirmacao da sua conta.",
+      apoio: "Pode ficar tranquilo! Usaremos apenas para criação e confirmação da sua conta.",
       pronto: email_plausivel(email),
     },
     senha: {
       titulo: "Defina sua senha",
-      apoio: "*Sua senha deve conter no minimo 8 caracteres.",
+      apoio: "*Sua senha deve conter no mínimo 8 caracteres.",
       pronto: senha.length >= 8,
     },
   }[passo];
@@ -406,7 +406,7 @@ export default function Cadastro() {
                 />
                 <CampoDeLinha
                   ref={campo_mes}
-                  aria-label="Mes"
+                  aria-label="Mês"
                   inputMode="numeric"
                   maxLength={2}
                   placeholder="10"
@@ -436,7 +436,7 @@ export default function Cadastro() {
                   continuar apagado, e quem digitou nao saberia por que. */}
               {dia !== "" && mes !== "" && ano.length === 4 && nascimento === null && (
                 <p className="mt-3 text-center text-xs text-suave">
-                  Essa data nao existe. Confira o dia, o mes e o ano.
+                  Essa data não existe. Confira o dia, o mês e o ano.
                 </p>
               )}
             </div>
@@ -453,7 +453,7 @@ export default function Cadastro() {
             <CampoDeLinha
               apoio={
                 email !== "" && !email_plausivel(email)
-                  ? "Confira: falta o @ ou o final do endereco (.com, .br)."
+                  ? "Confira: falta o @ ou o final do endereço (.com, .br)."
                   : PERGUNTAS.apoio
               }
               type="email"
@@ -487,12 +487,12 @@ export default function Cadastro() {
           disabled={!PERGUNTAS.pronto || enviando}
           onClick={ultimo ? criar_conta : avancar}
         >
-          {enviando ? "Criando..." : "Proximo"}
+          {enviando ? "Criando..." : "Próximo"}
         </Botao>
 
         {passo === "nome" && (
           <p className="mt-4 text-center text-sm text-suave">
-            Ja tem conta?{" "}
+            Já tem conta?{" "}
             <Link href="/entrar" className="font-semibold text-primaria">
               Entrar
             </Link>

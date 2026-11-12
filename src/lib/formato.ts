@@ -30,9 +30,9 @@ export function resumo(animal: AnimalNaLista): string {
   const especie = { cachorro: "Cachorro", gato: "Gato", outro: "Outro" }[
     animal.especie
   ];
-  const sexo = animal.sexo === "macho" ? "Macho" : animal.sexo === "femea" ? "Femea" : null;
+  const sexo = animal.sexo === "macho" ? "Macho" : animal.sexo === "femea" ? "Fêmea" : null;
   const porte = animal.porte
-    ? { pequeno: "Pequeno", medio: "Medio", grande: "Grande" }[animal.porte]
+    ? { pequeno: "Pequeno", medio: "Médio", grande: "Grande" }[animal.porte]
     : null;
 
   return [especie, sexo, porte, animal.cor, idade_por_extenso(animal.idade_meses)]
