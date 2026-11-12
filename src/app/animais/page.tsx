@@ -107,17 +107,23 @@ export default function Home() {
         acao={<SinoDeNotificacoes autenticado={autenticado} />}
       />
 
-      <div className="mt-6">
-        <CampoDeBusca
-          placeholder="Procure por pets, tutores ou adocoes"
-          value={procurado}
-          onChange={(e) => definir_procurado(e.target.value)}
-        />
-      </div>
+      {/* No desktop o cabecalho acima some (ver `CabecalhoDaHome`), e a busca
+          e os atalhos dividem uma linha: um embaixo do outro, numa coluna de
+          56rem, a busca virava uma faixa comprida e os atalhos ficavam
+          espremidos num canto. */}
+      <div className="lg:mb-6 lg:flex lg:items-center lg:gap-6">
+        <div className="mt-6 md:mt-0 lg:flex-1">
+          <CampoDeBusca
+            placeholder="Procure por pets, tutores ou adocoes"
+            value={procurado}
+            onChange={(e) => definir_procurado(e.target.value)}
+          />
+        </div>
 
-      {/* 24 px acima dos atalhos e 16 abaixo, como no no 1:3282. */}
-      <div className="mt-6 mb-4">
-        <AtalhosPorTipo selecionado={tipo ?? null} ao_escolher={definir_tipo} />
+        {/* 24 px acima dos atalhos e 16 abaixo, como no no 1:3282. */}
+        <div className="mt-6 mb-4 lg:my-0">
+          <AtalhosPorTipo selecionado={tipo ?? null} ao_escolher={definir_tipo} />
+        </div>
       </div>
 
       {/* O titulo e o do desenho. Hoje a lista e "mais recentes primeiro", e
