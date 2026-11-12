@@ -33,6 +33,14 @@ export function obter_pool(): Pool {
     ssl: local ? undefined : { rejectUnauthorized: false },
   });
 
+  // Cliente ocioso que perde a conexao (banco reiniciado, pooler fechando)
+  // emite `error` no pool. Sem ouvinte, o Node trata como excecao nao
+  // capturada e derruba o processo. O pool ja descarta o cliente sozinho;
+  // a proxima consulta abre outro.
+  pool.on("error", (erro) => {
+    console.error("[db] conexao ociosa perdida:", erro.message);
+  });
+
   global_com_pool.pool_pg = pool;
   return pool;
 }
