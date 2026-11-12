@@ -9,10 +9,12 @@ import {
   Casca,
   Ilustracao,
   ListaDeOpcoes,
+  Miolo,
   OpcaoDeLista,
   TituloDoPasso,
   Topo,
 } from "@/components/passo";
+import { PainelLateral } from "@/components/tela-dividida";
 import { Botao } from "@/components/ui/botao";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
@@ -69,7 +71,7 @@ const INTENCOES: { valor: Intencao; titulo: string; apoio: string }[] = [
   { valor: "perdi_pet", titulo: "Perdi meu pet", apoio: "Quero ajuda para encontra-lo" },
   { valor: "achei_pet", titulo: "Achei um pet perdido", apoio: "Quero encontrar o tutor" },
   { valor: "quero_adotar", titulo: "Quero adotar", apoio: "Quero encontrar um novo amigo" },
-  { valor: "quero_doar", titulo: "Quero colocar para adocao", apoio: "Quero encontrar um lar para o pet" },
+  { valor: "quero_doar", titulo: "Quero colocar para adoção", apoio: "Quero encontrar um lar para o pet" },
 ];
 
 /**
@@ -179,7 +181,7 @@ export default function Cadastro() {
     });
 
     if (!resposta.ok) {
-      definir_erro("A conta foi criada, mas o perfil nao. Entre e complete o cadastro.");
+      definir_erro("A conta foi criada, mas o perfil não. Entre e complete o cadastro.");
       definir_enviando(false);
       return;
     }
@@ -205,7 +207,7 @@ export default function Cadastro() {
   // ---------------------------------------------------------------- intro
   if (passo === "intro") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/inicio-cadastro.png" />}>
         <FormasDeFundo />
         {/* Sem a seta nao ha volta para as boas-vindas: a tela e a entrada do
             fluxo, e quem entrou por engano ficaria preso. */}
@@ -214,26 +216,28 @@ export default function Cadastro() {
         {/* Alturas do desenho: ilustracao em y=179 de 844, titulo em y=471,
             apoio em y=559 e botao em y=625. Descontando a seta (56 px), o
             primeiro espaco e 14dvh em vez de 21dvh. */}
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/inicio-cadastro.png"
-            descricao="Dois cachorros sentados lado a lado"
-            className="mt-[14dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
-            E hora do cadastro!
-          </h1>
-          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            Sao apenas alguns passos para voce se cadastrar, e bem rapido.
-            Vamos la?
-          </p>
-        </div>
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/inicio-cadastro.png"
+              descricao="Dois cachorros sentados lado a lado"
+              className="mt-[14dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
+              É hora do cadastro!
+            </h1>
+            <p className="mt-[1dvh] max-w-72 text-sm text-suave">
+              São apenas alguns passos para você se cadastrar, é bem rápido.
+              Vamos lá?
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] px-8">
-          <Botao largo onClick={() => definir_passo("nome")}>
-            Vamos la!
-          </Botao>
-        </div>
+          <div className="mt-[3dvh] px-8">
+            <Botao largo onClick={() => definir_passo("nome")}>
+              Vamos lá!
+            </Botao>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -241,31 +245,33 @@ export default function Cadastro() {
   // -------------------------------------------------------------- sucesso
   if (passo === "sucesso") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/ilustracao-cadastro-final.png" />}>
         <FormasDeFundo />
         {/* Sem seta de proposito: a conta ja existe, e voltar para o passo da
             senha nao desfaz nada — so confundiria. */}
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/ilustracao-cadastro-final.png"
-            descricao="Pessoa cumprimentando um cachorro"
-            className="mt-[21dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
-            Cadastro realizado
-            <br />
-            com sucesso
-          </h1>
-          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            Agora vamos configurar o aplicativo especialmente para voce!
-          </p>
-        </div>
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/ilustracao-cadastro-final.png"
+              descricao="Pessoa cumprimentando um cachorro"
+              className="mt-[21dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
+              Cadastro realizado
+              <br />
+              com sucesso
+            </h1>
+            <p className="mt-[1dvh] max-w-72 text-sm text-suave">
+              Agora vamos configurar o aplicativo especialmente para você!
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] px-8">
-          <Botao largo onClick={() => definir_passo("intencao")}>
-            Prosseguir
-          </Botao>
-        </div>
+          <div className="mt-[3dvh] px-8">
+            <Botao largo onClick={() => definir_passo("intencao")}>
+              Prosseguir
+            </Botao>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -273,7 +279,7 @@ export default function Cadastro() {
   // ------------------------------------------------------------- intencao
   if (passo === "intencao") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/ilustracao-cadastro-final.png" />}>
         <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
 
         <TituloDoPasso tamanho="normal">O que te trouxe aqui?</TituloDoPasso>
@@ -294,7 +300,7 @@ export default function Cadastro() {
             o meio da tela e o "Proximo" fecha a escolha embaixo. */}
         <div className="mt-auto px-8 pb-10">
           <Botao largo disabled={!intencao || enviando} onClick={salvar_intencao}>
-            {enviando ? "Salvando..." : "Proximo"}
+            {enviando ? "Salvando..." : "Próximo"}
           </Botao>
         </div>
       </Casca>
@@ -305,12 +311,12 @@ export default function Cadastro() {
   const PERGUNTAS = {
     nome: {
       titulo: "Qual o seu nome?",
-      apoio: "Seu nome ira aparecer junto ao perfil do seu pet!",
+      apoio: "Seu nome irá aparecer junto ao perfil do seu pet!",
       pronto: nome.trim().length >= 2,
     },
     telefone: {
       titulo: "Qual o seu telefone?",
-      apoio: "Pode ficar tranquilo! Nao mandaremos mensagens e ligacoes para voce",
+      apoio: "Pode ficar tranquilo! Não mandaremos mensagens e ligações para você",
       pronto: telefone_completo(telefone),
     },
     nascimento: {
@@ -320,12 +326,12 @@ export default function Cadastro() {
     },
     email: {
       titulo: "Qual o seu email?",
-      apoio: "Pode ficar tranquilo! Usaremos apenas para criacao e confirmacao da sua conta.",
+      apoio: "Pode ficar tranquilo! Usaremos apenas para criação e confirmação da sua conta.",
       pronto: email_plausivel(email),
     },
     senha: {
       titulo: "Defina sua senha",
-      apoio: "*Sua senha deve conter no minimo 8 caracteres.",
+      apoio: "*Sua senha deve conter no mínimo 8 caracteres.",
       pronto: senha.length >= 8,
     },
   }[passo];
@@ -333,7 +339,7 @@ export default function Cadastro() {
   const ultimo = passo === "senha";
 
   return (
-    <Casca>
+    <Casca lateral={<PainelLateral imagem="/ilustracoes/inicio-cadastro.png" />}>
       <Topo aoVoltar={voltar} />
 
       {/* Posicoes do desenho, em proporcao da altura da tela: titulo em
@@ -400,7 +406,7 @@ export default function Cadastro() {
                 />
                 <CampoDeLinha
                   ref={campo_mes}
-                  aria-label="Mes"
+                  aria-label="Mês"
                   inputMode="numeric"
                   maxLength={2}
                   placeholder="10"
@@ -430,7 +436,7 @@ export default function Cadastro() {
                   continuar apagado, e quem digitou nao saberia por que. */}
               {dia !== "" && mes !== "" && ano.length === 4 && nascimento === null && (
                 <p className="mt-3 text-center text-xs text-suave">
-                  Essa data nao existe. Confira o dia, o mes e o ano.
+                  Essa data não existe. Confira o dia, o mês e o ano.
                 </p>
               )}
             </div>
@@ -447,7 +453,7 @@ export default function Cadastro() {
             <CampoDeLinha
               apoio={
                 email !== "" && !email_plausivel(email)
-                  ? "Confira: falta o @ ou o final do endereco (.com, .br)."
+                  ? "Confira: falta o @ ou o final do endereço (.com, .br)."
                   : PERGUNTAS.apoio
               }
               type="email"
@@ -481,12 +487,12 @@ export default function Cadastro() {
           disabled={!PERGUNTAS.pronto || enviando}
           onClick={ultimo ? criar_conta : avancar}
         >
-          {enviando ? "Criando..." : "Proximo"}
+          {enviando ? "Criando..." : "Próximo"}
         </Botao>
 
         {passo === "nome" && (
           <p className="mt-4 text-center text-sm text-suave">
-            Ja tem conta?{" "}
+            Já tem conta?{" "}
             <Link href="/entrar" className="font-semibold text-primaria">
               Entrar
             </Link>

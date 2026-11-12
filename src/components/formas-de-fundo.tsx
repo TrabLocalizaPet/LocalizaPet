@@ -12,7 +12,11 @@ import Image from "next/image";
  *   oposto.
  *
  * As medidas viram porcentagem da largura de 390 px para acompanharem telas
- * maiores. `aria-hidden` porque nao carregam informacao, e `-z-10` para
+ * maiores. A partir de `md` eles vao para os cantos da janela (ver
+ * `TelaDividida`), e ai a porcentagem de uma janela larga daria manchas
+ * enormes: o `max-w` as segura no tamanho exportado.
+ *
+ * `aria-hidden` porque nao carregam informacao, e `-z-10` para
  * ficarem atras do conteudo sem interceptar toque.
  */
 
@@ -32,7 +36,7 @@ export function FormasDeFundo({ conjunto = "cadastro" }: { conjunto?: Conjunto }
             alt=""
             width={176}
             height={148}
-            className="absolute top-0 left-0 w-[45%]"
+            className="absolute top-0 left-0 w-[45%] md:max-w-[176px]"
           />
           {/* 113 de 390 = 29% */}
           <Image
@@ -40,7 +44,7 @@ export function FormasDeFundo({ conjunto = "cadastro" }: { conjunto?: Conjunto }
             alt=""
             width={113}
             height={124}
-            className="absolute bottom-0 left-0 w-[29%]"
+            className="absolute bottom-0 left-0 w-[29%] md:max-w-[113px]"
           />
         </>
       ) : (
@@ -51,7 +55,7 @@ export function FormasDeFundo({ conjunto = "cadastro" }: { conjunto?: Conjunto }
             alt=""
             width={100}
             height={104}
-            className="absolute top-0 left-0 w-[26%]"
+            className="absolute top-0 left-0 w-[26%] md:max-w-[100px]"
           />
           {/* 109 de 390 = 28% */}
           <Image
@@ -59,7 +63,7 @@ export function FormasDeFundo({ conjunto = "cadastro" }: { conjunto?: Conjunto }
             alt=""
             width={109}
             height={85}
-            className="absolute right-0 bottom-0 w-[28%]"
+            className="absolute right-0 bottom-0 w-[28%] md:max-w-[109px]"
           />
         </>
       )}

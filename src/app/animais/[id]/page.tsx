@@ -107,14 +107,14 @@ export default function Detalhe() {
     // 409 e o caso das duas abas abertas: outra requisicao resolveu primeiro.
     // Nao e erro de quem clicou — a tela so precisa mostrar o estado certo.
     if (resposta.status === 409) {
-      definir_erro("Este anuncio ja estava encerrado.");
+      definir_erro("Este anúncio já estava encerrado.");
       definir_animal((atual) =>
         atual ? { ...atual, situacao: "resolvido" } : atual,
       );
       return;
     }
 
-    definir_erro("Nao foi possivel encerrar agora. Tente de novo.");
+    definir_erro("Não foi possível encerrar agora. Tente de novo.");
   }
 
   /**
@@ -129,7 +129,7 @@ export default function Detalhe() {
     if (!animal) return;
 
     const endereco = window.location.href;
-    const titulo = `${animal.nome ?? "Anuncio"} no LocalizaPet`;
+    const titulo = `${animal.nome ?? "Anúncio"} no LocalizaPet`;
 
     try {
       if (navigator.share) {
@@ -190,7 +190,7 @@ export default function Detalhe() {
   if (estado === "ausente" || !animal) {
     return (
       <Tela largura="estreita">
-        <Titulo>Anuncio nao encontrado</Titulo>
+        <Titulo>Anúncio não encontrado</Titulo>
         <Apoio>
           <Link href="/animais" className="font-semibold text-primaria">
             Voltar para a listagem
@@ -204,81 +204,91 @@ export default function Detalhe() {
   const sou_o_autor = meu_id !== null && meu_id === animal.autor_id;
 
   return (
-    <main className="mx-auto w-full max-w-md pb-8 md:max-w-2xl">
-      {/* ------------------------------------------------------------ foto */}
-      {/* 390x520 no desenho: 1.33 de proporcao, com o rodape arredondado em
-          48 e a imagem sangrando ate as bordas da tela. */}
-      <div className="relative aspect-[390/520] w-full overflow-hidden rounded-b-[48px] bg-creme">
-        {animal.foto_url ? (
-          <Image
-            src={animal.foto_url}
-            alt={animal.nome ?? "Animal sem nome"}
-            fill
-            sizes="(min-width: 768px) 42rem, 100vw"
-            priority
-            className="object-cover"
-          />
-        ) : (
-          <span
-            aria-hidden="true"
-            className="grid size-full place-items-center font-titulo text-8xl text-primaria/70"
-          >
-            {(animal.nome ?? "?").charAt(0).toUpperCase()}
-          </span>
-        )}
-
-        {/* A seta fica sobre a foto, em y=44 e x=28 como nas demais telas. O
-            circulo escuro atras existe para ela nao sumir numa foto clara —
-            o desenho tem fotos escuras, a vida real nao garante isso. */}
-        <Link
-          href="/animais"
-          aria-label="Voltar"
-          className="absolute top-11 left-7 grid size-10 place-items-center rounded-full bg-escura/35 text-white backdrop-blur-xs"
-        >
-          <SetaVoltar className="size-6" />
-        </Link>
-
-        <span className="absolute top-11 right-7 flex gap-1.5">
-          <EtiquetaDeTipo tipo={animal.tipo_anuncio} />
-          {animal.situacao !== "ativo" && (
-            <EtiquetaDeSituacao situacao={animal.situacao} />
+    /* A partir de `md`, duas colunas (decisao registrada no docs/07-interface.md):
+       a foto com os botoes redondos a esquerda, parada enquanto a direita
+       rola; o resto a direita. Numa coluna so, a foto em 3:4 ocupava a
+       janela inteira e o nome so aparecia depois de rolar. A largura e a
+       mesma do cabecalho (`max-w-4xl`), para as bordas alinharem. */
+    <main className="mx-auto w-full max-w-md pb-8 md:grid md:max-w-4xl md:grid-cols-2 md:items-start md:gap-8 md:px-5 md:py-8 lg:gap-10">
+      <div className="md:sticky md:top-24">
+        {/* ------------------------------------------------------------ foto */}
+        {/* 390x520 no desenho: 1.33 de proporcao, com o rodape arredondado em
+            48 e a imagem sangrando ate as bordas da tela. */}
+        {/* No desktop a altura vem da janela, e nao da largura: em 3:4 a foto
+            passaria da dobra e os botoes redondos ficariam fora da vista. */}
+        <div className="relative aspect-[390/520] w-full overflow-hidden rounded-b-[48px] bg-creme md:aspect-auto md:h-[calc(100dvh-14rem)] md:min-h-80 md:rounded-[32px]">
+          {animal.foto_url ? (
+            <Image
+              src={animal.foto_url}
+              alt={animal.nome ?? "Animal sem nome"}
+              fill
+              sizes="(min-width: 768px) 28rem, 100vw"
+              priority
+              className="object-cover"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="grid size-full place-items-center font-titulo text-8xl text-primaria/70"
+            >
+              {(animal.nome ?? "?").charAt(0).toUpperCase()}
+            </span>
           )}
-        </span>
-      </div>
 
-      {/* ------------------------------------------------- acoes redondas */}
-      {/* 80x80 no desenho, montados sobre o rodape da foto (y=480 de 520).
-          O `-mt-10` e a metade da altura: metade sobre a foto, metade fora.
-
-          `relative z-10` nao e enfeite: o quadro da foto e `relative`, e
-          elemento posicionado pinta por cima de elemento que nao e. Sem isso
-          a metade de cima dos botoes fica atras da foto. */}
-      <div className="relative z-10 -mt-10 flex justify-center gap-6">
-        <button
-          type="button"
-          onClick={compartilhar}
-          aria-label="Compartilhar este anuncio"
-          className="grid size-20 place-items-center rounded-full bg-creme text-secundaria shadow-[0_2px_12px_0_rgba(93,42,66,0.24)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria"
-        >
-          <IconeCompartilhar className="size-8" />
-        </button>
-
-        {/* RN-24: o telefone so existe aqui quando o autor autorizou. Sem
-            numero nao ha botao — um telefone desligado no meio da tela so
-            frustra quem reconheceu o animal. */}
-        {animal.autor_telefone && (
-          <a
-            href={`tel:${animal.autor_telefone}`}
-            aria-label={`Ligar para ${animal.autor_nome}`}
-            className="grid size-20 place-items-center rounded-full bg-secundaria text-white shadow-[0_2px_12px_0_rgba(93,42,66,0.24)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria"
+          {/* A seta fica sobre a foto, em y=44 e x=28 como nas demais telas. O
+              circulo escuro atras existe para ela nao sumir numa foto clara —
+              o desenho tem fotos escuras, a vida real nao garante isso. */}
+          <Link
+            href="/animais"
+            aria-label="Voltar"
+            className="absolute top-11 left-7 md:top-5 md:left-5 grid size-10 place-items-center rounded-full bg-escura/35 text-white backdrop-blur-xs"
           >
-            <IconeTelefone className="size-8" />
-          </a>
-        )}
+            <SetaVoltar className="size-6" />
+          </Link>
+
+          <span className="absolute top-11 right-7 flex gap-1.5 md:top-5 md:right-5">
+            <EtiquetaDeTipo tipo={animal.tipo_anuncio} />
+            {animal.situacao !== "ativo" && (
+              <EtiquetaDeSituacao situacao={animal.situacao} />
+            )}
+          </span>
+        </div>
+
+        {/* ------------------------------------------------- acoes redondas */}
+        {/* 80x80 no desenho, montados sobre o rodape da foto (y=480 de 520).
+            O `-mt-10` e a metade da altura: metade sobre a foto, metade fora.
+
+            `relative z-10` nao e enfeite: o quadro da foto e `relative`, e
+            elemento posicionado pinta por cima de elemento que nao e. Sem isso
+            a metade de cima dos botoes fica atras da foto. */}
+        <div className="relative z-10 -mt-10 flex justify-center gap-6">
+          <button
+            type="button"
+            onClick={compartilhar}
+            aria-label="Compartilhar este anúncio"
+            className="grid size-20 place-items-center rounded-full bg-creme text-secundaria shadow-[0_2px_12px_0_rgba(93,42,66,0.24)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria"
+          >
+            <IconeCompartilhar className="size-8" />
+          </button>
+
+          {/* RN-24: o telefone so existe aqui quando o autor autorizou. Sem
+              numero nao ha botao — um telefone desligado no meio da tela so
+              frustra quem reconheceu o animal. */}
+          {animal.autor_telefone && (
+            <a
+              href={`tel:${animal.autor_telefone}`}
+              aria-label={`Ligar para ${animal.autor_nome}`}
+              className="grid size-20 place-items-center rounded-full bg-secundaria text-white shadow-[0_2px_12px_0_rgba(93,42,66,0.24)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria"
+            >
+              <IconeTelefone className="size-8" />
+            </a>
+          )}
+        </div>
+
       </div>
 
       {/* --------------------------------------------------------- conteudo */}
-      <div className="px-6 pt-6">
+      <div className="px-6 pt-6 md:px-0 md:pt-0">
         <h1 className="text-2xl leading-8 font-bold">
           {animal.nome ?? "Sem nome"}
           {animal.idade_meses !== null &&
@@ -294,7 +304,7 @@ export default function Detalhe() {
 
         {!animal.autor_telefone && (
           <p className="mt-1 text-sm text-suave">
-            Esta pessoa preferiu nao exibir o telefone.
+            Esta pessoa preferiu não exibir o telefone.
           </p>
         )}
 
@@ -302,7 +312,7 @@ export default function Detalhe() {
             precisa dizer que encerrou — senao alguem liga para o tutor de um
             caso ja fechado. */}
         {animal.situacao === "resolvido" && (
-          <Aviso tom="bom">Este caso ja foi resolvido.</Aviso>
+          <Aviso tom="bom">Este caso já foi resolvido.</Aviso>
         )}
 
         {erro && <Aviso>{erro}</Aviso>}
@@ -338,16 +348,16 @@ export default function Detalhe() {
         {sou_o_autor && animal.situacao === "ativo" && (
           <section className="mt-6 rounded-[--radius-padrao] border border-borda bg-cartao p-4">
             <h2 className="font-titulo text-base font-medium">
-              Este anuncio e seu
+              Este anúncio é seu
             </h2>
 
             {!confirmando ? (
               <>
                 <p className="mt-1 text-sm text-suave">
                   {animal.tipo_anuncio === "adocao"
-                    ? "Ja encontrou um lar para ele?"
-                    : "Ja reencontrou o pet?"}{" "}
-                  Encerrar tira o anuncio da lista e do mapa.
+                    ? "Já encontrou um lar para ele?"
+                    : "Já reencontrou o pet?"}{" "}
+                  Encerrar tira o anúncio da lista e do mapa.
                 </p>
                 <Botao
                   aparencia="secundaria"
@@ -364,11 +374,11 @@ export default function Detalhe() {
                  sai do desenho e trava a tela inteira. */
               <>
                 <p className="mt-1 text-sm">
-                  Encerrar nao tem como desfazer por aqui. Confirma?
+                  Encerrar não tem como desfazer por aqui. Confirma?
                 </p>
                 <div className="mt-3 grid gap-2">
                   <Botao largo disabled={encerrando} onClick={encerrar}>
-                    {encerrando ? "Encerrando..." : "Sim, esta resolvido"}
+                    {encerrando ? "Encerrando..." : "Sim, está resolvido"}
                   </Botao>
                   <Botao
                     aparencia="fantasma"
@@ -376,7 +386,7 @@ export default function Detalhe() {
                     disabled={encerrando}
                     onClick={() => definir_confirmando(false)}
                   >
-                    Nao, continuar procurando
+                    Não, continuar procurando
                   </Botao>
                 </div>
               </>
@@ -389,8 +399,8 @@ export default function Detalhe() {
           <section className="mt-6">
             <h2 className="text-xl leading-7 font-bold">
               {animal.tipo_anuncio === "adocao"
-                ? "Atualmente esta em"
-                : "Ultima vez visto em"}
+                ? "Atualmente está em"
+                : "Última vez visto em"}
             </h2>
             {animal.visto_em && (
               <Apoio>
@@ -410,7 +420,7 @@ export default function Detalhe() {
             </div>
           </section>
         ) : (
-          <Apoio>Este anuncio nao tem local informado.</Apoio>
+          <Apoio>Este anúncio não tem local informado.</Apoio>
         )}
       </div>
     </main>

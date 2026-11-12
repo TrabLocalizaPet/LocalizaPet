@@ -30,7 +30,7 @@ const Mapa = dynamic(() => import("@/components/mapa"), {
 const LEGENDA = [
   { cor: "bg-perdido", inicial: "P", rotulo: "Perdido" },
   { cor: "bg-encontrado", inicial: "E", rotulo: "Encontrado" },
-  { cor: "bg-adocao", inicial: "A", rotulo: "Adocao" },
+  { cor: "bg-adocao", inicial: "A", rotulo: "Adoção" },
 ];
 
 export default function PaginaDoMapa() {
@@ -55,50 +55,60 @@ export default function PaginaDoMapa() {
 
   return (
     <Tela>
-      <Titulo>Pets perto de voce</Titulo>
-      <Apoio>
-        {animais.length} anuncio(s) ativo(s). Toque num pino para ver o
-        anuncio.
-      </Apoio>
+      {/* No desktop o botao sobe para a linha do titulo e o mapa ocupa a
+          altura que sobra da janela: embaixo do mapa ele ficava abaixo da
+          dobra, e o mapa e a tela. A grade so existe a partir de `md`; no
+          celular a ordem e a do fluxo. */}
+      <div className="md:grid md:grid-cols-[1fr_auto] md:items-end md:gap-x-6">
+        <div>
+          <Titulo>Pets perto de você</Titulo>
+          <Apoio>
+            {animais.length} anúncio(s) ativo(s). Toque num pino para ver o
+            anúncio.
+          </Apoio>
+        </div>
 
-      {/* Altura em `dvh` para nao encolher quando a barra do navegador do
-          celular aparece e some. */}
-      <div className="mt-3 h-[55dvh] overflow-hidden rounded-[--radius-padrao] border border-borda md:h-[65vh]">
-        <Mapa
-          animais={animais}
-          centro={centro}
-          local_escolhido={null}
-        />
+        {/* Altura em `dvh` para nao encolher quando a barra do navegador do
+            celular aparece e some. */}
+        <div className="mt-3 h-[55dvh] overflow-hidden rounded-[--radius-padrao] border border-borda md:col-span-2 md:h-[calc(100dvh-15rem)] md:min-h-96">
+          <Mapa
+            animais={animais}
+            centro={centro}
+            local_escolhido={null}
+          />
+        </div>
+
+        <Botao
+          className="mt-3 md:col-start-2 md:row-start-1 md:mt-0 md:w-auto"
+          largo
+          onClick={usar_minha_localizacao}
+          disabled={estado === "buscando"}
+        >
+          {estado === "buscando" ? "Localizando..." : "Usar minha localização"}
+        </Botao>
+
+        {estado === "negado" && (
+          <div className="md:col-span-2">
+            <Aviso>
+              Não conseguimos sua localização. O mapa continua no centro padrão —
+              arraste para procurar.
+            </Aviso>
+          </div>
+        )}
+
+        <ul className="mt-3 flex flex-wrap gap-4 text-sm text-suave md:col-span-2">
+          {LEGENDA.map((item) => (
+            <li key={item.rotulo} className="flex items-center gap-1.5">
+              <span
+                className={`grid size-6 place-items-center rounded-full border-2 border-white text-xs font-bold text-white shadow ${item.cor}`}
+              >
+                {item.inicial}
+              </span>
+              {item.rotulo}
+            </li>
+          ))}
+        </ul>
       </div>
-
-      <Botao
-        className="mt-3"
-        largo
-        onClick={usar_minha_localizacao}
-        disabled={estado === "buscando"}
-      >
-        {estado === "buscando" ? "Localizando..." : "Usar minha localizacao"}
-      </Botao>
-
-      {estado === "negado" && (
-        <Aviso>
-          Nao conseguimos sua localizacao. O mapa continua no centro padrao —
-          arraste para procurar.
-        </Aviso>
-      )}
-
-      <ul className="mt-3 flex flex-wrap gap-4 text-sm text-suave">
-        {LEGENDA.map((item) => (
-          <li key={item.rotulo} className="flex items-center gap-1.5">
-            <span
-              className={`grid size-6 place-items-center rounded-full border-2 border-white text-xs font-bold text-white shadow ${item.cor}`}
-            >
-              {item.inicial}
-            </span>
-            {item.rotulo}
-          </li>
-        ))}
-      </ul>
     </Tela>
   );
 }

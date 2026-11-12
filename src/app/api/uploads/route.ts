@@ -33,7 +33,7 @@ export async function POST(requisicao: Request) {
   const usuario = await usuario_atual();
   if (!usuario) {
     return NextResponse.json(
-      { erro: "e preciso estar autenticado para enviar foto" },
+      { erro: "é preciso estar autenticado para enviar foto" },
       { status: 401 },
     );
   }
@@ -41,7 +41,7 @@ export async function POST(requisicao: Request) {
   const corpo = Pedido.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     return NextResponse.json(
-      { erro: "formato de imagem nao aceito", detalhes: z.treeifyError(corpo.error) },
+      { erro: "formato de imagem não aceito", detalhes: z.treeifyError(corpo.error) },
       { status: 422 },
     );
   }
@@ -78,24 +78,24 @@ const Exclusao = z.object({
 export async function DELETE(requisicao: Request) {
   const usuario = await usuario_atual();
   if (!usuario) {
-    return NextResponse.json({ erro: "e preciso estar autenticado" }, { status: 401 });
+    return NextResponse.json({ erro: "é preciso estar autenticado" }, { status: 401 });
   }
 
   const corpo = Exclusao.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
-    return NextResponse.json({ erro: "chave invalida" }, { status: 422 });
+    return NextResponse.json({ erro: "chave inválida" }, { status: 422 });
   }
 
   const { chave } = corpo.data;
 
   if (!chave.startsWith(`animais/${usuario.id}/`)) {
     // 403 e nao 404: a chave existe, so nao e desta pessoa.
-    return NextResponse.json({ erro: "esta foto nao e sua" }, { status: 403 });
+    return NextResponse.json({ erro: "esta foto não é sua" }, { status: 403 });
   }
 
   if (await chave_publicada(chave)) {
     return NextResponse.json(
-      { erro: "foto ja publicada; exclua o anuncio" },
+      { erro: "foto já publicada; exclua o anúncio" },
       { status: 409 },
     );
   }

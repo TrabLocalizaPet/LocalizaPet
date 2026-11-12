@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { IconeSair } from "./ui/icones";
-import { cliente_navegador } from "@/lib/auth-navegador";
+import { useSair } from "@/lib/auth-navegador";
 
 /**
  * Cabecalho da Home — no 1:3273 do Figma: um icone a esquerda, o titulo da
@@ -19,6 +18,11 @@ import { cliente_navegador } from "@/lib/auth-navegador";
  * O lugar da direita fica reservado pelo `acao`: o sino do desenho entra ali.
  * Quando nao ha nada, sobra um vao do mesmo tamanho — sem ele o titulo sairia
  * do centro.
+ *
+ * **So existe no celular.** No desktop a navegacao ja e um cabecalho, com
+ * Avisos (e a contagem do sino) e o Sair/Entrar na ponta; repetir a linha
+ * embaixo dele deixava dois cabecalhos empilhados. Decisao registrada no
+ * docs/07-interface.md.
  */
 export function CabecalhoDaHome({
   titulo,
@@ -30,18 +34,10 @@ export function CabecalhoDaHome({
   autenticado: boolean | null;
   acao?: ReactNode;
 }) {
-  const router = useRouter();
-
-  async function sair() {
-    await cliente_navegador().auth.signOut();
-    // refresh() antes de navegar: os Server Components precisam parar de
-    // enxergar o cookie que a biblioteca acabou de apagar.
-    router.refresh();
-    router.push("/");
-  }
+  const sair = useSair();
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between md:hidden">
       {autenticado === null ? (
         <span className="size-11" aria-hidden="true" />
       ) : autenticado ? (

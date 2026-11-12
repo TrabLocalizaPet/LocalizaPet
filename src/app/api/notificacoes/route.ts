@@ -19,7 +19,7 @@ const Leitura = z.object({
 });
 
 function sem_sessao() {
-  return NextResponse.json({ erro: "e preciso estar autenticado" }, { status: 401 });
+  return NextResponse.json({ erro: "é preciso estar autenticado" }, { status: 401 });
 }
 
 export async function GET() {
@@ -36,7 +36,7 @@ export async function PATCH(requisicao: Request) {
   const corpo = Leitura.safeParse(await ler_corpo(requisicao));
   if (!corpo.success) {
     return NextResponse.json(
-      { erro: "dados invalidos", detalhes: z.treeifyError(corpo.error) },
+      { erro: "dados inválidos", detalhes: z.treeifyError(corpo.error) },
       { status: 422 },
     );
   }

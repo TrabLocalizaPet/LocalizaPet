@@ -42,7 +42,7 @@ async function testar_schema(): Promise<Resultado> {
       return {
         titulo: "Schema",
         ok: false,
-        detalhe: "PostGIS nao esta habilitado — a busca por raio depende dele",
+        detalhe: "PostGIS não está habilitado — a busca por raio depende dele",
       };
     }
 
@@ -68,7 +68,7 @@ async function testar_r2(): Promise<Resultado> {
   try {
     const bucket = nome_do_bucket();
     await testar_bucket();
-    return { titulo: "Cloudflare R2", ok: true, detalhe: `bucket ${bucket} acessivel` };
+    return { titulo: "Cloudflare R2", ok: true, detalhe: `bucket ${bucket} acessível` };
   } catch (erro) {
     return { titulo: "Cloudflare R2", ok: false, detalhe: mensagem_de_erro(erro) };
   }
@@ -87,9 +87,9 @@ export default async function Painel() {
     <main className="mx-auto w-full max-w-2xl px-5 py-8">
       <h1 className="font-titulo text-2xl">LocalizaPet</h1>
       <p className="mt-1 mb-6 text-sm text-suave">
-        Painel de diagnostico. {tudo_ok
-          ? "As tres pecas responderam."
-          : "Alguma peca esta fora — o detalhe esta abaixo."}
+        Painel de diagnóstico. {tudo_ok
+          ? "As três peças responderam."
+          : "Alguma peça está fora — o detalhe está abaixo."}
       </p>
 
       <ul className="grid gap-3">
@@ -115,7 +115,7 @@ export default async function Painel() {
       </ul>
 
       <p className="mt-8 text-xs text-suave">
-        Cada teste roda isolado: a falha de um nao esconde o resultado dos outros.
+        Cada teste roda isolado: a falha de um não esconde o resultado dos outros.
       </p>
     </main>
   );

@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+import { TelaDividida } from "./tela-dividida";
 import { classes } from "./ui/classes";
 import { IconeDesmarcado, IconeMarcado, SetaVoltar } from "./ui/icones";
 
@@ -20,13 +21,37 @@ import { IconeDesmarcado, IconeMarcado, SetaVoltar } from "./ui/icones";
  * repetido em duas telas e componente faltando (DT-08).
  */
 
-/** Quadro de 390x844 do desenho, centralizado no desktop. */
-export function Casca({ children }: { children: ReactNode }) {
+/**
+ * Quadro de 390x844 do desenho. No desktop vira a coluna da direita da
+ * `TelaDividida`, e o `lateral` e o painel da esquerda.
+ *
+ * `md:static` devolve o posicionamento dos grafismos ao involucro da
+ * `TelaDividida` — ver o comentario de la.
+ */
+export function Casca({
+  lateral,
+  children,
+}: {
+  lateral: ReactNode;
+  children: ReactNode;
+}) {
   return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col">
-      {children}
-    </main>
+    <TelaDividida lateral={lateral}>
+      <main className="relative mx-auto flex min-h-dvh max-w-md flex-col md:static">
+        {children}
+      </main>
+    </TelaDividida>
   );
+}
+
+/**
+ * Agrupa o miolo das telas de abertura e de sucesso (ilustracao, titulo,
+ * apoio e botao). No celular nao muda nada; no desktop a ilustracao ja esta
+ * no painel e some da coluna, e o que sobra e centralizado na altura — sem
+ * isso ficava um titulo solto no topo e meia tela vazia embaixo.
+ */
+export function Miolo({ children }: { children: ReactNode }) {
+  return <div className="lg:my-auto lg:pb-16">{children}</div>;
 }
 
 /** Seta de voltar em y=44, x=28 — a mesma posicao em todas as telas do fluxo. */
@@ -166,7 +191,8 @@ export function Ilustracao({
   const [falhou, definir_falhou] = useState(false);
 
   return (
-    <div className={`relative aspect-[270/268] w-[69%] ${className ?? ""}`}>
+    // `lg:hidden`: no desktop a mesma ilustracao esta no painel lateral.
+    <div className={classes("relative aspect-[270/268] w-[69%] lg:hidden", className)}>
       {!falhou && (
         <Image
           src={arquivo}

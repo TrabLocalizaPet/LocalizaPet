@@ -10,11 +10,13 @@ import {
   Casca,
   Ilustracao,
   ListaDeOpcoes,
+  Miolo,
   OpcaoDeLista,
   TituloDoPasso,
   Topo,
 } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
+import { PainelLateral } from "@/components/tela-dividida";
 import { Botao, BotaoLink } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
@@ -65,6 +67,9 @@ const Mapa = dynamic(() => import("@/components/mapa"), {
  * (ver `migrations/002_perfil_do_cadastro.sql`).
  */
 
+/** Painel do desktop (ver `TelaDividida`): a ilustracao da abertura do fluxo. */
+const PAINEL = <PainelLateral imagem="/ilustracoes/inicio-cadastro-pet.png" />;
+
 type Passo =
   | "intro"
   | "tipo"
@@ -90,7 +95,7 @@ const ORDEM: Passo[] = [
 const TIPOS: { tipo: TipoDeAnuncio; titulo: string; apoio: string }[] = [
   { tipo: "perdido", titulo: "Perdi meu pet", apoio: "Quero ajuda para encontra-lo" },
   { tipo: "encontrado", titulo: "Achei um pet perdido", apoio: "Quero encontrar o tutor" },
-  { tipo: "adocao", titulo: "Quero colocar para adocao", apoio: "Quero encontrar um lar para o pet" },
+  { tipo: "adocao", titulo: "Quero colocar para adoção", apoio: "Quero encontrar um lar para o pet" },
 ];
 
 const ESPECIES: { valor: Especie; rotulo: string }[] = [
@@ -101,7 +106,7 @@ const ESPECIES: { valor: Especie; rotulo: string }[] = [
 
 const SEXOS: { valor: Sexo; rotulo: string }[] = [
   { valor: "macho", rotulo: "Macho" },
-  { valor: "femea", rotulo: "Femea" },
+  { valor: "femea", rotulo: "Fêmea" },
 ];
 
 export default function Publicar() {
@@ -186,7 +191,7 @@ export default function Publicar() {
     // receber um 422 generico. A rota confere de novo — esta e conveniencia,
     // nao a garantia.
     if (exige_local && !local) {
-      definir_erro("Marque no mapa onde o animal foi visto pela ultima vez.");
+      definir_erro("Marque no mapa onde o animal foi visto pela última vez.");
       return;
     }
 
@@ -215,7 +220,7 @@ export default function Publicar() {
     }).catch(() => null);
 
     if (!resposta) {
-      definir_erro("Sem conexao. Confira a internet e toque em Publicar de novo.");
+      definir_erro("Sem conexão. Confira a internet e toque em Publicar de novo.");
       definir_enviando(false);
       return;
     }
@@ -224,7 +229,7 @@ export default function Publicar() {
     if (resposta.status === 409) return router.replace("/perfil");
 
     if (!resposta.ok) {
-      definir_erro("Nao foi possivel publicar. Confira os campos.");
+      definir_erro("Não foi possível publicar. Confira os campos.");
       definir_enviando(false);
       return;
     }
@@ -238,34 +243,36 @@ export default function Publicar() {
   // ---------------------------------------------------------------- intro
   if (passo === "intro") {
     return (
-      <Casca>
+      <Casca lateral={PAINEL}>
         <Topo aoVoltar={() => router.push("/animais")} />
 
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/inicio-cadastro-pet.png"
-            descricao="Um cachorro e um gato lado a lado"
-            className="mt-[12dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
-            Cadastro do pet!
-          </h1>
-          <p className="mt-[1dvh] max-w-80 text-sm text-suave">
-            Se voce perdeu, encontrou ou quer colocar um pet para adocao, conte
-            pra gente os detalhes. Assim conseguimos ajudar mais rapido!
-          </p>
-        </div>
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/inicio-cadastro-pet.png"
+              descricao="Um cachorro e um gato lado a lado"
+              className="mt-[12dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
+              Cadastro do pet!
+            </h1>
+            <p className="mt-[1dvh] max-w-80 text-sm text-suave">
+              Se você perdeu, encontrou ou quer colocar um pet para adoção, conte
+              pra gente os detalhes. Assim conseguimos ajudar mais rápido!
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] grid gap-3 px-8">
-          <Botao largo onClick={avancar}>
-            Vamos la!
-          </Botao>
-          {/* O atalho de quem nao tem tempo para oito telas: o pet acabou de
-              fugir e o aviso precisa sair agora. */}
-          <BotaoLink href="/alerta" aparencia="secundaria" largo>
-            Meu pet acabou de fugir
-          </BotaoLink>
-        </div>
+          <div className="mt-[3dvh] grid gap-3 px-8">
+            <Botao largo onClick={avancar}>
+              Vamos lá!
+            </Botao>
+            {/* O atalho de quem nao tem tempo para oito telas: o pet acabou de
+                fugir e o aviso precisa sair agora. */}
+            <BotaoLink href="/alerta" aparencia="secundaria" largo>
+              Meu pet acabou de fugir
+            </BotaoLink>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -273,36 +280,38 @@ export default function Publicar() {
   // -------------------------------------------------------------- sucesso
   if (passo === "sucesso") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/ilustracao-cadastro-final.png" />}>
         {/* Sem seta: o anuncio ja existe, e voltar ao passo do local nao
             desfaz nada — so confundiria. */}
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/ilustracao-cadastro-final.png"
-            descricao="Pessoa cumprimentando um cachorro"
-            className="mt-[18dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
-            Pet cadastrado
-            <br />
-            com sucesso!
-          </h1>
-          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            {
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/ilustracao-cadastro-final.png"
+              descricao="Pessoa cumprimentando um cachorro"
+              className="mt-[18dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
+              Pet cadastrado
+              <br />
+              com sucesso!
+            </h1>
+            <p className="mt-[1dvh] max-w-72 text-sm text-suave">
               {
-                perdido: "O anuncio ja aparece no mapa e na lista. Tomara que ele volte logo!",
-                encontrado: "O anuncio ja aparece no mapa e na lista para o tutor encontrar.",
-                adocao: "O anuncio ja aparece na lista para quem quer adotar.",
-              }[tipo ?? "perdido"]
-            }
-          </p>
-        </div>
+                {
+                  perdido: "O anúncio já aparece no mapa e na lista. Tomara que ele volte logo!",
+                  encontrado: "O anúncio já aparece no mapa e na lista para o tutor encontrar.",
+                  adocao: "O anúncio já aparece na lista para quem quer adotar.",
+                }[tipo ?? "perdido"]
+              }
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] px-8">
-          <Botao largo onClick={() => router.push(`/animais/${criado_id}`)}>
-            Ver o anuncio
-          </Botao>
-        </div>
+          <div className="mt-[3dvh] px-8">
+            <Botao largo onClick={() => router.push(`/animais/${criado_id}`)}>
+              Ver o anúncio
+            </Botao>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -323,40 +332,40 @@ export default function Publicar() {
       titulo: tipo === "encontrado" ? "Sabe o nome do pet?" : "Qual o nome do pet?",
       apoio:
         tipo === "encontrado"
-          ? "Se a coleira tiver um nome, escreva aqui. Se nao, pode seguir sem responder."
-          : "Esse nome ira aparecer junto ao perfil do seu pet!",
+          ? "Se a coleira tiver um nome, escreva aqui. Se não, pode seguir sem responder."
+          : "Esse nome irá aparecer junto ao perfil do seu pet!",
       pronto: true,
     },
     especie: {
-      titulo: "Qual e a especie do pet?",
+      titulo: "Qual é a espécie do pet?",
       apoio: null,
       pronto: especie !== null,
     },
     sexo: {
       titulo: "Qual o sexo do pet?",
-      apoio: "Se nao souber, pode seguir sem responder.",
+      apoio: "Se não souber, pode seguir sem responder.",
       pronto: true,
     },
     detalhes: {
       titulo: "Mais alguma coisa sobre ele?",
-      apoio: "Tudo aqui e opcional, mas ajuda quem for reconhecer o pet.",
+      apoio: "Tudo aqui é opcional, mas ajuda quem for reconhecer o pet.",
       pronto: idade_valida,
     },
     foto: {
       titulo: "Hora da foto do pet!",
-      apoio: "Capricha! Essa foto ira aparecer no perfil para identificar o pet.",
+      apoio: "Capricha! Essa foto irá aparecer no perfil para identificar o pet.",
       pronto: true,
     },
     local: {
       titulo: {
-        perdido: "Onde o pet foi visto pela ultima vez?",
-        encontrado: "Onde voce encontrou o pet?",
+        perdido: "Onde o pet foi visto pela última vez?",
+        encontrado: "Onde você encontrou o pet?",
         adocao: "Aonde esse pet se encontra?",
       }[tipo ?? "perdido"],
       apoio: {
-        perdido: "Precisamos saber a ultima localizacao para ajudar na busca do pet.",
-        encontrado: "E por perto daqui que o tutor vai procurar.",
-        adocao: "Opcional para adocao, mas e assim que te encontram por perto.",
+        perdido: "Precisamos saber a última localização para ajudar na busca do pet.",
+        encontrado: "É por perto daqui que o tutor vai procurar.",
+        adocao: "Opcional para adoção, mas é assim que te encontram por perto.",
       }[tipo ?? "perdido"],
       pronto: !exige_local || local !== null,
     },
@@ -365,7 +374,7 @@ export default function Publicar() {
   const ultimo = passo === "local";
 
   return (
-    <Casca>
+    <Casca lateral={PAINEL}>
       <Topo aoVoltar={voltar} />
 
       <TituloDoPasso apoio={PERGUNTA.apoio}>{PERGUNTA.titulo}</TituloDoPasso>
@@ -449,9 +458,9 @@ export default function Publicar() {
               value={porte}
               onChange={(e) => definir_porte(e.target.value as Porte | "")}
             >
-              <option value="">Nao sei</option>
+              <option value="">Não sei</option>
               <option value="pequeno">Pequeno</option>
-              <option value="medio">Medio</option>
+              <option value="medio">Médio</option>
               <option value="grande">Grande</option>
             </Selecao>
 
@@ -482,7 +491,7 @@ export default function Publicar() {
               onChange={(e) => definir_meses(digitos_ate(e.target.value, 2))}
               apoio={
                 meses !== "" && Number(meses) > 11
-                  ? "De 0 a 11 — 12 meses ja e um ano."
+                  ? "De 0 a 11 — 12 meses já é um ano."
                   : undefined
               }
             />
@@ -490,12 +499,12 @@ export default function Publicar() {
 
           {idade !== null && idade > 399 && (
             <p className="text-xs text-perdido">
-              A idade vai ate 33 anos e 3 meses.
+              A idade vai até 33 anos e 3 meses.
             </p>
           )}
 
           <CampoLongo
-            rotulo="Descricao"
+            rotulo="Descrição"
             value={descricao}
             onChange={(e) => definir_descricao(e.target.value)}
             rows={4}
@@ -569,7 +578,7 @@ export default function Publicar() {
           disabled={!PERGUNTA.pronto || enviando}
           onClick={ultimo ? publicar : avancar}
         >
-          {enviando ? "Publicando..." : ultimo ? "Publicar" : "Proximo"}
+          {enviando ? "Publicando..." : ultimo ? "Publicar" : "Próximo"}
         </Botao>
       </div>
     </Casca>

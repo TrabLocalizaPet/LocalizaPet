@@ -9,7 +9,7 @@ import { Botao } from "@/components/ui/botao";
 import { Campo, Interruptor } from "@/components/ui/campo";
 import { IconeAjustes, Seta } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
-import { cliente_navegador } from "@/lib/auth-navegador";
+import { useSair } from "@/lib/auth-navegador";
 import { entrar_e_voltar } from "@/lib/destino";
 import { mascara_telefone, telefone_completo } from "@/lib/mascaras";
 import type { AnimalNaLista, Situacao } from "@/types/animal";
@@ -109,7 +109,7 @@ export default function MinhaConta() {
     });
 
     if (!resposta.ok) {
-      definir_erro("Nao foi possivel salvar. Tente de novo.");
+      definir_erro("Não foi possível salvar. Tente de novo.");
       definir_salvando(false);
       return;
     }
@@ -120,15 +120,11 @@ export default function MinhaConta() {
     definir_telefone_publico(perfil.telefone_publico);
     definir_email(perfil.email);
     definir_estado("pronto");
-    definir_aviso("Alteracoes salvas.");
+    definir_aviso("Alterações salvas.");
     definir_salvando(false);
   }
 
-  async function sair() {
-    await cliente_navegador().auth.signOut();
-    router.refresh();
-    router.push("/entrar");
-  }
+  const sair = useSair("/entrar");
 
   if (estado === "carregando") {
     return (
@@ -142,7 +138,7 @@ export default function MinhaConta() {
     return (
       <Tela largura="estreita">
         <Titulo>Perfil</Titulo>
-        <Aviso>Nao foi possivel carregar o seu perfil agora. Tente de novo.</Aviso>
+        <Aviso>Não foi possível carregar o seu perfil agora. Tente de novo.</Aviso>
       </Tela>
     );
   }
@@ -156,7 +152,7 @@ export default function MinhaConta() {
         </Titulo>
         <Apoio>
           {estado === "sem_perfil"
-            ? "Sua conta ja existe. Faltam so estes dados."
+            ? "Sua conta já existe. Faltam só estes dados."
             : email}
         </Apoio>
 
@@ -185,15 +181,15 @@ export default function MinhaConta() {
             placeholder="(21) 99999-9999"
             apoio={
               telefone !== "" && !telefone_completo(telefone)
-                ? "Faltam digitos: DDD e o numero, com 8 ou 9 digitos."
+                ? "Faltam dígitos: DDD e o número, com 8 ou 9 dígitos."
                 : undefined
             }
           />
 
           {estado === "pronto" && (
             <Interruptor
-              rotulo="Mostrar meu telefone nos anuncios"
-              apoio="Desligado, ninguem que vir seus anuncios ve o seu telefone."
+              rotulo="Mostrar meu telefone nos anúncios"
+              apoio="Desligado, ninguém que vir seus anúncios vê o seu telefone."
               checked={telefone_publico}
               onChange={(e) => definir_telefone_publico(e.target.checked)}
             />
@@ -227,8 +223,11 @@ export default function MinhaConta() {
   return (
     <Tela largura="estreita">
       {/* Cabecalho do desenho: engrenagem a esquerda, "Perfil" ao centro. O
-          sino da direita e a F-14, e nao existe ainda. */}
-      <div className="flex items-center justify-between">
+          sino da direita e a F-14, e nao existe ainda.
+
+          So no celular: no desktop a navegacao ja e o cabecalho, e a
+          engrenagem vira o botao "Ajustes da conta" abaixo do nome. */}
+      <div className="flex items-center justify-between md:hidden">
         <button
           type="button"
           onClick={() => definir_ajustes(true)}
@@ -241,7 +240,7 @@ export default function MinhaConta() {
         <span className="size-11" aria-hidden="true" />
       </div>
 
-      <div className="mt-6 flex flex-col items-center">
+      <div className="mt-6 flex flex-col items-center md:mt-0">
         {/* 96 px no desenho. Sem coluna de foto no modelo, fica a inicial. */}
         <span
           aria-hidden="true"
@@ -255,6 +254,15 @@ export default function MinhaConta() {
           <strong className="font-bold">{meus.length}</strong>{" "}
           {meus.length === 1 ? "pet" : "pets"}
         </p>
+
+        {/* Icone sozinho num canto funciona no celular, onde o desenho o pos;
+            no desktop, sem o cabecalho em volta, ele nao diria o que e. */}
+        <div className="mt-4 hidden md:block">
+          <Botao aparencia="secundaria" onClick={() => definir_ajustes(true)}>
+            <IconeAjustes className="size-5 text-primaria" />
+            Ajustes da conta
+          </Botao>
+        </div>
       </div>
 
       <ul className="mt-8 grid gap-3">
@@ -302,7 +310,7 @@ export default function MinhaConta() {
 
       {meus.length === 0 && (
         <Apoio className="text-center">
-          Voce ainda nao publicou nenhum anuncio.{" "}
+          Você ainda não publicou nenhum anúncio.{" "}
           <Link href="/publicar" className="font-semibold text-primaria">
             Publicar o primeiro
           </Link>

@@ -21,7 +21,7 @@ export async function GET() {
 
   if (!usuario) {
     return NextResponse.json(
-      { erro: "e preciso estar autenticado" },
+      { erro: "é preciso estar autenticado" },
       { status: 401 },
     );
   }

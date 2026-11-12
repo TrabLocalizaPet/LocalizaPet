@@ -38,18 +38,18 @@ export function BotaoDeLocalizacao({
         disabled={estado === "buscando"}
       >
         <IconePino className="mr-2 inline size-5 align-[-0.2em]" />
-        {estado === "buscando" ? "Localizando..." : "Usar minha localizacao"}
+        {estado === "buscando" ? "Localizando..." : "Usar minha localização"}
       </Botao>
 
       {estado === "negado" && (
         <Aviso>
-          Nao conseguimos sua localizacao. Toque no mapa para marcar o local.
+          Não conseguimos sua localização. Toque no mapa para marcar o local.
         </Aviso>
       )}
 
       {estado === "achou" && posicao && posicao.precisao > PRECISAO_BOA && (
         <Apoio>
-          Localizacao aproximada, com cerca de {Math.round(posicao.precisao)} m de
+          Localização aproximada, com cerca de {Math.round(posicao.precisao)} m de
           margem. Confira o ponto e toque no mapa para ajustar.
         </Apoio>
       )}

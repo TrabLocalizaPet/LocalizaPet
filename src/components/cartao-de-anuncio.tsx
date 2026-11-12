@@ -23,7 +23,7 @@ import type { AnimalNaLista } from "@/types/animal";
 
 /** O desenho muda a frase conforme o tipo: perdido teve uma ultima vez. */
 const PREFIXO_DO_LOCAL: Record<AnimalNaLista["tipo_anuncio"], string> = {
-  perdido: "ultima vez visto em",
+  perdido: "última vez visto em",
   encontrado: "visto em",
   adocao: "atualmente em",
 };

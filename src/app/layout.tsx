@@ -17,7 +17,7 @@ const mitr = Mitr({
 export const metadata: Metadata = {
   title: "LocalizaPet",
   description:
-    "Cadastro publico de animais perdidos, encontrados e disponiveis para adocao, organizado por localizacao.",
+    "Cadastro público de animais perdidos, encontrados e disponíveis para adoção, organizado por localização.",
 };
 
 /**

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { MarcaComNome } from "@/components/marca";
+import { PainelLateral, TelaDividida } from "@/components/tela-dividida";
 import { BotaoLink } from "@/components/ui/botao";
 import { usuario_atual } from "@/lib/auth";
 
@@ -32,55 +33,61 @@ import { usuario_atual } from "@/lib/auth";
 export default async function BoasVindas() {
   if (await usuario_atual()) redirect("/animais");
 
+  // No desktop (ver `TelaDividida`) a foto sai do topo da coluna e passa a
+  // ocupar o painel da esquerda inteiro; a coluna fica com a marca, a frase
+  // e os botoes, centralizados na altura.
   return (
-    <main className="relative mx-auto flex h-dvh max-w-md flex-col overflow-hidden">
-      {/* A foto vai de y=0 a y=517 dos 844 do desenho — 61% da altura. O
-          `object-top` reproduz o enquadramento: no Figma ela comeca acima do
-          quadro, entao o que se ve e o topo. */}
-      <div className="relative h-[56%] shrink-0">
-        <Image
-          src="/marca/boas-vindas.jpg"
-          alt=""
-          fill
-          priority
-          sizes="28rem"
-          className="object-cover object-top"
-        />
-        {/* O `Rectangle 208` do desenho: o degrade que funde a foto no branco,
-            de y=346 a y=518. */}
-        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-linear-to-b from-transparent to-white h-full" />
-      </div>
-
-      <div className="flex flex-1 flex-col items-center px-8 py-10">
-        {/* 186 de 390 = 48% da largura, em y=452 (logo abaixo da foto). */}
-        <MarcaComNome largura={186} className="-mt-8 w-[48%]" />
-
-        <h1 className="mt-3 text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
-          Conecte coracoes.
-          <br />
-          Reencontre historias.
-        </h1>
-
-        {/* 326 de 390 = 84%; os botoes ficam colados no rodape do desenho. */}
-        <div className="mt-auto grid w-full gap-3.5 pb-6">
-          <BotaoLink href="/entrar" largo>
-            Login
-          </BotaoLink>
-          <BotaoLink
-            href="/cadastro"
-            aparencia="secundaria"
-            largo
-          >
-            Cadastro
-          </BotaoLink>
-          <Link
-            href="/animais"
-            className="py-1 text-center text-sm font-semibold text-primaria"
-          >
-            Entrar sem cadastro
-          </Link>
+    <TelaDividida lateral={<PainelLateral imagem="/marca/boas-vindas.jpg" foto />}>
+      <main className="relative mx-auto flex h-dvh max-w-md flex-col overflow-hidden lg:justify-center">
+        {/* A foto vai de y=0 a y=517 dos 844 do desenho — 61% da altura. O
+            `object-top` reproduz o enquadramento: no Figma ela comeca acima do
+            quadro, entao o que se ve e o topo. */}
+        <div className="relative h-[56%] shrink-0 lg:hidden">
+          <Image
+            src="/marca/boas-vindas.jpg"
+            alt=""
+            fill
+            priority
+            sizes="28rem"
+            quality={90}
+            className="object-cover object-top"
+          />
+          {/* O `Rectangle 208` do desenho: o degrade que funde a foto no branco,
+              de y=346 a y=518. */}
+          <div className="absolute inset-x-0 bottom-0 h-[34%] bg-linear-to-b from-transparent to-white h-full" />
         </div>
-      </div>
-    </main>
+
+        <div className="flex flex-1 flex-col items-center px-8 py-10 lg:flex-none">
+          {/* 186 de 390 = 48% da largura, em y=452 (logo abaixo da foto). */}
+          <MarcaComNome largura={186} className="-mt-8 w-[48%] lg:mt-0" />
+
+          <h1 className="mt-3 text-center font-titulo text-2xl leading-tight font-semibold text-secundaria">
+            Conecte corações.
+            <br />
+            Reencontre histórias.
+          </h1>
+
+          {/* 326 de 390 = 84%; os botoes ficam colados no rodape do desenho. */}
+          <div className="mt-auto grid w-full gap-3.5 pb-6 lg:mt-12">
+            <BotaoLink href="/entrar" largo>
+              Login
+            </BotaoLink>
+            <BotaoLink
+              href="/cadastro"
+              aparencia="secundaria"
+              largo
+            >
+              Cadastro
+            </BotaoLink>
+            <Link
+              href="/animais"
+              className="py-1 text-center text-sm font-semibold text-primaria"
+            >
+              Entrar sem cadastro
+            </Link>
+          </div>
+        </div>
+      </main>
+    </TelaDividida>
   );
 }

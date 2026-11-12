@@ -71,12 +71,12 @@ const EdicaoDePerfil = z.object({
 });
 
 function sem_sessao() {
-  return NextResponse.json({ erro: "e preciso estar autenticado" }, { status: 401 });
+  return NextResponse.json({ erro: "é preciso estar autenticado" }, { status: 401 });
 }
 
 function entrada_invalida(erro: z.ZodError) {
   return NextResponse.json(
-    { erro: "dados invalidos", detalhes: z.treeifyError(erro) },
+    { erro: "dados inválidos", detalhes: z.treeifyError(erro) },
     { status: 422 },
   );
 }
@@ -89,7 +89,7 @@ export async function GET() {
   if (!perfil) {
     // Tem conta no provedor e nao tem perfil: o cadastro parou no meio.
     // A tela de cadastro refaz o POST e o servico termina.
-    return NextResponse.json({ erro: "perfil ainda nao criado" }, { status: 404 });
+    return NextResponse.json({ erro: "perfil ainda não criado" }, { status: 404 });
   }
 
   return NextResponse.json(perfil);
@@ -131,7 +131,7 @@ export async function PUT(requisicao: Request) {
 
   const perfil = await registrar_intencao(usuario.id, corpo.data.intencao);
   if (!perfil) {
-    return NextResponse.json({ erro: "perfil ainda nao criado" }, { status: 404 });
+    return NextResponse.json({ erro: "perfil ainda não criado" }, { status: 404 });
   }
 
   return NextResponse.json(perfil);
@@ -148,7 +148,7 @@ export async function PATCH(requisicao: Request) {
   // de outra pessoa mesmo que alguem tente.
   const perfil = await atualizar_perfil(usuario.id, corpo.data);
   if (!perfil) {
-    return NextResponse.json({ erro: "perfil ainda nao criado" }, { status: 404 });
+    return NextResponse.json({ erro: "perfil ainda não criado" }, { status: 404 });
   }
 
   return NextResponse.json(perfil);

@@ -62,12 +62,12 @@ body {
 /* Respiro para a barra fixa do celular — aplicado so quando a barra existe.
    As telas de boas-vindas, login, cadastro e diagnostico nao a tem, e sem o
    `:has` elas ganhariam um vao morto no rodape. */
-body:has(nav[aria-label="Navegacao principal"]) {
+body:has(nav[aria-label="Navegação principal"]) {
   padding-bottom: 6rem;
 }
 
 @media (min-width: 48rem) {
-  body:has(nav[aria-label="Navegacao principal"]) {
+  body:has(nav[aria-label="Navegação principal"]) {
     padding-bottom: 0;
   }
 }

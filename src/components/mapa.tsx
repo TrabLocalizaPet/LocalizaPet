@@ -45,7 +45,7 @@ const PINO =
 const ROTULO: Record<TipoDeAnuncio, string> = {
   perdido: "Perdido",
   encontrado: "Encontrado",
-  adocao: "Adocao",
+  adocao: "Adoção",
 };
 
 /**
@@ -183,7 +183,7 @@ export default function Mapa({
       L.marker([animal.lat, animal.lng], { icon: icone })
         .bindPopup(
           `<strong>${nome}</strong><br>${ROTULO[animal.tipo_anuncio]} · ${animal.especie}` +
-            `<br><a href="/animais/${escapar(animal.id)}">Ver anuncio</a>`,
+            `<br><a href="/animais/${escapar(animal.id)}">Ver anúncio</a>`,
         )
         .addTo(camada);
     }

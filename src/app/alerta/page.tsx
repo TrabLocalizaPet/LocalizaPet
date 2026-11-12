@@ -8,6 +8,7 @@ import { AvisoDeContato } from "@/components/aviso-de-contato";
 import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import { Casca, TituloDoPasso, Topo } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
+import { PainelLateral } from "@/components/tela-dividida";
 import { Botao } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/tela";
@@ -117,7 +118,7 @@ export default function AlertaDeFuga() {
     }).catch(() => null);
 
     if (!resposta) {
-      definir_erro("Sem conexao. Confira a internet e tente de novo.");
+      definir_erro("Sem conexão. Confira a internet e tente de novo.");
       definir_enviando(false);
       return;
     }
@@ -126,7 +127,7 @@ export default function AlertaDeFuga() {
     if (resposta.status === 409) return router.replace("/perfil");
 
     if (!resposta.ok) {
-      definir_erro("Nao foi possivel publicar o alerta. Confira os campos.");
+      definir_erro("Não foi possível publicar o alerta. Confira os campos.");
       definir_enviando(false);
       return;
     }
@@ -137,10 +138,10 @@ export default function AlertaDeFuga() {
   }
 
   return (
-    <Casca>
+    <Casca lateral={<PainelLateral imagem="/ilustracoes/inicio-cadastro-pet.png" />}>
       <Topo aoVoltar={() => router.push("/publicar")} />
 
-      <TituloDoPasso apoio="So o essencial. O alerta aparece na hora para quem procura e para quem monitora a regiao.">
+      <TituloDoPasso apoio="Só o essencial. O alerta aparece na hora para quem procura e para quem monitora a região.">
         Meu pet fugiu
       </TituloDoPasso>
 
@@ -148,7 +149,7 @@ export default function AlertaDeFuga() {
         {erro && <Aviso>{erro}</Aviso>}
 
         <Selecao
-          rotulo="Especie"
+          rotulo="Espécie"
           value={especie}
           onChange={(e) => definir_especie(e.target.value as Especie | "")}
           required
@@ -180,7 +181,7 @@ export default function AlertaDeFuga() {
           onChange={(e) => definir_quando(e.target.value)}
           apoio={
             quando !== "" && quando > agora
-              ? "Essa hora ainda nao chegou. Confira o dia e a hora."
+              ? "Essa hora ainda não chegou. Confira o dia e a hora."
               : undefined
           }
           required
@@ -189,7 +190,7 @@ export default function AlertaDeFuga() {
 
       {/* O mapa sangra ate as bordas, como no passo do local do `/publicar`. */}
       <div className="mt-6">
-        <p className="px-8 text-sm font-semibold">Onde foi visto pela ultima vez?</p>
+        <p className="px-8 text-sm font-semibold">Onde foi visto pela última vez?</p>
         <div className="mt-3 px-8">
           <BotaoDeLocalizacao
             estado={localizacao.estado}
@@ -216,7 +217,7 @@ export default function AlertaDeFuga() {
         <SeletorDeFotos fotos={fotos} ao_mudar={definir_fotos} />
 
         <CampoLongo
-          rotulo="Descricao"
+          rotulo="Descrição"
           value={descricao}
           onChange={(e) => definir_descricao(e.target.value)}
           rows={3}

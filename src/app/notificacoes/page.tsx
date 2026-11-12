@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { NOTIFICACOES_MUDARAM } from "@/components/navegacao";
 import { Botao } from "@/components/ui/botao";
 import { SetaVoltar } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
@@ -40,7 +41,7 @@ export default function Notificacoes() {
         definir_estado("pronto");
       })
       .catch(() => {
-        definir_erro("Nao foi possivel carregar agora.");
+        definir_erro("Não foi possível carregar agora.");
         definir_estado("pronto");
       });
   }, [router]);
@@ -52,7 +53,10 @@ export default function Notificacoes() {
       body: JSON.stringify(ids ? { ids } : {}),
     });
 
-    if (!resposta.ok) return definir_erro("Nao foi possivel marcar como lida.");
+    if (!resposta.ok) return definir_erro("Não foi possível marcar como lida.");
+
+    // A contagem do cabecalho do desktop busca de novo ao ouvir isto.
+    window.dispatchEvent(new Event(NOTIFICACOES_MUDARAM));
 
     // A data vem do banco na proxima carga; aqui basta tirar o destaque.
     const agora = new Date();
@@ -90,7 +94,7 @@ export default function Notificacoes() {
         Voltar
       </button>
 
-      <Titulo>Notificacoes</Titulo>
+      <Titulo>Notificações</Titulo>
       <Apoio>
         {nao_lidas === 0
           ? "Nada novo por aqui."
@@ -102,8 +106,8 @@ export default function Notificacoes() {
       {/* Com erro a caixa vazia nao quer dizer "nada chegou". */}
       {caixa.length === 0 && !erro && (
         <Aviso tom="neutro">
-          Voce ainda nao tem notificacoes. Elas chegam quando aparece um
-          anuncio dentro de uma area que voce monitora.
+          Você ainda não tem notificações. Elas chegam quando aparece um
+          anúncio dentro de uma área que você monitora.
         </Aviso>
       )}
 
@@ -125,7 +129,7 @@ export default function Notificacoes() {
                 <span className="block text-sm font-semibold">{n.titulo}</span>
                 <span className="block text-xs text-suave">
                   {ha_quanto_tempo(n.criado_em)}
-                  {nova ? " · nao lida" : ""}
+                  {nova ? " · não lida" : ""}
                 </span>
               </span>
             </span>
