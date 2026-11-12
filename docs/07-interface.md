@@ -106,7 +106,7 @@ Exportados do Figma para `public/`, não recriados à mão.
 | `public/marca/logo.png` | símbolo da marca |
 | `public/marca/splash-screen-background.png` | fundo da Splash, quatro anéis concêntricos |
 | `public/marca/logo-com-nome.png` | marca com a tipografia própria, da tela de boas-vindas |
-| `public/marca/boas-vindas.jpg` | foto de fundo da tela de boas-vindas |
+| `public/marca/boas-vindas.jpg` | foto de fundo da tela de boas-vindas — **ampliada 3x** (342×512 → 1026×1536, Lanczos + nitidez) porque a exportação original borrava no painel do desktop; substituir por uma exportação em 3x do Figma assim que possível |
 | `public/ilustracoes/ilustracao-login.png` | `cat-and-dog/rafiki`, telas de Login |
 | `public/ilustracoes/inicio-cadastro.png` | `dog-paw/amico`, abertura do cadastro |
 | `public/ilustracoes/ilustracao-cadastro-final.png` | `dog-high-five/amico`, cadastro concluído |

@@ -49,6 +49,7 @@ export default async function BoasVindas() {
             fill
             priority
             sizes="28rem"
+            quality={90}
             className="object-cover object-top"
           />
           {/* O `Rectangle 208` do desenho: o degrade que funde a foto no branco,

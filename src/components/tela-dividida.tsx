@@ -66,11 +66,15 @@ export function PainelLateral({
         aria-hidden="true"
         className="sticky top-0 hidden h-dvh overflow-hidden lg:block"
       >
+        {/* `quality` 90: a foto ja chega ampliada (ver a tabela de assets
+            do docs/07-interface.md), e recomprimir no padrao de 75 somava
+            artefato sobre artefato. */}
         <Image
           src={imagem}
           alt=""
           fill
           priority
+          quality={90}
           sizes="58vw"
           className="object-cover"
         />
