@@ -9,6 +9,7 @@ import { FormasDeFundo } from "@/components/formas-de-fundo";
 import { Botao } from "@/components/ui/botao";
 import { Campo } from "@/components/ui/campo";
 import { CampoDeSenha } from "@/components/ui/campo-de-senha";
+import { PainelLateral, TelaDividida } from "@/components/tela-dividida";
 import { SetaVoltar } from "@/components/ui/icones";
 import { Aviso } from "@/components/ui/tela";
 import { mensagem_de_auth } from "@/lib/auth-mensagens";
@@ -71,75 +72,88 @@ export default function Entrar() {
   }
 
   return (
-    <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-x-clip">
-      <FormasDeFundo conjunto="login" />
+    <TelaDividida lateral={<PainelLateral imagem="/ilustracoes/ilustracao-login.png" />}>
+      <main className="relative mx-auto flex min-h-dvh max-w-md flex-col overflow-x-clip md:static">
+        <FormasDeFundo conjunto="login" />
 
-      <div className="px-7 pt-3">
-        <Link
-          href="/"
-          aria-label="Voltar"
-          className="inline-grid size-11 place-items-center -ml-3 text-primaria"
-        >
-          <SetaVoltar className="size-6" />
-        </Link>
-      </div>
+        <div className="px-7 pt-3">
+          <Link
+            href="/"
+            aria-label="Voltar"
+            className="inline-grid size-11 place-items-center -ml-3 text-primaria"
+          >
+            <SetaVoltar className="size-6" />
+          </Link>
+        </div>
 
-      {/* 437 de largura num quadro de 390: a ilustracao sangra 23 px de cada
-          lado. `-mx-6` reproduz isso, e o `overflow-x-clip` do <main> corta
-          o que passa da tela — sem ele a pagina rolava 24 px para o lado. */}
-      <div className="relative -mx-6 mt-2 aspect-[437/325]">
-        <Image
-          src="/ilustracoes/ilustracao-login.png"
-          alt=""
-          fill
-          priority
-          sizes="28rem"
-          className="object-contain"
-        />
-      </div>
+        {/* 437 de largura num quadro de 390: a ilustracao sangra 23 px de cada
+            lado. `-mx-6` reproduz isso, e o `overflow-x-clip` do <main> corta
+            o que passa da tela — sem ele a pagina rolava 24 px para o lado.
 
-      <form onSubmit={enviar} className="mt-6 flex flex-1 flex-col px-6">
-        {erro && <Aviso>{erro}</Aviso>}
-
-        <div className="grid gap-4">
-          <Campo
-            rotulo="E-mail"
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => definir_email(e.target.value)}
-            autoComplete="email"
-            required
-          />
-
-          <CampoDeSenha
-            rotulo="Senha"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => definir_senha(e.target.value)}
-            autoComplete="current-password"
-            required
+            No desktop ela esta no painel lateral e sai daqui. */}
+        <div className="relative -mx-6 mt-2 aspect-[437/325] lg:hidden">
+          <Image
+            src="/ilustracoes/ilustracao-login.png"
+            alt=""
+            fill
+            priority
+            sizes="28rem"
+            className="object-contain"
           />
         </div>
 
-        <Botao type="submit" largo disabled={!pronto || enviando} className="mt-6">
-          {enviando ? "Entrando..." : "Login"}
-        </Botao>
+        {/* Sem a ilustracao, o formulario do desktop desce para o meio da
+            altura (`lg:justify-center`), e o "Cadastre-se" deixa de ir para o
+            rodape (`lg:mt-6`) para nao ficar isolado meia tela abaixo. */}
+        <form onSubmit={enviar} className="mt-6 flex flex-1 flex-col px-6 lg:justify-center lg:pb-16">
+          {/* O titulo so aparece no desktop: no celular a ilustracao diz onde
+              a pessoa esta, e o desenho nao tem titulo nesta tela. */}
+          <h1 className="mb-6 hidden font-titulo text-2xl font-semibold text-escura lg:block">
+            Entrar
+          </h1>
 
-        <Link
-          href="/animais"
-          className="mt-4 py-1 text-center text-sm font-semibold text-primaria"
-        >
-          Entrar sem cadastro
-        </Link>
+          {erro && <Aviso>{erro}</Aviso>}
 
-        <p className="mt-auto py-6 text-center text-sm text-suave">
-          Ainda nao tem conta?{" "}
-          <Link href="/cadastro" className="font-semibold text-primaria">
-            Cadastre-se
+          <div className="grid gap-4">
+            <Campo
+              rotulo="E-mail"
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => definir_email(e.target.value)}
+              autoComplete="email"
+              required
+            />
+
+            <CampoDeSenha
+              rotulo="Senha"
+              placeholder="Senha"
+              value={senha}
+              onChange={(e) => definir_senha(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <Botao type="submit" largo disabled={!pronto || enviando} className="mt-6">
+            {enviando ? "Entrando..." : "Login"}
+          </Botao>
+
+          <Link
+            href="/animais"
+            className="mt-4 py-1 text-center text-sm font-semibold text-primaria"
+          >
+            Entrar sem cadastro
           </Link>
-        </p>
-      </form>
-    </main>
+
+          <p className="mt-auto py-6 text-center text-sm text-suave lg:mt-6">
+            Ainda nao tem conta?{" "}
+            <Link href="/cadastro" className="font-semibold text-primaria">
+              Cadastre-se
+            </Link>
+          </p>
+        </form>
+      </main>
+    </TelaDividida>
   );
 }

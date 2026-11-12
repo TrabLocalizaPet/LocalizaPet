@@ -10,11 +10,13 @@ import {
   Casca,
   Ilustracao,
   ListaDeOpcoes,
+  Miolo,
   OpcaoDeLista,
   TituloDoPasso,
   Topo,
 } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
+import { PainelLateral } from "@/components/tela-dividida";
 import { Botao, BotaoLink } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
@@ -64,6 +66,9 @@ const Mapa = dynamic(() => import("@/components/mapa"), {
  * `NOT NULL` (RN-02) e a intencao e preferencia, nao decide o anuncio
  * (ver `migrations/002_perfil_do_cadastro.sql`).
  */
+
+/** Painel do desktop (ver `TelaDividida`): a ilustracao da abertura do fluxo. */
+const PAINEL = <PainelLateral imagem="/ilustracoes/inicio-cadastro-pet.png" />;
 
 type Passo =
   | "intro"
@@ -238,34 +243,36 @@ export default function Publicar() {
   // ---------------------------------------------------------------- intro
   if (passo === "intro") {
     return (
-      <Casca>
+      <Casca lateral={PAINEL}>
         <Topo aoVoltar={() => router.push("/animais")} />
 
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/inicio-cadastro-pet.png"
-            descricao="Um cachorro e um gato lado a lado"
-            className="mt-[12dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
-            Cadastro do pet!
-          </h1>
-          <p className="mt-[1dvh] max-w-80 text-sm text-suave">
-            Se voce perdeu, encontrou ou quer colocar um pet para adocao, conte
-            pra gente os detalhes. Assim conseguimos ajudar mais rapido!
-          </p>
-        </div>
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/inicio-cadastro-pet.png"
+              descricao="Um cachorro e um gato lado a lado"
+              className="mt-[12dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
+              Cadastro do pet!
+            </h1>
+            <p className="mt-[1dvh] max-w-80 text-sm text-suave">
+              Se voce perdeu, encontrou ou quer colocar um pet para adocao, conte
+              pra gente os detalhes. Assim conseguimos ajudar mais rapido!
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] grid gap-3 px-8">
-          <Botao largo onClick={avancar}>
-            Vamos la!
-          </Botao>
-          {/* O atalho de quem nao tem tempo para oito telas: o pet acabou de
-              fugir e o aviso precisa sair agora. */}
-          <BotaoLink href="/alerta" aparencia="secundaria" largo>
-            Meu pet acabou de fugir
-          </BotaoLink>
-        </div>
+          <div className="mt-[3dvh] grid gap-3 px-8">
+            <Botao largo onClick={avancar}>
+              Vamos la!
+            </Botao>
+            {/* O atalho de quem nao tem tempo para oito telas: o pet acabou de
+                fugir e o aviso precisa sair agora. */}
+            <BotaoLink href="/alerta" aparencia="secundaria" largo>
+              Meu pet acabou de fugir
+            </BotaoLink>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -273,36 +280,38 @@ export default function Publicar() {
   // -------------------------------------------------------------- sucesso
   if (passo === "sucesso") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/ilustracao-cadastro-final.png" />}>
         {/* Sem seta: o anuncio ja existe, e voltar ao passo do local nao
             desfaz nada — so confundiria. */}
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/ilustracao-cadastro-final.png"
-            descricao="Pessoa cumprimentando um cachorro"
-            className="mt-[18dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
-            Pet cadastrado
-            <br />
-            com sucesso!
-          </h1>
-          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            {
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/ilustracao-cadastro-final.png"
+              descricao="Pessoa cumprimentando um cachorro"
+              className="mt-[18dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-medium text-escura">
+              Pet cadastrado
+              <br />
+              com sucesso!
+            </h1>
+            <p className="mt-[1dvh] max-w-72 text-sm text-suave">
               {
-                perdido: "O anuncio ja aparece no mapa e na lista. Tomara que ele volte logo!",
-                encontrado: "O anuncio ja aparece no mapa e na lista para o tutor encontrar.",
-                adocao: "O anuncio ja aparece na lista para quem quer adotar.",
-              }[tipo ?? "perdido"]
-            }
-          </p>
-        </div>
+                {
+                  perdido: "O anuncio ja aparece no mapa e na lista. Tomara que ele volte logo!",
+                  encontrado: "O anuncio ja aparece no mapa e na lista para o tutor encontrar.",
+                  adocao: "O anuncio ja aparece na lista para quem quer adotar.",
+                }[tipo ?? "perdido"]
+              }
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] px-8">
-          <Botao largo onClick={() => router.push(`/animais/${criado_id}`)}>
-            Ver o anuncio
-          </Botao>
-        </div>
+          <div className="mt-[3dvh] px-8">
+            <Botao largo onClick={() => router.push(`/animais/${criado_id}`)}>
+              Ver o anuncio
+            </Botao>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -365,7 +374,7 @@ export default function Publicar() {
   const ultimo = passo === "local";
 
   return (
-    <Casca>
+    <Casca lateral={PAINEL}>
       <Topo aoVoltar={voltar} />
 
       <TituloDoPasso apoio={PERGUNTA.apoio}>{PERGUNTA.titulo}</TituloDoPasso>

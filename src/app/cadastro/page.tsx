@@ -9,10 +9,12 @@ import {
   Casca,
   Ilustracao,
   ListaDeOpcoes,
+  Miolo,
   OpcaoDeLista,
   TituloDoPasso,
   Topo,
 } from "@/components/passo";
+import { PainelLateral } from "@/components/tela-dividida";
 import { Botao } from "@/components/ui/botao";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
@@ -205,7 +207,7 @@ export default function Cadastro() {
   // ---------------------------------------------------------------- intro
   if (passo === "intro") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/inicio-cadastro.png" />}>
         <FormasDeFundo />
         {/* Sem a seta nao ha volta para as boas-vindas: a tela e a entrada do
             fluxo, e quem entrou por engano ficaria preso. */}
@@ -214,26 +216,28 @@ export default function Cadastro() {
         {/* Alturas do desenho: ilustracao em y=179 de 844, titulo em y=471,
             apoio em y=559 e botao em y=625. Descontando a seta (56 px), o
             primeiro espaco e 14dvh em vez de 21dvh. */}
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/inicio-cadastro.png"
-            descricao="Dois cachorros sentados lado a lado"
-            className="mt-[14dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
-            E hora do cadastro!
-          </h1>
-          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            Sao apenas alguns passos para voce se cadastrar, e bem rapido.
-            Vamos la?
-          </p>
-        </div>
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/inicio-cadastro.png"
+              descricao="Dois cachorros sentados lado a lado"
+              className="mt-[14dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
+              E hora do cadastro!
+            </h1>
+            <p className="mt-[1dvh] max-w-72 text-sm text-suave">
+              Sao apenas alguns passos para voce se cadastrar, e bem rapido.
+              Vamos la?
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] px-8">
-          <Botao largo onClick={() => definir_passo("nome")}>
-            Vamos la!
-          </Botao>
-        </div>
+          <div className="mt-[3dvh] px-8">
+            <Botao largo onClick={() => definir_passo("nome")}>
+              Vamos la!
+            </Botao>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -241,31 +245,33 @@ export default function Cadastro() {
   // -------------------------------------------------------------- sucesso
   if (passo === "sucesso") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/ilustracao-cadastro-final.png" />}>
         <FormasDeFundo />
         {/* Sem seta de proposito: a conta ja existe, e voltar para o passo da
             senha nao desfaz nada — so confundiria. */}
-        <div className="flex flex-col items-center px-8 text-center">
-          <Ilustracao
-            arquivo="/ilustracoes/ilustracao-cadastro-final.png"
-            descricao="Pessoa cumprimentando um cachorro"
-            className="mt-[21dvh]"
-          />
-          <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
-            Cadastro realizado
-            <br />
-            com sucesso
-          </h1>
-          <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            Agora vamos configurar o aplicativo especialmente para voce!
-          </p>
-        </div>
+        <Miolo>
+          <div className="flex flex-col items-center px-8 text-center">
+            <Ilustracao
+              arquivo="/ilustracoes/ilustracao-cadastro-final.png"
+              descricao="Pessoa cumprimentando um cachorro"
+              className="mt-[21dvh]"
+            />
+            <h1 className="mt-[3dvh] font-titulo text-2xl leading-tight font-semibold text-escura">
+              Cadastro realizado
+              <br />
+              com sucesso
+            </h1>
+            <p className="mt-[1dvh] max-w-72 text-sm text-suave">
+              Agora vamos configurar o aplicativo especialmente para voce!
+            </p>
+          </div>
 
-        <div className="mt-[3dvh] px-8">
-          <Botao largo onClick={() => definir_passo("intencao")}>
-            Prosseguir
-          </Botao>
-        </div>
+          <div className="mt-[3dvh] px-8">
+            <Botao largo onClick={() => definir_passo("intencao")}>
+              Prosseguir
+            </Botao>
+          </div>
+        </Miolo>
       </Casca>
     );
   }
@@ -273,7 +279,7 @@ export default function Cadastro() {
   // ------------------------------------------------------------- intencao
   if (passo === "intencao") {
     return (
-      <Casca>
+      <Casca lateral={<PainelLateral imagem="/ilustracoes/ilustracao-cadastro-final.png" />}>
         <Topo aoVoltar={() => definir_passo("sucesso")} rotulo="Fechar" />
 
         <TituloDoPasso tamanho="normal">O que te trouxe aqui?</TituloDoPasso>
@@ -333,7 +339,7 @@ export default function Cadastro() {
   const ultimo = passo === "senha";
 
   return (
-    <Casca>
+    <Casca lateral={<PainelLateral imagem="/ilustracoes/inicio-cadastro.png" />}>
       <Topo aoVoltar={voltar} />
 
       {/* Posicoes do desenho, em proporcao da altura da tela: titulo em

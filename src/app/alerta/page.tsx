@@ -8,6 +8,7 @@ import { AvisoDeContato } from "@/components/aviso-de-contato";
 import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import { Casca, TituloDoPasso, Topo } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
+import { PainelLateral } from "@/components/tela-dividida";
 import { Botao } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/tela";
@@ -137,7 +138,7 @@ export default function AlertaDeFuga() {
   }
 
   return (
-    <Casca>
+    <Casca lateral={<PainelLateral imagem="/ilustracoes/inicio-cadastro-pet.png" />}>
       <Topo aoVoltar={() => router.push("/publicar")} />
 
       <TituloDoPasso apoio="So o essencial. O alerta aparece na hora para quem procura e para quem monitora a regiao.">
