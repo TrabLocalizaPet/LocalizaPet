@@ -18,6 +18,7 @@ import { Botao, BotaoLink } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
+import { entrar_e_voltar } from "@/lib/destino";
 import { CENTRO_PADRAO } from "@/lib/geo";
 import { useMinhaLocalizacao } from "@/lib/geolocalizacao";
 import { digitos_ate } from "@/lib/mascaras";
@@ -131,7 +132,7 @@ export default function Publicar() {
   // anuncio precisa de um autor em `perfis`, e a /perfil termina o cadastro.
   useEffect(() => {
     fetch("/api/perfil").then((r) => {
-      if (r.status === 401) router.replace("/entrar");
+      if (r.status === 401) router.replace(entrar_e_voltar("/publicar"));
       if (r.status === 404) router.replace("/perfil");
     });
   }, [router]);
@@ -205,7 +206,7 @@ export default function Publicar() {
       return;
     }
 
-    if (resposta.status === 401) return router.replace("/entrar");
+    if (resposta.status === 401) return router.replace(entrar_e_voltar("/publicar"));
     if (resposta.status === 409) return router.replace("/perfil");
 
     if (!resposta.ok) {

@@ -10,6 +10,7 @@ import { Campo, Interruptor } from "@/components/ui/campo";
 import { IconeAjustes, Seta } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
 import { cliente_navegador } from "@/lib/auth-navegador";
+import { entrar_e_voltar } from "@/lib/destino";
 import { mascara_telefone, telefone_completo } from "@/lib/mascaras";
 import type { AnimalNaLista, Situacao } from "@/types/animal";
 import type { Perfil } from "@/types/perfil";
@@ -62,7 +63,7 @@ export default function MinhaConta() {
     async function carregar() {
       const resposta = await fetch("/api/perfil");
 
-      if (resposta.status === 401) return router.replace("/entrar");
+      if (resposta.status === 401) return router.replace(entrar_e_voltar("/perfil"));
       if (resposta.status === 404) {
         // Sem perfil nao ha o que visitar: a tela abre direto nos ajustes,
         // que e onde o cadastro se completa.

@@ -13,6 +13,7 @@ import { SetaVoltar } from "@/components/ui/icones";
 import { Aviso } from "@/components/ui/tela";
 import { mensagem_de_auth } from "@/lib/auth-mensagens";
 import { cliente_navegador } from "@/lib/auth-navegador";
+import { destino_de_volta } from "@/lib/destino";
 
 /**
  * Entrar na conta (RF-19) — tela "Login" do Figma (no 1:613).
@@ -66,7 +67,7 @@ export default function Entrar() {
     // refresh() antes de navegar: os Server Components precisam enxergar o
     // cookie de sessao que a biblioteca acabou de gravar.
     router.refresh();
-    router.push("/animais");
+    router.push(destino_de_volta(window.location.search, "/animais"));
   }
 
   return (
