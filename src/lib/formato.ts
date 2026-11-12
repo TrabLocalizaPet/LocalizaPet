@@ -15,14 +15,17 @@ import type { AnimalNaLista } from "@/types/animal";
  */
 export function idade_por_extenso(meses: number | null): string | null {
   if (meses === null) return null;
-  if (meses < 12) return `${meses} ${meses === 1 ? "mes" : "meses"}`;
+  // Zero e filhote de dias, e "0 meses" no titulo do detalhe ("Buck, 0
+  // meses") parecia dado faltando.
+  if (meses === 0) return "menos de 1 mês";
+  if (meses < 12) return `${meses} ${meses === 1 ? "mês" : "meses"}`;
 
   const anos = Math.floor(meses / 12);
   const resto = meses % 12;
   const parte_anos = `${anos} ${anos === 1 ? "ano" : "anos"}`;
 
   if (resto === 0) return parte_anos;
-  return `${parte_anos} e ${resto} ${resto === 1 ? "mes" : "meses"}`;
+  return `${parte_anos} e ${resto} ${resto === 1 ? "mês" : "meses"}`;
 }
 
 /** A linha de baixo do cartao: o que descreve o animal, sem os campos vazios. */
@@ -47,9 +50,9 @@ export function ha_quanto_tempo(data: Date | string): string {
 
   if (dias <= 0) return "hoje";
   if (dias === 1) return "ontem";
-  if (dias < 30) return `ha ${dias} dias`;
+  if (dias < 30) return `há ${dias} dias`;
   const meses = Math.floor(dias / 30);
-  return `ha ${meses} ${meses === 1 ? "mes" : "meses"}`;
+  return `há ${meses} ${meses === 1 ? "mês" : "meses"}`;
 }
 
 /**

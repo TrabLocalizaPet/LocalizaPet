@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { EsqueletoDeLista } from "@/components/esqueleto";
 import { NOTIFICACOES_MUDARAM } from "@/components/navegacao";
 import { Botao } from "@/components/ui/botao";
 import { SetaVoltar } from "@/components/ui/icones";
@@ -74,7 +75,8 @@ export default function Notificacoes() {
   if (estado === "carregando") {
     return (
       <Tela largura="estreita">
-        <Apoio>Carregando...</Apoio>
+        <Titulo>Notificações</Titulo>
+        <EsqueletoDeLista texto="Carregando notificações" />
       </Tela>
     );
   }

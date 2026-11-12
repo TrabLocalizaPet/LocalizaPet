@@ -6,8 +6,9 @@ import { AtalhosPorTipo } from "@/components/atalhos-por-tipo";
 import { CabecalhoDaHome } from "@/components/cabecalho-da-home";
 import { CampoDeBusca } from "@/components/campo-de-busca";
 import { CartaoDeAnuncio } from "@/components/cartao-de-anuncio";
+import { EsqueletoDeCartoes } from "@/components/esqueleto";
 import { SinoDeNotificacoes } from "@/components/sino-de-notificacoes";
-import { Apoio, Aviso, Tela } from "@/components/ui/tela";
+import { Aviso, Tela } from "@/components/ui/tela";
 import { resumo } from "@/lib/formato";
 import type { AnimalNaLista, TipoDeAnuncio } from "@/types/animal";
 
@@ -149,19 +150,36 @@ export default function Home() {
         )}
       </div>
 
-      {carregando && <Apoio>Carregando...</Apoio>}
+      {carregando && <EsqueletoDeCartoes />}
 
+      {/* Busca sem resultado nao e erro: tom neutro, sem a barra vermelha. A
+          frase repete o que foi procurado (a pessoa ve se digitou errado) e
+          diz onde a busca olha — nome e o resumo do cartao, que traz especie,
+          sexo, porte, cor e idade. */}
       {!carregando && visiveis.length === 0 && (
-        <Aviso>
-          {procurado !== ""
-            ? "Nenhum anúncio com esse texto entre os que estão na tela."
-            : "Nenhum anúncio deste tipo por enquanto."}
+        <Aviso tom="neutro">
+          {procurado.trim() !== "" ? (
+            <>
+              <strong className="block font-semibold">
+                Nenhum pet encontrado para “{procurado.trim()}”.
+              </strong>
+              Confira se está escrito certo ou tente outra coisa: nome, espécie,
+              cor ou porte.
+              {tipo && " A busca está só entre os anúncios do atalho marcado."}
+            </>
+          ) : (
+            "Nenhum anúncio deste tipo por enquanto."
+          )}
         </Aviso>
       )}
 
       {/* Uma coluna no celular, que e o layout do Figma; o desktop aproveita a
-          largura, que o desenho nao cobre (DT-08). */}
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          largura, que o desenho nao cobre (DT-08). Some durante a carga, para
+          a lista do filtro anterior nao ficar embaixo do esqueleto. */}
+      <ul
+        hidden={carregando}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {visiveis.map((animal) => (
           <li key={animal.id}>
             <CartaoDeAnuncio animal={animal} />

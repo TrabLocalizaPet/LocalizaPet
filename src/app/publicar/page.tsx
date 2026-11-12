@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AvisoDeAgua } from "@/components/aviso-de-agua";
 import { AvisoDeContato } from "@/components/aviso-de-contato";
 import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import {
@@ -566,6 +567,12 @@ export default function Publicar() {
               local_escolhido={local}
               ao_escolher_local={(lat, lng) => definir_local([lat, lng])}
             />
+          </div>
+
+          {/* Embaixo do mapa, e nao em cima: em cima ele empurrava o mapa no
+              instante em que aparecia, e o toque seguinte caia fora do lugar. */}
+          <div className="px-8">
+            <AvisoDeAgua local={local} />
           </div>
         </div>
       )}

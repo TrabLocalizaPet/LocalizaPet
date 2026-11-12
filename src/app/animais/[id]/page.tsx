@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
+import { CarrosselDeFotos } from "@/components/carrossel-de-fotos";
+import { EsqueletoDoDetalhe } from "@/components/esqueleto";
 import { EtiquetaDeSituacao, EtiquetaDeTipo } from "@/components/etiqueta";
 import { Botao } from "@/components/ui/botao";
 import {
@@ -60,6 +62,8 @@ export default function Detalhe() {
   const [encerrando, definir_encerrando] = useState(false);
   const [erro, definir_erro] = useState<string | null>(null);
   const [recado, definir_recado] = useState<string | null>(null);
+  /** A foto que o carrossel mostra; as miniaturas tambem mudam isto. */
+  const [foto_atual, definir_foto_atual] = useState(0);
 
   useEffect(() => {
     fetch(`/api/animais/${id}`)
@@ -179,13 +183,7 @@ export default function Detalhe() {
     [animal, lat, lng],
   );
 
-  if (estado === "carregando") {
-    return (
-      <Tela largura="estreita">
-        <Apoio>Carregando...</Apoio>
-      </Tela>
-    );
-  }
+  if (estado === "carregando") return <EsqueletoDoDetalhe />;
 
   if (estado === "ausente" || !animal) {
     return (
@@ -201,6 +199,10 @@ export default function Detalhe() {
   }
 
   const tem_local = centro !== null;
+  // `fotos` vem da tabela de fotos; o `foto_url` sozinho cobre anuncio antigo
+  // cuja capa ainda nao estivesse la.
+  const fotos =
+    animal.fotos.length > 0 ? animal.fotos : animal.foto_url ? [animal.foto_url] : [];
   const sou_o_autor = meu_id !== null && meu_id === animal.autor_id;
 
   return (
@@ -217,14 +219,12 @@ export default function Detalhe() {
         {/* No desktop a altura vem da janela, e nao da largura: em 3:4 a foto
             passaria da dobra e os botoes redondos ficariam fora da vista. */}
         <div className="relative aspect-[390/520] w-full overflow-hidden rounded-b-[48px] bg-creme md:aspect-auto md:h-[calc(100dvh-14rem)] md:min-h-80 md:rounded-[32px]">
-          {animal.foto_url ? (
-            <Image
-              src={animal.foto_url}
-              alt={animal.nome ?? "Animal sem nome"}
-              fill
-              sizes="(min-width: 768px) 28rem, 100vw"
-              priority
-              className="object-cover"
+          {fotos.length > 0 ? (
+            <CarrosselDeFotos
+              fotos={fotos}
+              nome={animal.nome ?? "animal sem nome"}
+              atual={foto_atual}
+              ao_mudar={definir_foto_atual}
             />
           ) : (
             <span
@@ -324,21 +324,27 @@ export default function Detalhe() {
           </p>
         )}
 
-        {/* As demais fotos. A capa ja apareceu no topo. */}
-        {animal.fotos.length > 1 && (
+        {/* Todas as fotos, inclusive a capa, como atalho para o carrossel:
+            tocar numa leva a foto grande ate ela. A marcada e a que esta na
+            foto grande agora. */}
+        {fotos.length > 1 && (
           <ul className="mt-6 grid grid-cols-4 gap-2">
-            {animal.fotos.slice(1).map((url, indice) => (
-              <li
-                key={url}
-                className="relative aspect-square overflow-hidden rounded-[--radius-padrao] border border-borda"
-              >
-                <Image
-                  src={url}
-                  alt={`Foto ${indice + 2} de ${animal.nome ?? "animal sem nome"}`}
-                  fill
-                  sizes="8rem"
-                  className="object-cover"
-                />
+            {fotos.map((url, indice) => (
+              <li key={url}>
+                <button
+                  type="button"
+                  onClick={() => definir_foto_atual(indice)}
+                  aria-label={`Ver foto ${indice + 1} de ${fotos.length}`}
+                  aria-current={indice === foto_atual ? "true" : undefined}
+                  className={
+                    "relative block aspect-square w-full overflow-hidden rounded-[--radius-padrao] border-2 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria " +
+                    (indice === foto_atual
+                      ? "border-primaria"
+                      : "border-transparent opacity-75 hover:opacity-100")
+                  }
+                >
+                  <Image src={url} alt="" fill sizes="8rem" className="object-cover" />
+                </button>
               </li>
             ))}
           </ul>
