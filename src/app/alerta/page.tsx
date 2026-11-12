@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AvisoDeContato } from "@/components/aviso-de-contato";
 import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import { Casca, TituloDoPasso, Topo } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
@@ -224,7 +225,8 @@ export default function AlertaDeFuga() {
         />
       </div>
 
-      <div className="mt-auto px-8 pt-8 pb-10">
+      <div className="mt-auto grid gap-4 px-8 pt-8 pb-10">
+        <AvisoDeContato />
         <Botao largo disabled={!pronto || enviando} onClick={publicar}>
           {enviando ? "Publicando..." : "Publicar alerta"}
         </Botao>

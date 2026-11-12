@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AvisoDeContato } from "@/components/aviso-de-contato";
 import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import {
   Casca,
@@ -547,7 +548,9 @@ export default function Publicar() {
         </div>
       )}
 
-      <div className="mt-auto px-8 pt-8 pb-10">
+      <div className="mt-auto grid gap-4 px-8 pt-8 pb-10">
+        {/* No ultimo passo, antes do Publicar: e ai que a pessoa decide. */}
+        {ultimo && <AvisoDeContato />}
         <Botao
           largo
           disabled={!PERGUNTA.pronto || enviando}
