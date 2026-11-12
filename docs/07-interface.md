@@ -29,10 +29,19 @@ Até agora:
 
 | Elemento | Mobile (do Figma) | Desktop (decidido aqui) |
 |---|---|---|
-| Boas-vindas | foto sangrada, ocupa a tela | mesma tela, conteúdo centralizado |
-| Navegação | barra de abas inferior | cabeçalho fixo no topo |
-| Listagem | uma coluna | grade a partir de `48rem` |
-| Largura do conteúdo | 100% | limitada, centralizada |
+| Boas-vindas | foto sangrada, ocupa a tela | tela dividida: foto no painel da esquerda, marca e botões à direita |
+| Telas de fluxo (entrar, cadastro, publicar, alerta) | quadro de 390 px | tela dividida a partir de `64rem`: painel creme com marca, ilustração do fluxo num círculo branco e a frase da boas-vindas; a coluna do celular à direita, intacta |
+| Grafismos de fundo | cantos do quadro | cantos da janela a partir de `48rem`, no tamanho exportado |
+| Navegação | barra de abas inferior | cabeçalho fixo no topo, com contagem de não lidas em Avisos e Sair/Entrar na ponta |
+| Cabeçalho da Home e do Perfil (sair, título, sino / engrenagem) | linha no topo da tela | some — o que dizia foi para o cabeçalho; a engrenagem vira o botão "Ajustes da conta" |
+| Listagem | uma coluna | grade a partir de `48rem`; busca e atalhos na mesma linha a partir de `64rem` |
+| Detalhe do pet | foto 390×520 e conteúdo embaixo | duas colunas a partir de `48rem`: foto fixa à esquerda, conteúdo à direita |
+| Mapa | mapa e botão embaixo do título | botão na linha do título; mapa ocupa a altura da janela |
+| Largura do conteúdo | 100% | limitada a `56rem` (`max-w-4xl`), centralizada e alinhada ao cabeçalho |
+
+O componente da tela dividida é `TelaDividida`
+(`src/components/tela-dividida.tsx`). Ele só reaproveita assets exportados
+do Figma — nada novo é desenhado no painel.
 
 ---
 
