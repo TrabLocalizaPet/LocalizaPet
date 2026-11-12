@@ -101,7 +101,7 @@ export default function Notificacoes() {
 
       {/* Com erro a caixa vazia nao quer dizer "nada chegou". */}
       {caixa.length === 0 && !erro && (
-        <Aviso>
+        <Aviso tom="neutro">
           Voce ainda nao tem notificacoes. Elas chegam quando aparece um
           anuncio dentro de uma area que voce monitora.
         </Aviso>
