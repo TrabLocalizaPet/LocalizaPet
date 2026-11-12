@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Botao } from "@/components/ui/botao";
 import { SetaVoltar } from "@/components/ui/icones";
 import { Apoio, Aviso, Tela, Titulo } from "@/components/ui/tela";
+import { entrar_e_voltar } from "@/lib/destino";
 import { ha_quanto_tempo } from "@/lib/formato";
 import type { NotificacaoNaCaixa } from "@/queries/notificacoes";
 
@@ -33,7 +34,7 @@ export default function Notificacoes() {
   useEffect(() => {
     fetch("/api/notificacoes")
       .then(async (r) => {
-        if (r.status === 401) return router.replace("/entrar");
+        if (r.status === 401) return router.replace(entrar_e_voltar("/notificacoes"));
         if (!r.ok) throw new Error(String(r.status));
         definir_caixa(await r.json());
         definir_estado("pronto");
@@ -100,7 +101,7 @@ export default function Notificacoes() {
 
       {/* Com erro a caixa vazia nao quer dizer "nada chegou". */}
       {caixa.length === 0 && !erro && (
-        <Aviso>
+        <Aviso tom="neutro">
           Voce ainda nao tem notificacoes. Elas chegam quando aparece um
           anuncio dentro de uma area que voce monitora.
         </Aviso>

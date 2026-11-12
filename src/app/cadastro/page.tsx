@@ -72,6 +72,19 @@ const INTENCOES: { valor: Intencao; titulo: string; apoio: string }[] = [
   { valor: "quero_doar", titulo: "Quero colocar para adocao", apoio: "Quero encontrar um lar para o pet" },
 ];
 
+/**
+ * Para onde cada resposta leva. A pergunta so vale se a resposta muda o que
+ * vem depois: quem perdeu o pet tem pressa e vai ao alerta de fuga; quem
+ * achou ou quer doar ja entra na publicacao com o tipo marcado; quem quer
+ * adotar comeca vendo quem esta para adocao.
+ */
+const DESTINO_DA_INTENCAO: Record<Intencao, string> = {
+  perdi_pet: "/alerta",
+  achei_pet: "/publicar?tipo=encontrado",
+  quero_adotar: "/animais?tipo=adocao",
+  quero_doar: "/publicar?tipo=adocao",
+};
+
 export default function Cadastro() {
   const router = useRouter();
   const [passo, definir_passo] = useState<Passo>("intro");
@@ -186,8 +199,7 @@ export default function Cadastro() {
     });
 
     router.refresh();
-    // Quem chegou para adotar comeca vendo quem esta para adocao.
-    router.push(intencao === "quero_adotar" ? "/animais?tipo=adocao" : "/animais");
+    router.push(DESTINO_DA_INTENCAO[intencao]);
   }
 
   // ---------------------------------------------------------------- intro

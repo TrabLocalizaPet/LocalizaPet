@@ -347,7 +347,7 @@ export default function Detalhe() {
                   {animal.tipo_anuncio === "adocao"
                     ? "Ja encontrou um lar para ele?"
                     : "Ja reencontrou o pet?"}{" "}
-                  Encerrar tira o anuncio da listagem e da busca (RN-09).
+                  Encerrar tira o anuncio da lista e do mapa.
                 </p>
                 <Botao
                   aparencia="secundaria"

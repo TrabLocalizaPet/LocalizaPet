@@ -76,14 +76,16 @@ export function Aviso({
   tom = "erro",
   children,
 }: {
-  tom?: "erro" | "bom";
+  tom?: "erro" | "bom" | "neutro";
   children: ReactNode;
 }) {
   return (
     <p
       className={classes(
-        "my-3 rounded-[--radius-padrao] border border-borda border-l-4 bg-cartao px-3.5 py-3 text-sm",
-        tom === "erro" ? "border-l-perdido" : "border-l-adocao",
+        "my-3 rounded-[--radius-padrao] border border-borda bg-cartao px-3.5 py-3 text-sm",
+        tom !== "neutro" && "border-l-4",
+        tom === "erro" && "border-l-perdido",
+        tom === "bom" && "border-l-adocao",
       )}
     >
       {children}

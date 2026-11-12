@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AvisoDeContato } from "@/components/aviso-de-contato";
 import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import {
   Casca,
@@ -18,6 +19,7 @@ import { Botao, BotaoLink } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { CampoDeLinha } from "@/components/ui/campo-de-linha";
 import { Aviso } from "@/components/ui/tela";
+import { entrar_e_voltar } from "@/lib/destino";
 import { CENTRO_PADRAO } from "@/lib/geo";
 import { useMinhaLocalizacao } from "@/lib/geolocalizacao";
 import { digitos_ate } from "@/lib/mascaras";
@@ -131,10 +133,23 @@ export default function Publicar() {
   // anuncio precisa de um autor em `perfis`, e a /perfil termina o cadastro.
   useEffect(() => {
     fetch("/api/perfil").then((r) => {
-      if (r.status === 401) router.replace("/entrar");
+      if (r.status === 401) router.replace(entrar_e_voltar("/publicar"));
       if (r.status === 404) router.replace("/perfil");
     });
   }, [router]);
+
+  // `?tipo=` e o fim do cadastro dizendo o que a pessoa veio fazer ("Achei
+  // um pet", "Quero colocar para adocao"). Perguntar de novo na tela
+  // seguinte seria repetir a pergunta que ela acabou de responder; o tipo ja
+  // vem marcado e o passo dele fica para tras, a uma seta de distancia.
+  // Lido de `window.location` pelo mesmo motivo da Home (sem Suspense).
+  useEffect(() => {
+    const pedido = new URLSearchParams(window.location.search).get("tipo");
+    if (TIPOS.some((opcao) => opcao.tipo === pedido)) {
+      definir_tipo(pedido as TipoDeAnuncio);
+      definir_passo("nome");
+    }
+  }, []);
 
   const exige_local = tipo === "perdido" || tipo === "encontrado";
 
@@ -205,7 +220,7 @@ export default function Publicar() {
       return;
     }
 
-    if (resposta.status === 401) return router.replace("/entrar");
+    if (resposta.status === 401) return router.replace(entrar_e_voltar("/publicar"));
     if (resposta.status === 409) return router.replace("/perfil");
 
     if (!resposta.ok) {
@@ -273,7 +288,13 @@ export default function Publicar() {
             com sucesso!
           </h1>
           <p className="mt-[1dvh] max-w-72 text-sm text-suave">
-            Agora voce e seu amigo tem acesso a todas as funcoes do aplicativo.
+            {
+              {
+                perdido: "O anuncio ja aparece no mapa e na lista. Tomara que ele volte logo!",
+                encontrado: "O anuncio ja aparece no mapa e na lista para o tutor encontrar.",
+                adocao: "O anuncio ja aparece na lista para quem quer adotar.",
+              }[tipo ?? "perdido"]
+            }
           </p>
         </div>
 
@@ -297,9 +318,13 @@ export default function Publicar() {
   const PERGUNTA = {
     tipo: { titulo: "O que te trouxe aqui?", apoio: null, pronto: tipo !== null },
     nome: {
-      titulo: "Qual o nome do pet?",
-      apoio: "Esse nome ira aparecer junto ao perfil do seu pet!",
-      // RN-04: quem acha um animal na rua nao sabe o nome.
+      // RN-04: quem acha um animal na rua nao sabe o nome — e a pergunta
+      // escrita para o dono fazia parecer que era obrigatorio.
+      titulo: tipo === "encontrado" ? "Sabe o nome do pet?" : "Qual o nome do pet?",
+      apoio:
+        tipo === "encontrado"
+          ? "Se a coleira tiver um nome, escreva aqui. Se nao, pode seguir sem responder."
+          : "Esse nome ira aparecer junto ao perfil do seu pet!",
       pronto: true,
     },
     especie: {
@@ -323,13 +348,16 @@ export default function Publicar() {
       pronto: true,
     },
     local: {
-      titulo:
-        tipo === "adocao"
-          ? "Aonde esse pet se encontra?"
-          : "Onde o pet foi visto pela ultima vez?",
-      apoio: exige_local
-        ? "Precisamos saber a ultima localizacao para ajudar na busca do pet."
-        : "Opcional para adocao, mas e assim que te encontram por perto.",
+      titulo: {
+        perdido: "Onde o pet foi visto pela ultima vez?",
+        encontrado: "Onde voce encontrou o pet?",
+        adocao: "Aonde esse pet se encontra?",
+      }[tipo ?? "perdido"],
+      apoio: {
+        perdido: "Precisamos saber a ultima localizacao para ajudar na busca do pet.",
+        encontrado: "E por perto daqui que o tutor vai procurar.",
+        adocao: "Opcional para adocao, mas e assim que te encontram por perto.",
+      }[tipo ?? "perdido"],
       pronto: !exige_local || local !== null,
     },
   }[passo];
@@ -533,7 +561,9 @@ export default function Publicar() {
         </div>
       )}
 
-      <div className="mt-auto px-8 pt-8 pb-10">
+      <div className="mt-auto grid gap-4 px-8 pt-8 pb-10">
+        {/* No ultimo passo, antes do Publicar: e ai que a pessoa decide. */}
+        {ultimo && <AvisoDeContato />}
         <Botao
           largo
           disabled={!PERGUNTA.pronto || enviando}

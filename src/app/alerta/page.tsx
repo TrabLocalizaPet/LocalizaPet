@@ -4,12 +4,14 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { AvisoDeContato } from "@/components/aviso-de-contato";
 import { BotaoDeLocalizacao } from "@/components/botao-de-localizacao";
 import { Casca, TituloDoPasso, Topo } from "@/components/passo";
 import { SeletorDeFotos } from "@/components/seletor-de-fotos";
 import { Botao } from "@/components/ui/botao";
 import { Campo, CampoLongo, Selecao } from "@/components/ui/campo";
 import { Aviso } from "@/components/ui/tela";
+import { entrar_e_voltar } from "@/lib/destino";
 import { para_data_hora_local } from "@/lib/formato";
 import { CENTRO_PADRAO } from "@/lib/geo";
 import { useMinhaLocalizacao } from "@/lib/geolocalizacao";
@@ -69,7 +71,7 @@ export default function AlertaDeFuga() {
   // completar o cadastro — antes de preencher, e nao depois.
   useEffect(() => {
     fetch("/api/perfil").then((r) => {
-      if (r.status === 401) router.replace("/entrar");
+      if (r.status === 401) router.replace(entrar_e_voltar("/alerta"));
       if (r.status === 404) router.replace("/perfil");
     });
   }, [router]);
@@ -120,7 +122,7 @@ export default function AlertaDeFuga() {
       return;
     }
 
-    if (resposta.status === 401) return router.replace("/entrar");
+    if (resposta.status === 401) return router.replace(entrar_e_voltar("/alerta"));
     if (resposta.status === 409) return router.replace("/perfil");
 
     if (!resposta.ok) {
@@ -223,7 +225,8 @@ export default function AlertaDeFuga() {
         />
       </div>
 
-      <div className="mt-auto px-8 pt-8 pb-10">
+      <div className="mt-auto grid gap-4 px-8 pt-8 pb-10">
+        <AvisoDeContato />
         <Botao largo disabled={!pronto || enviando} onClick={publicar}>
           {enviando ? "Publicando..." : "Publicar alerta"}
         </Botao>
